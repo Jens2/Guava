@@ -32,7 +32,8 @@ expr    : expr PLUS expr        #addExpr
         | expr NE expr          #neExpr
         | LPAR expr RPAR        #parExpr
         | NOT expr              #notExpr
-        | (NUM | TRUE | FALSE)  #constExpr
+        | NUM                   #numExpr
+        | BOOL                  #boolExpr
         | ID                    #idExpr
         ;
 
@@ -50,33 +51,34 @@ update  : var PLUS PLUS     #incrVar
         ;
 
 // The basic types
-type : INT | BOOL | DOUBLE;
+type : INT | BOOL | DOUBLE | CHAR ;
 
 // Simple characters
-DOT     : '.';
-COMMA   : ',';
-SEMI    : ';';
+DOT     : '.'  ;
+COMMA   : ','  ;
+SEMI    : ';'  ;
+SQUOTE  : '\'' ;
 
 // Arithmetic operations
-DIV     : '/';
-MULT    : '*';
-PLUS    : '+';
-MINUS   : '-';
-POWER   : '^';
+DIV     : '/' ;
+MULT    : '*' ;
+PLUS    : '+' ;
+MINUS   : '-' ;
+POWER   : '^' ;
 
 // Assign operation
-ASSIGN  : '=';
+ASSIGN  : '=' ;
 
 // Boolean operations
-NOT     : '~'   ;
-OR      : '|'   ;
-AND     : '&'   ;
-EQ      : '=='  ;
-LT      : '<'   ;
-LE      : '<='  ;
-GT      : '>'   ;
-GE      : '>='  ;
-NE      : '~='  ;
+NOT     : '~'  ;
+OR      : '|'  ;
+AND     : '&'  ;
+EQ      : '==' ;
+LT      : '<'  ;
+LE      : '<=' ;
+GT      : '>'  ;
+GE      : '>=' ;
+NE      : '~=' ;
 
 // Brackets and parentheses
 LBRACK  : '{';
@@ -95,23 +97,25 @@ WHILE   : 'while'   ;
 INT     : 'int'     ;
 DOUBLE  : 'double'  ;
 CHAR    : 'char'    ;
-BOOL    : 'pulp'    ;
+BOOLEAN : 'pulp'    ;
 TRUE    : 'sweet'   ;
 FALSE   : 'sour'    ;
 FORK    : 'fork'    ;
 JOIN    : 'join'    ;
 
 // Fragments
-fragment LETTER : [a-zA-Z]  ;
-fragment DIGIT  : [0-9]     ;
+fragment LETTER : [a-zA-Z] ;
+fragment DIGIT  : [0-9]    ;
 
 // Useful character compositions for identifiers (variables),
 // strings, and numbers.
-DECIMAL : NUMERIC DOT NUMERIC       ;
-NUMERIC : DIGIT+                    ;
-NUM     : DECIMAL | NUMERIC         ;
-ID      : LETTER (LETTER | DIGIT)*  ;
-STRING  : '"' (~[\\"] | '\\'.)* '"' ;
+DECIMAL   : NUMERIC DOT NUMERIC       ;
+NUMERIC   : DIGIT+                    ;
+NUM       : DECIMAL | NUMERIC         ;
+BOOL      : TRUE | FALSE              ;
+ID        : LETTER (LETTER | DIGIT)*  ;
+CHARACTER : SQUOTE LETTER SQUOTE      ;
+STRING    : '"' (~[\\"] | '\\'.)* '"' ;
 
 // Comments and whitespaces are skipped
 COMMENTBLOCK    : '>~' .*? '~<' -> skip ;
