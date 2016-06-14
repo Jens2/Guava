@@ -1,0 +1,9 @@
+int a = 0;
+char c = 'b';
+pulp b = sour;
+fork;
+while (!b) {
+    a++;
+    b = sweet;
+}
+join;
