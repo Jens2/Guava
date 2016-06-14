@@ -11,5 +11,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
  *
  */
 public class Guava extends GuavaBaseVisitor {
+    public static void main(String[] args) {
+    }
 
 }
