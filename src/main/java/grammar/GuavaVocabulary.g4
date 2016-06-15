@@ -44,13 +44,14 @@ BOOLEAN   : 'pulp'    ;
 STRING    : 'String'  ;
 
 // Data values
-NUM     : DIGIT+                          ;
-BOOL    : TRUE | FALSE                    ;
-CHAR    : SQUOTE LETTER SQUOTE            ;
-DECIMAL : NUM DOT NUM                     ;
-STR     : DQUOTE (~[\\"] | '\\'.)* DQUOTE ;
-TRUE    : 'sweet'                         ;
-FALSE   : 'sour'                          ;
+CONST : NUM | BOOL | CHAR | DEC | STR   ;
+NUM   : '0' | [1-9]+                    ;
+BOOL  : TRUE | FALSE                    ;
+CHAR  : SQUOTE LETTER SQUOTE            ;
+DEC   : DIGIT* DOT DIGIT+               ;
+STR   : DQUOTE (~[\\"] | '\\'.)* DQUOTE ;
+TRUE  : 'sweet'                         ;
+FALSE : 'sour'                          ;
 
 // Keywords
 EPIC    : 'epicarp' ; //Main function
@@ -58,7 +59,7 @@ IF      : 'if'      ;
 ELSE    : 'else'    ;
 FOR     : 'for'     ;
 WHILE   : 'while'   ;
-FORK    : 'fork'    ;
+FORK    : 'branch'  ;
 JOIN    : 'join'    ;
 
 // Fragments
