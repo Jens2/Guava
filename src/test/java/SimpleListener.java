@@ -3,7 +3,7 @@ import org.antlr.v4.runtime.tree.ErrorNode;
 
 /**
  * Created by Jens on 15-6-2016.
- * This class is used to only check for parse errors.
+ * This class is only used to check for parse errors.
  */
 public class SimpleListener extends GuavaBaseListener {
 
