@@ -19,7 +19,8 @@ stat    : type ID (ASSIGN expr)? SEMI                       #declStat
                    (ID ASSIGN expr |
                     ID PLUS PLUS |
                     ID MINUS MINUS) RPAR stat               #forStat
-        | FORK LBRACK stat* RBRACK                          #forkStat
+        | OUT LPAR STR (COMMA ID)* RPAR SEMI                #printStat
+        | FORK stat*                                        #forkStat
         | JOIN SEMI                                         #joinStat
         ;
 
@@ -39,7 +40,7 @@ expr    : NOT expr        #notExpr
         | expr GE expr    #geExpr
         | expr NE expr    #neExpr
         | LPAR expr RPAR  #parExpr
-        | CONST           #constExpr
+        | (CONST | STR)   #constExpr
         | ID              #idExpr
         ;
 

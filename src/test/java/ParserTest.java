@@ -51,6 +51,7 @@ public class ParserTest {
         for (int i = 0; i < PATH.length(); i++) {
             sb.setCharAt(i, '*');
         }
+
         String result = sb.toString().replaceAll("[*]", "");
 
         if (!getError(fileName)) {

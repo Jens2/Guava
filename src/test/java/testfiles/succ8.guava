@@ -1,3 +1,14 @@
 epicarp {
+    pulp a = 1 > 2;
+    pulp b = 2 < 3;
+    pulp c = 1 >= 4;
+    pulp d = 5 <= 9;
+    pulp e = 8 == 8;
+
+    if (a & b & c & d & e) {
+        drop("All sweet!");
+    } else {
+        drop("Some sour, unfortunately!");
+    }
     
 }

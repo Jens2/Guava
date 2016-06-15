@@ -44,12 +44,12 @@ BOOLEAN   : 'pulp'    ;
 STRING    : 'string'  ;
 
 // Data values
-CONST : NUM | BOOL | CHAR | DEC | STR   ;
+CONST : NUM | BOOL | CHAR | DEC         ;
 NUM   : '0' | DIGIT19 DIGIT09*          ;
 BOOL  : TRUE | FALSE                    ;
 CHAR  : SQUOTE LETTER SQUOTE            ;
 DEC   : DIGIT09* DOT DIGIT09+           ;
-STR   : DQUOTE (~[\\"] | '\\'.)* DQUOTE ;
+STR   : DQUOTE (~["\\] | '\\'.)* DQUOTE ;
 TRUE  : 'sweet'                         ;
 FALSE : 'sour'                          ;
 
@@ -61,6 +61,7 @@ FOR     : 'for'     ;
 WHILE   : 'while'   ;
 FORK    : 'branch'  ;
 JOIN    : 'join'    ;
+OUT     : 'drop'     ;
 
 // Fragments
 fragment LETTER  : [a-zA-Z] ;
