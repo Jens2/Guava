@@ -47,4 +47,4 @@ expr    : NOT expr                            #notExpr
 var     : ID ;
 
 // The basic types
-type : INT | BOOLEAN | DOUBLE | CHARACTER ;
+type : INT | BOOLEAN | DOUBLE | CHARACTER | STRING;

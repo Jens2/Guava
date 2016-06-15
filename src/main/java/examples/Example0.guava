@@ -1,13 +1,15 @@
->> Comment
->~
-comment
-~<
-int a = 0;
-char c = 'b';
-pulp b = sour;
-for;
-while (!b) {
-    a++;
-    b = sweet;
+epicarp {
+    >> Comment
+    >~
+    comment
+    ~<
+    int a = 0;
+    char c = 'b';
+    pulp b = sour;
+    while (~b) {
+        b = sweet;
+    }
+    int b;
+    b = (a * 33)^2;
+    b = b + 1;
 }
-join;
