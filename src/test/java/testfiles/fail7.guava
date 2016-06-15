@@ -1,0 +1,5 @@
+epicarp {
+    while {
+        int i = 0;
+    }
+}
