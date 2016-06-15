@@ -6,7 +6,7 @@ import GuavaVocabulary;
 program : EPIC body;
 
 // Body of the program
-body    : LBRACK stat+ RBRACK;
+body    : LBRACK stat* RBRACK;
 
 // All possible statements in the language
 stat    : type ID (ASSIGN expr)? SEMI                       #declStat
@@ -15,8 +15,12 @@ stat    : type ID (ASSIGN expr)? SEMI                       #declStat
         | LBRACK stat* RBRACK                               #blockStat
         | WHILE LPAR expr RPAR stat                         #whileStat
         | FOR LPAR type? ID (ASSIGN expr)? SEMI
-                    expr SEMI
-                    ID ASSIGN expr RPAR stat                #forStat
+                   expr SEMI
+                   (ID ASSIGN expr |
+                    ID PLUS PLUS |
+                    ID MINUS MINUS) RPAR stat               #forStat
+        | FORK LBRACK stat* RBRACK                          #forkStat
+        | JOIN SEMI                                         #joinStat
         ;
 
 // All possible expressions in the language
@@ -43,4 +47,4 @@ expr    : NOT expr        #notExpr
 var     : ID ;
 
 // The basic types
-type : INT | BOOLEAN | DOUBLE | CHARACTER | STRING ;
+type    : INT | BOOLEAN | DOUBLE | CHARACTER | STRING ;

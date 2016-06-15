@@ -41,14 +41,14 @@ INT       : 'int'     ;
 DOUBLE    : 'double'  ;
 CHARACTER : 'char'    ;
 BOOLEAN   : 'pulp'    ;
-STRING    : 'String'  ;
+STRING    : 'string'  ;
 
 // Data values
 CONST : NUM | BOOL | CHAR | DEC | STR   ;
-NUM   : '0' | [1-9]+                    ;
+NUM   : '0' | DIGIT19 DIGIT09*          ;
 BOOL  : TRUE | FALSE                    ;
 CHAR  : SQUOTE LETTER SQUOTE            ;
-DEC   : DIGIT* DOT DIGIT+               ;
+DEC   : DIGIT09* DOT DIGIT09+           ;
 STR   : DQUOTE (~[\\"] | '\\'.)* DQUOTE ;
 TRUE  : 'sweet'                         ;
 FALSE : 'sour'                          ;
@@ -63,11 +63,12 @@ FORK    : 'branch'  ;
 JOIN    : 'join'    ;
 
 // Fragments
-fragment LETTER : [a-zA-Z] ;
-fragment DIGIT  : [0-9]    ;
+fragment LETTER  : [a-zA-Z] ;
+fragment DIGIT09 : [0-9]    ;
+fragment DIGIT19 : [1-9]    ;
 
 // Useful character compositions for identifiers (variables)
-ID        : LETTER (LETTER | DIGIT)*  ;
+ID        : LETTER (LETTER | DIGIT09)*  ;
 
 // Comments and whitespaces are skipped
 COMMENTBLOCK    : '>~' .*? '~<' -> skip ;

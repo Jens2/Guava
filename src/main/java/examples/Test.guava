@@ -1,11 +1,15 @@
 epicarp {
     int j = 0;
     char test = 'b';
-    String djeng = "rekt";
+    string djeng = "rekt";
     pulp guava = sour;
 
-    for (int i = 0; j < 10; i++) {
-        j = i;
-
+    branch {
+        for (int i = 0; j < 10; i++) {
+            j = i;
+        }
     }
+
+    join;
+
 }
