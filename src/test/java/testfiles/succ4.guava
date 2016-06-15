@@ -1,3 +1,8 @@
 epicarp {
-    
+    pulp fiction = sweet;
+    if (r >= 10) {
+        fiction = sour;
+    } else if (r ~= 10) {
+        fiction = sweet;
+    }
 }

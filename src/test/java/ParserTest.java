@@ -18,31 +18,31 @@ public class ParserTest {
 
     @Test
     public void test() {
-//        fails(PATH +    "fail0.guava");
-//        fails(PATH +    "fail1.guava");
-//        fails(PATH +    "fail2.guava");
-//        fails(PATH +    "fail3.guava");
-//        fails(PATH +    "fail4.guava");
-//        fails(PATH +    "fail5.guava");
-//        fails(PATH +    "fail6.guava");
+        fails(PATH +    "fail0.guava");
+        fails(PATH +    "fail1.guava");
+        fails(PATH +    "fail2.guava");
+        fails(PATH +    "fail3.guava");
+        fails(PATH +    "fail4.guava");
+        fails(PATH +    "fail5.guava");
+        fails(PATH +    "fail6.guava");
         fails(PATH +    "fail7.guava");
-//        fails(PATH +    "fail8.guava");
-//        fails(PATH +    "fail9.guava");
-//        fails(PATH +    "fail10.guava");
-//        fails(PATH +    "fail11.guava");
-//
-//        succeeds(PATH + "succ0.guava");
-//        succeeds(PATH + "succ1.guava");
-//        succeeds(PATH + "succ2.guava");
-//        succeeds(PATH + "succ3.guava");
-//        succeeds(PATH + "succ4.guava");
-//        succeeds(PATH + "succ5.guava");
-//        succeeds(PATH + "succ6.guava");
-//        succeeds(PATH + "succ7.guava");
-//        succeeds(PATH + "succ8.guava");
-//        succeeds(PATH + "succ9.guava");
-//        succeeds(PATH + "succ10.guava");
-//        succeeds(PATH + "succ11.guava");
+        fails(PATH +    "fail8.guava");
+        fails(PATH +    "fail9.guava");
+        fails(PATH +    "fail10.guava");
+        fails(PATH +    "fail11.guava");
+
+        succeeds(PATH + "succ0.guava");
+        succeeds(PATH + "succ1.guava");
+        succeeds(PATH + "succ2.guava");
+        succeeds(PATH + "succ3.guava");
+        succeeds(PATH + "succ4.guava");
+        succeeds(PATH + "succ5.guava");
+        succeeds(PATH + "succ6.guava");
+        succeeds(PATH + "succ7.guava");
+        succeeds(PATH + "succ8.guava");
+        succeeds(PATH + "succ9.guava");
+        succeeds(PATH + "succ10.guava");
+        succeeds(PATH + "succ11.guava");
     }
 
     /** This method checks whether the given file fails like it should. */
