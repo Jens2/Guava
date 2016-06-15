@@ -29,7 +29,7 @@ public class LexerTest {
         test("])[   (} <=> >=~={ |==<&", test4);
         // Testing multiple keywords, note that without whitespaces, they will be seen as variables
         int[] test5 = {33,41,37,35,36,30,25,28,31,27,26,32,29,34};
-        test("pulp pulpp join sour fork int epicarp for double else if char while sweet", test5);
+        test("pulp pulpp join sour branch int epicarp for double else if char while sweet", test5);
         // Testing the more complicated lexer rules
         int[] test6 = {38, 39, 42};
         test("1.5 28 \"string\"", test6);

@@ -52,11 +52,6 @@ public class Guava extends GuavaBaseVisitor {
         return super.visitForStat(ctx);
     }
 
-    @Override
-    public Object visitUpdateStat(GuavaParser.UpdateStatContext ctx) {
-        return super.visitUpdateStat(ctx);
-    }
-
     /** All boolean expressions. */
     @Override
     public Object visitEqExpr(GuavaParser.EqExprContext ctx) {
@@ -144,28 +139,6 @@ public class Guava extends GuavaBaseVisitor {
     @Override
     public Object visitIdExpr(GuavaParser.IdExprContext ctx) {
         return super.visitIdExpr(ctx);
-    }
-
-    /** Body of the for statement. */
-    @Override
-    public Object visitForAssign(GuavaParser.ForAssignContext ctx) {
-        return super.visitForAssign(ctx);
-    }
-
-    @Override
-    public Object visitForVar(GuavaParser.ForVarContext ctx) {
-        return super.visitForVar(ctx);
-    }
-
-    /** Increment and decrement a variable. */
-    @Override
-    public Object visitIncrVar(GuavaParser.IncrVarContext ctx) {
-        return super.visitIncrVar(ctx);
-    }
-
-    @Override
-    public Object visitDecrVar(GuavaParser.DecrVarContext ctx) {
-        return super.visitDecrVar(ctx);
     }
 
     /** Variables and types. */
