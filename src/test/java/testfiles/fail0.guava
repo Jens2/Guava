@@ -3,4 +3,7 @@ epicapr {
     int i = 0;
     char c = 'a';
     string s = "hoi";
+    while (sour) {
+        int i = 0;
+    }
 }
