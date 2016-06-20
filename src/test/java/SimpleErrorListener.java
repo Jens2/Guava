@@ -5,11 +5,11 @@ import org.antlr.v4.runtime.tree.ErrorNode;
  * Created by Jens on 15-6-2016.
  * This class is only used to check for parse errors, it is not a test class.
  */
-public class SimpleListener extends GuavaBaseListener {
+public class SimpleErrorListener extends GuavaBaseListener {
 
     private boolean error;
 
-    public SimpleListener() {
+    public SimpleErrorListener() {
         this.error = false;
     }
 

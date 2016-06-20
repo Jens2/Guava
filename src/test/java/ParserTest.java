@@ -88,7 +88,7 @@ public class ParserTest {
         Lexer lexer = new GuavaLexer(charStream);
         TokenStream tokenStream = new CommonTokenStream(lexer);
         GuavaParser parser = new GuavaParser(tokenStream);
-        SimpleListener listener = new SimpleListener();
+        SimpleErrorListener listener = new SimpleErrorListener();
         ParseTreeWalker walker = new ParseTreeWalker();
 
         walker.walk(listener, parser.program());

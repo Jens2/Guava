@@ -1,9 +1,0 @@
-epicarp {
-    int varA = 0;
-    int varB = 10;
-
-    for (int i = 0; i < varB; i++) {
-        varA = varA + varB;
-    }
-
-}

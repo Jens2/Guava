@@ -1,5 +1,0 @@
-epicarp {
-    for (int i = 2; i < 38; int i = i + 5) {
-        >> You obviously can't assign something in the third section of a for loop.
-    }
-}

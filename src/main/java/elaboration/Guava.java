@@ -18,6 +18,7 @@ public class Guava extends GuavaBaseVisitor {
     /** Body of the program. */
     @Override
     public Object visitBody(GuavaParser.BodyContext ctx) {
+        int[] poep = {1+2, 0};
         return super.visitBody(ctx);
     }
 
@@ -27,10 +28,10 @@ public class Guava extends GuavaBaseVisitor {
         return super.visitBlockStat(ctx);
     }
 
-    @Override
-    public Object visitDeclStat(GuavaParser.DeclStatContext ctx) {
-        return super.visitDeclStat(ctx);
-    }
+//    @Override
+//    public Object visitDeclStat(GuavaParser.DeclStatContext ctx) {
+//        return super.visitDeclStat(ctx);
+//    }
 
     @Override
     public Object visitAssignStat(GuavaParser.AssignStatContext ctx) {
@@ -52,77 +53,77 @@ public class Guava extends GuavaBaseVisitor {
         return super.visitForStat(ctx);
     }
 
-    /** All boolean expressions. */
-    @Override
-    public Object visitEqExpr(GuavaParser.EqExprContext ctx) {
-        return super.visitEqExpr(ctx);
-    }
+//    /** All boolean expressions. */
+//    @Override
+//    public Object visitEqExpr(GuavaParser.EqExprContext ctx) {
+//        return super.visitEqExpr(ctx);
+//    }
+//
+//    @Override
+//    public Object visitGtExpr(GuavaParser.GtExprContext ctx) {
+//        return super.visitGtExpr(ctx);
+//    }
+//
+//    @Override
+//    public Object visitGeExpr(GuavaParser.GeExprContext ctx) {
+//        return super.visitGeExpr(ctx);
+//    }
+//
+//    @Override
+//    public Object visitLtExpr(GuavaParser.LtExprContext ctx) {
+//        return super.visitLtExpr(ctx);
+//    }
+//
+//    @Override
+//    public Object visitLeExpr(GuavaParser.LeExprContext ctx) {
+//        return super.visitLeExpr(ctx);
+//    }
+//
+//    @Override
+//    public Object visitNeExpr(GuavaParser.NeExprContext ctx) {
+//        return super.visitNeExpr(ctx);
+//    }
+//
+//    @Override
+//    public Object visitAndExpr(GuavaParser.AndExprContext ctx) {
+//        return super.visitAndExpr(ctx);
+//    }
+//
+//    @Override
+//    public Object visitOrExpr(GuavaParser.OrExprContext ctx) {
+//        return super.visitOrExpr(ctx);
+//    }
+//
+//    @Override
+//    public Object visitNotExpr(GuavaParser.NotExprContext ctx) {
+//        return super.visitNotExpr(ctx);
+//    }
 
-    @Override
-    public Object visitGtExpr(GuavaParser.GtExprContext ctx) {
-        return super.visitGtExpr(ctx);
-    }
-
-    @Override
-    public Object visitGeExpr(GuavaParser.GeExprContext ctx) {
-        return super.visitGeExpr(ctx);
-    }
-
-    @Override
-    public Object visitLtExpr(GuavaParser.LtExprContext ctx) {
-        return super.visitLtExpr(ctx);
-    }
-
-    @Override
-    public Object visitLeExpr(GuavaParser.LeExprContext ctx) {
-        return super.visitLeExpr(ctx);
-    }
-
-    @Override
-    public Object visitNeExpr(GuavaParser.NeExprContext ctx) {
-        return super.visitNeExpr(ctx);
-    }
-
-    @Override
-    public Object visitAndExpr(GuavaParser.AndExprContext ctx) {
-        return super.visitAndExpr(ctx);
-    }
-
-    @Override
-    public Object visitOrExpr(GuavaParser.OrExprContext ctx) {
-        return super.visitOrExpr(ctx);
-    }
-
-    @Override
-    public Object visitNotExpr(GuavaParser.NotExprContext ctx) {
-        return super.visitNotExpr(ctx);
-    }
-
-    /** All arithmetic expressions. */
-    @Override
-    public Object visitAddExpr(GuavaParser.AddExprContext ctx) {
-        return super.visitAddExpr(ctx);
-    }
-
-    @Override
-    public Object visitMinusExpr(GuavaParser.MinusExprContext ctx) {
-        return super.visitMinusExpr(ctx);
-    }
+//    /** All arithmetic expressions. */
+//    @Override
+//    public Object visitAddExpr(GuavaParser.AddExprContext ctx) {
+//        return super.visitAddExpr(ctx);
+//    }
+//
+//    @Override
+//    public Object visitMinusExpr(GuavaParser.MinusExprContext ctx) {
+//        return super.visitMinusExpr(ctx);
+//    }
 
     @Override
     public Object visitMultExpr(GuavaParser.MultExprContext ctx) {
         return super.visitMultExpr(ctx);
     }
 
-    @Override
-    public Object visitDivExpr(GuavaParser.DivExprContext ctx) {
-        return super.visitDivExpr(ctx);
-    }
-
-    @Override
-    public Object visitPowExpr(GuavaParser.PowExprContext ctx) {
-        return super.visitPowExpr(ctx);
-    }
+//    @Override
+//    public Object visitDivExpr(GuavaParser.DivExprContext ctx) {
+//        return super.visitDivExpr(ctx);
+//    }
+//
+//    @Override
+//    public Object visitPowExpr(GuavaParser.PowExprContext ctx) {
+//        return super.visitPowExpr(ctx);
+//    }
 
     /** Expression within parentheses. */
     @Override
@@ -141,14 +142,14 @@ public class Guava extends GuavaBaseVisitor {
         return super.visitIdExpr(ctx);
     }
 
-    /** Variables and types. */
-    @Override
-    public Object visitVar(GuavaParser.VarContext ctx) {
-        return super.visitVar(ctx);
-    }
+//    /** Variables and types. */
+//    @Override
+//    public Object visitVar(GuavaParser.VarContext ctx) {
+//        return super.visitVar(ctx);
+//    }
 
-    @Override
-    public Object visitType(GuavaParser.TypeContext ctx) {
-        return super.visitType(ctx);
-    }
+//    @Override
+//    public Object visitType(GuavaParser.TypeContext ctx) {
+//        return super.visitType(ctx);
+//    }
 }

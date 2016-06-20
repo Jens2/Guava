@@ -44,7 +44,6 @@ BOOLEAN   : 'pulp'    ;
 STRING    : 'string'  ;
 
 // Data values
-CONST : NUM | BOOL | CHAR | DEC         ;
 NUM   : '0' | DIGIT19 DIGIT09*          ;
 BOOL  : TRUE | FALSE                    ;
 CHAR  : SQUOTE LETTER SQUOTE            ;

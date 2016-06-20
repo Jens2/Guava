@@ -1,0 +1,14 @@
+epicarp {
+    int result = 0;
+
+    for (int i = 0; i < 10; i++) {
+        result = result + i;
+    }
+
+    result = 0;
+
+    int j = 0;
+    for (j; j < 10; j = j + 1) {
+        result = result + j;
+    }
+}

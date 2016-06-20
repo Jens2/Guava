@@ -1,9 +1,0 @@
-epicapr {
-    >> Doesn't really matter what this is, since the epicarp is spelled incorrectly
-    int i = 0;
-    char c = 'a';
-    string s = "hoi";
-    while (sour) {
-        int i = 0;
-    }
-}

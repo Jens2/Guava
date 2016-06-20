@@ -9,12 +9,13 @@ program : EPIC body;
 body    : LBRACK stat* RBRACK;
 
 // All possible statements in the language
-stat    : type ID (ASSIGN expr)? SEMI                       #declStat
-        | var ASSIGN expr SEMI                              #assignStat
+stat    : type ID (ASSIGN expr)? SEMI                       #varDeclStat
+        | type LSQBR NUM RSQBR ID (ASSIGN expr)? SEMI       #arrayDeclStat
+        | ID ASSIGN expr SEMI                               #assignStat
         | IF LPAR expr RPAR stat (ELSE stat)?               #ifStat
         | LBRACK stat* RBRACK                               #blockStat
         | WHILE LPAR expr RPAR stat                         #whileStat
-        | FOR LPAR type? ID (ASSIGN expr)? SEMI
+        | FOR LPAR forAss SEMI
                    expr SEMI
                    (ID ASSIGN expr |
                     ID PLUS PLUS |
@@ -25,27 +26,35 @@ stat    : type ID (ASSIGN expr)? SEMI                       #declStat
         ;
 
 // All possible expressions in the language
-expr    : NOT expr        #notExpr
-        | expr PLUS expr  #addExpr
-        | expr MINUS expr #minusExpr
-        | expr MULT expr  #multExpr
-        | expr DIV expr   #divExpr
-        | expr POWER expr #powExpr
-        | expr AND expr   #andExpr
-        | expr OR expr    #orExpr
-        | expr EQ expr    #eqExpr
-        | expr LT expr    #ltExpr
-        | expr LE expr    #leExpr
-        | expr GT expr    #gtExpr
-        | expr GE expr    #geExpr
-        | expr NE expr    #neExpr
-        | LPAR expr RPAR  #parExpr
-        | (CONST | STR)   #constExpr
-        | ID              #idExpr
+expr    : prfOp expr                        #prfExpr
+        | expr multOp expr                  #multExpr
+        | expr plusOp expr                  #plusExpr
+        | expr boolOp expr                  #boolExpr
+        | expr compOp expr                  #compExpr
+        | LPAR expr RPAR                    #parExpr
+        | LSQBR (expr (COMMA expr)*)? RSQBR #arrayExpr
+        | (NUM | BOOL | CHAR | DEC | STR)   #constExpr
+        | ID                                #idExpr
         ;
 
-// Variable
-var     : ID ;
+forAss  : type ID (ASSIGN expr) #forDecl
+        | ID                    #forExisting
+        ;
+
+prfOp   : MINUS | NOT ;
+
+multOp  : MULT | DIV | POWER ;
+
+plusOp  : PLUS | MINUS ;
+
+boolOp  : AND | OR ;
+
+compOp  : LE | LT | GE | GT | EQ | NE ;
 
 // The basic types
-type    : INT | BOOLEAN | DOUBLE | CHARACTER | STRING ;
+type    : INT           #intType
+        | BOOLEAN       #boolType
+        | DOUBLE        #doubleType
+        | CHARACTER     #charType
+        | STRING        #stringType
+        ;
