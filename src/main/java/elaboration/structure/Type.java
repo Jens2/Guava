@@ -83,7 +83,7 @@ abstract public class Type {
         private final List<GuavaParser.ExprContext> elements;
         private final Type elemType;
 
-        Array(Type elemType, List<GuavaParser.ExprContext> elements) {
+        public Array(Type elemType, List<GuavaParser.ExprContext> elements) {
             super(PrimitiveTypes.ARRAY);
             this.elements = elements;
             this.elemType = elemType;

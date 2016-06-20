@@ -51,7 +51,7 @@ public class CheckerTest {
 
     @Test
     public void testFailBasicDeclarations() throws GuavaException {
-        checkFail("fail_basicdeclarations");
+        check(parse("fail_basicdeclarations"));
     }
 
     @Test

@@ -1,0 +1,11 @@
+epicarp {
+    int integer = 0;
+    
+    double decimal = 0.0;
+            
+    string str = "testing123";
+    
+    char character = 'h';
+    
+    int[5] array = [1, 2, 3, 4, 5];
+}

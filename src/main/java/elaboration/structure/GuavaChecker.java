@@ -9,7 +9,9 @@ import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Dion on 15-6-2016.
@@ -19,9 +21,11 @@ public class GuavaChecker extends GuavaBaseListener {
     private CheckerResult checkerResult;
     private VariableScope variableScope;
     private ParseTreeProperty<Integer> arrayLength;
+    private Map<String, Integer> arrayLengthDecl;
     private List<String> errors;
 
     public CheckerResult check(ParseTree tree) throws GuavaException {
+        this.arrayLengthDecl = new LinkedHashMap<>();
         this.arrayLength = new ParseTreeProperty<>();
         this.variableScope = new VariableScope();
         this.checkerResult = new CheckerResult();
@@ -35,13 +39,17 @@ public class GuavaChecker extends GuavaBaseListener {
 
     @Override
     public void exitVarDeclStat(GuavaParser.VarDeclStatContext ctx) {
-        setType(ctx.ID(), getType(ctx.type()));
-        setEntry(ctx, entry(ctx.expr()));
         if (contains(ctx.ID())) {
             addError(ctx, "Variable '%s' is already declared", ctx.ID());
         } else {
             addVariable(ctx.ID(), getType(ctx.type()));
         }
+
+        if (ctx.expr() != null) {
+            setEntry(ctx, entry(ctx.expr()));
+        }
+
+        setType(ctx.ID(), getType(ctx.type()));
     }
 
     @Override
@@ -49,7 +57,7 @@ public class GuavaChecker extends GuavaBaseListener {
         if (ctx.expr() != null) {
             setArrayLength(ctx.expr(), Integer.parseInt(ctx.NUM().getText()));
         } else {
-            setArrayLength(ctx, Integer.parseInt(ctx.NUM().getText()));
+            this.arrayLengthDecl.put(ctx.ID().getText(), Integer.parseInt(ctx.NUM().getText()));
         }
     }
 
@@ -59,28 +67,38 @@ public class GuavaChecker extends GuavaBaseListener {
         Type.Array exprType = (Type.Array) getType(ctx.expr());
 
         if (ctx.expr() != null) {
-            if (type.getElemType() == exprType.getElemType()) {
-                setType(ctx.ID(), type);
-            } else {
+            if (type.getElemType() != exprType.getElemType()) {
                 addError(ctx, "Expected type '%s' but found '%s'", type, getType(ctx.expr()));
             }
-        } else {
-            setArrayLength(ctx, Integer.parseInt(ctx.NUM().getText()));
+
+            setEntry(ctx, entry(ctx.expr()));
         }
+
+        setType(ctx.ID(), type);
 
         if (contains(ctx.ID())) {
             addError(ctx, "Variable '%s' is already declared", ctx.ID());
         } else {
-            addVariable(ctx.ID(), getType(ctx.type()));
+            addVariable(ctx.ID(), type);
         }
+    }
 
-        setEntry(ctx, entry(ctx.expr()));
+    @Override
+    public void enterAssignStat(GuavaParser.AssignStatContext ctx) {
+        if (variableType(ctx.ID()).getKind().equals(PrimitiveTypes.ARRAY)) {
+            setArrayLength(ctx.expr(), this.arrayLengthDecl.get(ctx.ID().getText()));
+        }
     }
 
     @Override
     public void exitAssignStat(GuavaParser.AssignStatContext ctx) {
-        if (variableType(ctx.ID()) != getType(ctx.expr())) {
-            addError(ctx, "Expected type '%s' but found '%s'", getType(ctx.ID()), getType(ctx.expr()));
+        if (ctx.getText().equals("array3=[1,2,3];")) {
+            System.out.println(variableType(ctx.ID()));
+            System.out.println(getType(ctx.expr()));
+        }
+
+        if (variableType(ctx.ID()) != (getType(ctx.expr()))) {
+            addError(ctx, "Expected type '%s' but found '%s'", variableType(ctx.ID()), getType(ctx.expr()));
         }
 
         setEntry(ctx, entry(ctx.expr()));
@@ -412,7 +430,7 @@ public class GuavaChecker extends GuavaBaseListener {
         this.arrayLength.put(node, length);
     }
 
-    private int getArrayLength(ParseTree node) {
+    private int getArrayLength(ParseTree node) throws NullPointerException {
         return this.arrayLength.get(node);
     }
 
