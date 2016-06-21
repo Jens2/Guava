@@ -8,7 +8,7 @@ public class SPRIL {
 
     /** This class contains all possible instructions. */
     /** Compute instruction.*/
-    public class COMP {
+    static public class COMP {
         private String operation = "Compute ";
         public COMP(Op op, int reg0, int reg1, int reg2) {
             operation = operation + op + " " + reg0 + " " + reg1 + " " + reg2;
@@ -19,7 +19,7 @@ public class SPRIL {
     }
 
     /** Load instruction.*/
-    public class LOAD {
+    static public class LOAD {
         private String operation = "Load ";
         public LOAD(MemAddr m, int addr, int reg) {
             operation = operation + "(" + m + " " + addr + ") " + reg;
@@ -30,7 +30,7 @@ public class SPRIL {
     }
 
     /** Store instruction.*/
-    public class STORE {
+    static public class STORE {
         private String operation = "Store ";
         public STORE(int reg, MemAddr m, int addr) {
             operation = operation + reg + " (" + m + " " + addr + ")";
@@ -41,7 +41,7 @@ public class SPRIL {
     }
 
     /** Branch instruction.*/
-    public class BRANCH {
+    static public class BRANCH {
         private String operation = "Branch ";
         public BRANCH(int reg, Target t, int addr) {
             operation = operation + reg + " (" + t + " " + addr + ")";
@@ -52,7 +52,7 @@ public class SPRIL {
     }
 
     /** Jump instruction.*/
-    public class JUMP {
+    static public class JUMP {
         private String operation = "Jump ";
         public JUMP(Target t, int addr) {
             operation = operation + "(" + t + " " + addr + ")";
@@ -63,7 +63,7 @@ public class SPRIL {
     }
 
     /** Push instruction.*/
-    public class PUSH {
+    static public class PUSH {
         private String operation = "Push ";
         public PUSH(int reg) {
             operation = operation + reg;
@@ -74,7 +74,7 @@ public class SPRIL {
     }
 
     /** Pop instruction.*/
-    public class POP {
+    static public class POP {
         private String operation = "Pop ";
         public POP(int reg) {
             operation = operation + reg;
@@ -85,7 +85,7 @@ public class SPRIL {
     }
 
     /** Read instruction.*/
-    public class READ {
+    static public class READ {
         private String operation = "Read ";
         public READ(MemAddr m, int addr) {
             operation = operation + "(" + m + " " + addr + ")";
@@ -96,7 +96,7 @@ public class SPRIL {
     }
 
     /** Receive instruction.*/
-    public class RECEIVE {
+    static public class RECEIVE {
         private String operation = "Receive ";
         public RECEIVE(int reg) {
             operation = operation + reg;
@@ -107,7 +107,7 @@ public class SPRIL {
     }
 
     /** Write instruction.*/
-    public class WRITE {
+    static public class WRITE {
         private String operation = "Write ";
         public WRITE(int reg, MemAddr m, int addr) {
             operation = operation + reg + " (" + m + " " + addr + ")";
@@ -118,7 +118,7 @@ public class SPRIL {
     }
 
     /** TestAndSet operation.*/
-    public class TAS {
+    static public class TAS {
         private String operation = "TestAndSet ";
         public TAS(MemAddr m, int addr) {
             operation = operation + "(" + m + " " + addr + ")";
@@ -129,7 +129,7 @@ public class SPRIL {
     }
 
     /** Nop instruction.*/
-    public class NOP {
+    static public class NOP {
         private String operation = "Nop";
         public String toString() {
             return operation;
@@ -137,7 +137,7 @@ public class SPRIL {
     }
 
     /** EndProg instruction.*/
-    public class ENDPROG {
+    static public class ENDPROG {
         private String operation = "EndProg";
         public String toString() {
             return operation;

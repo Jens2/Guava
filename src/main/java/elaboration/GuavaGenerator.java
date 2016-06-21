@@ -1,170 +1,300 @@
 package elaboration;
 
+import elaboration.structure.CheckerResult;
 import grammar.GuavaBaseVisitor;
 import grammar.GuavaParser;
+import instructions.MemAddr;
+import instructions.SPRIL;
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static instructions.SPRIL.*;
 
 /**
  * Created by Jens on 14-6-2016.
  *
  */
-public class GuavaGenerator extends GuavaBaseVisitor {
+public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
-    private PrintWriter writer;
+    private CheckerResult result;
+    private List<String> operations;
+    private ParseTreeProperty<Integer> registers;
+    private Map<String, Integer> varRegisters;
+    private ParseTreeProperty<ParserRuleContext> next;
+    private int regCount;
+    private static ParserRuleContext END;
+    private static final String NUM = "NUM";
+    private static final String DIR = "DIR";
+    private static final String IND = "IND";
 
-    private void init() {
-        try {
-            File file = new File("output.hs");
-            writer = new PrintWriter(file);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+
+    public GuavaGenerator(ParseTree tree, CheckerResult result) {
+        this.result = result;
+        operations = new ArrayList<>();
+        registers = new ParseTreeProperty<>();
+        varRegisters = new HashMap<>();
+        next = new ParseTreeProperty<>();
+        regCount = 1;
+        tree.accept(this);
+    }
+
+    /** Get the list of all operations.*/
+    public List<String> getOperations() {
+        return this.operations;
     }
 
     /** Start of the program. */
     @Override
-    public Object visitProgram(GuavaParser.ProgramContext ctx) {
-        init();
-        return super.visitProgram(ctx);
+    public String visitProgram(GuavaParser.ProgramContext ctx) {
+        END = ctx;
+        visitChildren(ctx);
+        addOp(new SPRIL.ENDPROG().toString());
+        return null;
     }
 
     /** Body of the program. */
     @Override
-    public Object visitBody(GuavaParser.BodyContext ctx) {
-        return super.visitBody(ctx);
+    public String visitBody(GuavaParser.BodyContext ctx) {
+        for (int i = 0; i < ctx.stat().size() - 1; i++) {
+            setNext(ctx.stat(i), result.getEntry(ctx.stat(i+1)));
+        }
+        setNext(ctx.stat(ctx.stat().size() - 1), END);
+        visitChildren(ctx);
+        return null;
     }
 
-    /** All statements in the program.*/
+    /** All stats of the program. */
     @Override
-    public Object visitBlockStat(GuavaParser.BlockStatContext ctx) {
-        return super.visitBlockStat(ctx);
-    }
-
-//    @Override
-//    public Object visitDeclStat(GuavaParser.DeclStatContext ctx) {
-//        return super.visitDeclStat(ctx);
-//    }
-
-    @Override
-    public Object visitAssignStat(GuavaParser.AssignStatContext ctx) {
-        return super.visitAssignStat(ctx);
-    }
-
-    @Override
-    public Object visitIfStat(GuavaParser.IfStatContext ctx) {
-        return super.visitIfStat(ctx);
-    }
-
-    @Override
-    public Object visitWhileStat(GuavaParser.WhileStatContext ctx) {
-        return super.visitWhileStat(ctx);
+    public String visitVarDeclStat(GuavaParser.VarDeclStatContext ctx) {
+        String var = ctx.ID().getText();
+        if (ctx.expr() != null) {
+            String s = visit(ctx.expr());
+            if (s.equals(NUM)) {
+                int i = Integer.parseInt(ctx.expr().getText());
+                addOp(new SPRIL.LOAD(MemAddr.ImmValue, i, reg(ctx.expr())).toString());
+            } else if (s.equals(DIR)) {
+                addOp(new SPRIL.LOAD(MemAddr.DirAddr, reg(ctx.expr()), reg(ctx.expr())).toString());
+            } else if (s.equals(IND)) {
+                addOp(new SPRIL.LOAD(MemAddr.IndAddr, reg(ctx.expr()), reg(ctx.expr())).toString());
+            }
+            setRegExplicit(var, reg(ctx.expr()));
+        }
+        return null;
     }
 
     @Override
-    public Object visitForStat(GuavaParser.ForStatContext ctx) {
-        return super.visitForStat(ctx);
-    }
-
-//    /** All boolean expressions. */
-//    @Override
-//    public Object visitEqExpr(GuavaParser.EqExprContext ctx) {
-//        return super.visitEqExpr(ctx);
-//    }
-//
-//    @Override
-//    public Object visitGtExpr(GuavaParser.GtExprContext ctx) {
-//        return super.visitGtExpr(ctx);
-//    }
-//
-//    @Override
-//    public Object visitGeExpr(GuavaParser.GeExprContext ctx) {
-//        return super.visitGeExpr(ctx);
-//    }
-//
-//    @Override
-//    public Object visitLtExpr(GuavaParser.LtExprContext ctx) {
-//        return super.visitLtExpr(ctx);
-//    }
-//
-//    @Override
-//    public Object visitLeExpr(GuavaParser.LeExprContext ctx) {
-//        return super.visitLeExpr(ctx);
-//    }
-//
-//    @Override
-//    public Object visitNeExpr(GuavaParser.NeExprContext ctx) {
-//        return super.visitNeExpr(ctx);
-//    }
-//
-//    @Override
-//    public Object visitAndExpr(GuavaParser.AndExprContext ctx) {
-//        return super.visitAndExpr(ctx);
-//    }
-//
-//    @Override
-//    public Object visitOrExpr(GuavaParser.OrExprContext ctx) {
-//        return super.visitOrExpr(ctx);
-//    }
-//
-//    @Override
-//    public Object visitNotExpr(GuavaParser.NotExprContext ctx) {
-//        return super.visitNotExpr(ctx);
-//    }
-
-//    /** All arithmetic expressions. */
-//    @Override
-//    public Object visitAddExpr(GuavaParser.AddExprContext ctx) {
-//        return super.visitAddExpr(ctx);
-//    }
-//
-//    @Override
-//    public Object visitMinusExpr(GuavaParser.MinusExprContext ctx) {
-//        return super.visitMinusExpr(ctx);
-//    }
-
-    @Override
-    public Object visitMultExpr(GuavaParser.MultExprContext ctx) {
-        return super.visitMultExpr(ctx);
-    }
-
-//    @Override
-//    public Object visitDivExpr(GuavaParser.DivExprContext ctx) {
-//        return super.visitDivExpr(ctx);
-//    }
-//
-//    @Override
-//    public Object visitPowExpr(GuavaParser.PowExprContext ctx) {
-//        return super.visitPowExpr(ctx);
-//    }
-
-    /** Expression within parentheses. */
-    @Override
-    public Object visitParExpr(GuavaParser.ParExprContext ctx) {
-        return super.visitParExpr(ctx);
-    }
-
-    /** Expressions for constants and variables.*/
-    @Override
-    public Object visitConstExpr(GuavaParser.ConstExprContext ctx) {
-        return super.visitConstExpr(ctx);
+    public String  visitArrayDeclStat(GuavaParser.ArrayDeclStatContext ctx) {
+        return null;
     }
 
     @Override
-    public Object visitIdExpr(GuavaParser.IdExprContext ctx) {
-        return super.visitIdExpr(ctx);
+    public String visitAssignStat(GuavaParser.AssignStatContext ctx) {
+        return null;
     }
 
-//    /** Variables and types. */
-//    @Override
-//    public Object visitVar(GuavaParser.VarContext ctx) {
-//        return super.visitVar(ctx);
-//    }
+    @Override
+    public String visitIfStat(GuavaParser.IfStatContext ctx) {
+        return null;
+    }
 
-//    @Override
-//    public Object visitType(GuavaParser.TypeContext ctx) {
-//        return super.visitType(ctx);
-//    }
+    @Override
+    public String visitBlockStat(GuavaParser.BlockStatContext ctx) {
+        for (int i = 0; i < ctx.stat().size()-1; i++) {
+            if (i == ctx.stat().size() -1) {
+                setNext(ctx.stat(i), getNext(ctx));
+            } else {
+                setNext(ctx.stat(i), result.getEntry(ctx.stat(i + 1)));
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public String visitWhileStat(GuavaParser.WhileStatContext ctx) {
+        return null;
+    }
+
+    @Override
+    public String visitForStat(GuavaParser.ForStatContext ctx) {
+        return null;
+    }
+
+    @Override
+    public String visitPrintStat(GuavaParser.PrintStatContext ctx) {
+        return null;
+    }
+
+    @Override
+    public String visitForkStat(GuavaParser.ForkStatContext ctx) {
+        for (int i = 0; i < ctx.stat().size()-1; i++) {
+            if (i == ctx.stat().size() -1) {
+                setNext(ctx.stat(i), getNext(ctx));
+            } else {
+                setNext(ctx.stat(i), result.getEntry(ctx.stat(i + 1)));
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public String visitJoinStat(GuavaParser.JoinStatContext ctx) {
+        return null;
+    }
+
+    /** All expressions. */
+    @Override
+    public String visitPrfExpr(GuavaParser.PrfExprContext ctx) {
+        return null;
+    }
+
+    @Override
+    public String visitMultExpr(GuavaParser.MultExprContext ctx) {
+        return null;
+    }
+
+    @Override
+    public String visitPlusExpr(GuavaParser.PlusExprContext ctx) {
+        return null;
+    }
+
+    @Override
+    public String visitBoolExpr(GuavaParser.BoolExprContext ctx) {
+        return null;
+    }
+
+    @Override
+    public String visitCompExpr(GuavaParser.CompExprContext ctx) {
+        return null;
+    }
+
+    @Override
+    public String visitParExpr(GuavaParser.ParExprContext ctx) {
+        return null;
+    }
+
+    @Override
+    public String visitArrayExpr(GuavaParser.ArrayExprContext ctx) {
+        return null;
+    }
+
+    @Override
+    public String visitConstExpr(GuavaParser.ConstExprContext ctx) {
+        return null;
+    }
+
+    @Override
+    public String visitIdExpr(GuavaParser.IdExprContext ctx) {
+        return null;
+    }
+
+    /** Assignments in a for loop.*/
+    @Override
+    public String visitForDecl(GuavaParser.ForDeclContext ctx) {
+        return null;
+    }
+
+    @Override
+    public String visitForExisting(GuavaParser.ForExistingContext ctx) {
+        return null;
+    }
+
+    /** All different operations. */
+    @Override
+    public String visitPrfOp(GuavaParser.PrfOpContext ctx) {
+        return null;
+    }
+
+    @Override
+    public String visitMultOp(GuavaParser.MultOpContext ctx) {
+        return null;
+    }
+
+    @Override
+    public String visitPlusOp(GuavaParser.PlusOpContext ctx) {
+        return null;
+    }
+
+    @Override
+    public String visitBoolOp(GuavaParser.BoolOpContext ctx) {
+        return null;
+    }
+
+    @Override
+    public String visitCompOp(GuavaParser.CompOpContext ctx) {
+        return null;
+    }
+
+    /** All types. */
+    @Override
+    public String visitIntType(GuavaParser.IntTypeContext ctx) {
+        return null;
+    }
+
+    @Override
+    public String visitBoolType(GuavaParser.BoolTypeContext ctx) {
+        return null;
+    }
+
+    @Override
+    public String visitDoubleType(GuavaParser.DoubleTypeContext ctx) {
+        return null;
+    }
+
+    @Override
+    public String visitCharType(GuavaParser.CharTypeContext ctx) {
+        return null;
+    }
+
+    @Override
+    public String visitStringType(GuavaParser.StringTypeContext ctx) {
+        return null;
+    }
+
+
+
+    /** Getters and setters. */
+    private void addOp(String op) {
+        this.operations.add(op);
+    }
+
+    private void setRegExplicit(String var, int reg) {
+        this.varRegisters.put(var, reg);
+    }
+
+    private Integer reg(String var) {
+        if (this.varRegisters.containsKey(var)) {
+            return this.varRegisters.get(var);
+        } else {
+            this.varRegisters.put(var, regCount);
+            regCount++;
+            return this.varRegisters.get(var);
+        }
+    }
+
+    private Integer reg(ParseTree tree) {
+        if (this.registers.get(tree) != null) {
+            return this.registers.get(tree);
+        } else {
+            this.registers.put(tree, regCount);
+            regCount++;
+            return this.registers.get(tree);
+        }
+    }
+
+    private void setNext(ParseTree tree, ParserRuleContext node) {
+        this.next.put(tree, node);
+    }
+
+    private ParserRuleContext getNext(ParseTree tree) {
+        return this.next.get(tree);
+    }
 }
