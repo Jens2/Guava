@@ -33,39 +33,47 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
     private ParseTreeProperty<ParserRuleContext> next;
     private int regCount;
     private static ParserRuleContext END;
-    private static final String NUM = "NUM";
+    private static final String CONST = "CONST";
     private static final String DIR = "DIR";
     private static final String IND = "IND";
 
 
     public static void main(String[] args) {
         File file = new File("output.hs");
-        File input = new File("src//main//java//elaboration//structure//test.guava");
+        File input = new File("src/main/java/elaboration/structure/test.guava");
         CharStream chars = null;
         try {
             chars = new ANTLRInputStream(new FileReader(input));
         } catch (IOException e) {
             e.printStackTrace();
         }
+        System.out.println(chars);
 
         Lexer lexer = new GuavaLexer(chars);
         TokenStream tokenStream = new CommonTokenStream(lexer);
+        System.out.println(tokenStream.getText());
         GuavaParser parser = new GuavaParser(tokenStream);
+        System.out.println(parser.program().getText());
+
+        GuavaChecker checker = new GuavaChecker();
+        CheckerResult result = null;
+        try {
+            System.out.println("************");
+            result = checker.check(parser.program());
+            System.out.println("---------------");
+        } catch (GuavaException e) {
+            e.printStackTrace();
+        }
+        System.out.println(checker.hasErrors());
+
+        GuavaGenerator g = new GuavaGenerator(parser.program(), result);
+
         PrintWriter writer = null;
         try {
             writer = new PrintWriter(file);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        GuavaChecker checker = new GuavaChecker();
-        CheckerResult result = null;
-        try {
-            result = checker.check(parser.program());
-        } catch (GuavaException e) {
-            e.printStackTrace();
-        }
-        GuavaGenerator g = new GuavaGenerator(parser.program(), result);
-
         List<String> operations = g.getOperations();
         if (writer != null) {
             if (operations.size() >= 1) {
@@ -121,7 +129,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         String var = ctx.ID().getText();
         if (ctx.expr() != null) {
             String s = visit(ctx.expr());
-            if (s.equals(NUM)) {
+            if (s.equals(CONST)) {
                 int i = Integer.parseInt(ctx.expr().getText());
                 addOp(new SPRIL.LOAD(MemAddr.ImmValue, i, reg(ctx.expr())).toString());
             } else if (s.equals(DIR)) {
@@ -231,8 +239,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
     @Override
     public String visitConstExpr(GuavaParser.ConstExprContext ctx) {
-
-        return null;
+        return CONST;
     }
 
     @Override
