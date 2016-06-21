@@ -3,22 +3,37 @@ package elaboration;
 import grammar.GuavaBaseVisitor;
 import grammar.GuavaParser;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+
 /**
  * Created by Jens on 14-6-2016.
  *
  */
-public class Guava extends GuavaBaseVisitor {
+public class GuavaGenerator extends GuavaBaseVisitor {
+
+    private PrintWriter writer;
+
+    private void init() {
+        try {
+            File file = new File("output.hs");
+            writer = new PrintWriter(file);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
 
     /** Start of the program. */
     @Override
     public Object visitProgram(GuavaParser.ProgramContext ctx) {
+        init();
         return super.visitProgram(ctx);
     }
 
     /** Body of the program. */
     @Override
     public Object visitBody(GuavaParser.BodyContext ctx) {
-        int[] poep = {1+2, 0};
         return super.visitBody(ctx);
     }
 

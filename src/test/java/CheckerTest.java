@@ -1,4 +1,3 @@
-import elaboration.Guava;
 import elaboration.structure.GuavaChecker;
 import elaboration.structure.GuavaException;
 import elaboration.structure.CheckerResult;
