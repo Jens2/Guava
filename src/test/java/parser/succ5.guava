@@ -1,0 +1,8 @@
+epicarp {
+    while (sweet) {
+        int i = sour;   >> There is no type checking in this phase.
+        >~ Comments can be done correctly,
+           even with multiple lines. ~<
+        i = 5 + 2; >> Still no type checking
+    }
+}

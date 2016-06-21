@@ -1,0 +1,5 @@
+epicarp {
+    while (i + 1) {
+        >> This shouldn't fail, since there is no type checking done yet
+    }
+}

@@ -1,0 +1,6 @@
+epicarp {
+    int[6] test = [1,2,3,4,5,6];
+    string[2] strings = ["hello", "world"];
+    char[5] word = ['h', 'e', 'l', 'l', 'o'];
+    double[4] doubles = [1.1, 2.2, 3.3, 4,4];
+}

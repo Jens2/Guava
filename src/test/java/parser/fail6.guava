@@ -1,0 +1,6 @@
+epicarp {
+    int i = 02345;
+    for [] {
+        join;
+    }
+}

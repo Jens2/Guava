@@ -1,0 +1,5 @@
+epicarp {
+    branch {
+        char string = 'a';
+    }
+}

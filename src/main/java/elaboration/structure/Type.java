@@ -119,9 +119,9 @@ abstract public class Type {
                 return false;
             }
 
-            if (this.elements != other.elements) {
-                return false;
-            }
+//            if (this.elements != other.elements) {
+//                return false;
+//            }
 
             return true;
         }

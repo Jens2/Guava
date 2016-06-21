@@ -51,7 +51,7 @@ public class CheckerTest {
 
     @Test
     public void testFailBasicDeclarations() throws GuavaException {
-        check(parse("fail_basicdeclarations"));
+        checkFail("fail_basicdeclarations");
     }
 
     @Test
@@ -102,7 +102,7 @@ public class CheckerTest {
             check(parse(filename));
             fail(filename + " shouldn't check but did");
         } catch (GuavaException e) {
-
+            // Expected exception was thrown
         }
 
     }
