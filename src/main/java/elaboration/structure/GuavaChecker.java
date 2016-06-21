@@ -19,7 +19,7 @@ import java.util.Map;
 public class GuavaChecker extends GuavaBaseListener {
 
     private CheckerResult checkerResult;
-    private VariableScope variableScope;
+    private GuavaVariableTable variables;
     private ParseTreeProperty<Integer> arrayLength;
     private Map<String, Integer> arrayLengthDecl;
     private List<String> errors;
@@ -27,7 +27,7 @@ public class GuavaChecker extends GuavaBaseListener {
     public CheckerResult check(ParseTree tree) throws GuavaException {
         this.arrayLengthDecl = new LinkedHashMap<>();
         this.arrayLength = new ParseTreeProperty<>();
-        this.variableScope = new VariableScope();
+        this.variables = new GuavaVariableTable();
         this.checkerResult = new CheckerResult();
         this.errors = new ArrayList<>();
         new ParseTreeWalker().walk(this, tree);
@@ -47,6 +47,8 @@ public class GuavaChecker extends GuavaBaseListener {
 
         if (ctx.expr() != null) {
             setEntry(ctx, entry(ctx.expr()));
+        } else {
+            setEntry(ctx, entry(ctx.type()));
         }
 
         setType(ctx.ID(), getType(ctx.type()));
@@ -72,6 +74,8 @@ public class GuavaChecker extends GuavaBaseListener {
             }
 
             setEntry(ctx, entry(ctx.expr()));
+        } else {
+            setEntry(ctx, entry(ctx.type()));
         }
 
         setType(ctx.ID(), type);
@@ -100,17 +104,28 @@ public class GuavaChecker extends GuavaBaseListener {
     }
 
     @Override
+    public void enterIfStat(GuavaParser.IfStatContext ctx) {
+        openScope();
+    }
+
+    @Override
     public void exitIfStat(GuavaParser.IfStatContext ctx) {
         if (getType(ctx.expr()) != Type.BOOL) {
             addError(ctx, "Expected type 'Bool' but found '%s'", getType(ctx.expr()));
         }
 
         setEntry(ctx, entry(ctx.expr()));
+        closeScope();
     }
 
     @Override
     public void exitBlockStat(GuavaParser.BlockStatContext ctx) {
         setEntry(ctx, entry(ctx.stat(0)));
+    }
+
+    @Override
+    public void enterWhileStat(GuavaParser.WhileStatContext ctx) {
+        openScope();
     }
 
     @Override
@@ -120,6 +135,12 @@ public class GuavaChecker extends GuavaBaseListener {
         }
 
         setEntry(ctx, entry(ctx.expr()));
+        closeScope();
+    }
+
+    @Override
+    public void enterForStat(GuavaParser.ForStatContext ctx) {
+        openScope();
     }
 
     @Override
@@ -147,6 +168,7 @@ public class GuavaChecker extends GuavaBaseListener {
         }
 
         setEntry(ctx, ctx.forAss());
+        closeScope();
     }
 
     @Override
@@ -158,21 +180,19 @@ public class GuavaChecker extends GuavaBaseListener {
                 type = getType(ctx.expr());
             } else {
                 addError(ctx, "'%s' has to be numerical", ctx.getText());
-                type = null;
+                type = Type.ERROR;
             }
         } else {
             if (getType(ctx.expr()) == Type.BOOL) {
                 type = Type.BOOL;
             } else {
                 addError(ctx, "Expected type '%s' but found '%s'", Type.BOOL, getType(ctx.expr()));
-                type = null;
+                type = Type.ERROR;
             }
         }
 
         checkType(ctx.expr(), type);
-        if (type != null) {
-            setType(ctx, type);
-        }
+        setType(ctx, type);
         setEntry(ctx, entry(ctx.expr()));
     }
 
@@ -188,13 +208,10 @@ public class GuavaChecker extends GuavaBaseListener {
             type = Type.STR;
         } else {
             addError(ctx, "'%s' and '%s' have to be numerical", ctx.expr(0).getText(), ctx.expr(1).getText());
-            type = null;
+            type = Type.ERROR;
         }
 
-        if (type != null) {
-            setType(ctx, type);
-        }
-
+        setType(ctx, type);
         setEntry(ctx, entry(ctx.expr(0)));
     }
 
@@ -208,12 +225,10 @@ public class GuavaChecker extends GuavaBaseListener {
             type = Type.INT;
         } else {
             addError(ctx, "'%s' and '%s' have to be numerical", ctx.expr(0).getText(), ctx.expr(1).getText());
-            type = null;
+            type = Type.ERROR;
         }
 
-        if (type != null) {
-            setType(ctx, type);
-        }
+        setType(ctx, type);
         setEntry(ctx, entry(ctx.expr(0)));
     }
 
@@ -231,15 +246,12 @@ public class GuavaChecker extends GuavaBaseListener {
 
         if (!(isNumerical(ctx.expr(0)) && isNumerical(ctx.expr(1)))) {
             addError(ctx, "'%s' and '%s' have to be numerical", ctx.expr(0).getText(), ctx.expr(1).getText());
-            type = null;
+            type = Type.ERROR;
         } else {
             type = Type.BOOL;
         }
 
-        if (type != null) {
-            setType(ctx, type);
-        }
-
+        setType(ctx, type);
         setEntry(ctx, entry(ctx.expr(0)));
     }
 
@@ -258,17 +270,15 @@ public class GuavaChecker extends GuavaBaseListener {
         }
 
         for (int i = 0; i < ctx.expr().size(); i++) {
-            if (!(getType(ctx.expr(i)) == type)) {
+            if (!(getType(ctx.expr(i)).equals(type))) {
                 addError(ctx, "Expected type '%s' but found '%s'", type, getType(ctx.expr(i)));
-                type = getType(ctx.expr(i));
+                type = Type.ERROR;
                 break;
             }
         }
 
-        if (type != null) {
-            type = new Type.Array(type);
-            setType(ctx, type);
-        }
+        type = new Type.Array(type);
+        setType(ctx, type);
         setEntry(ctx, entry(ctx.expr(0)));
     }
 
@@ -288,25 +298,24 @@ public class GuavaChecker extends GuavaBaseListener {
             type = Type.STR;
         } else {
             addError(ctx, "Invalid expression '%s'", ctx.getText());
-            type = null;
+            type = Type.ERROR;
         }
 
-        if (type != null) {
-            setType(ctx, type);
-        }
+        setType(ctx, type);
         setEntry(ctx, ctx);
     }
 
     @Override
     public void exitIdExpr(GuavaParser.IdExprContext ctx) {
         String id = ctx.ID().getText();
-        Type type = this.variableScope.type(id);
+        Type type = variableType(ctx.ID());
         if (type == null) {
-            addError(ctx, "Variable '%s' not declared", id);
-        } else {
-            setType(ctx, type);
-            setEntry(ctx, ctx);
+            addError(ctx, "Variable '%s' is not declared", id);
+            type = Type.ERROR;
         }
+
+        setType(ctx, type);
+        setEntry(ctx, ctx);
     }
 
     @Override
@@ -315,48 +324,59 @@ public class GuavaChecker extends GuavaBaseListener {
 
         if (getType(ctx.type()) != getType(ctx.expr())) {
             addError(ctx, "Expected type '%s' but found '%s'", getType(ctx.type()), getType(ctx.expr()));
-            type = null;
+            type = Type.ERROR;
         } else {
             type = getType(ctx.type());
         }
 
-        if (type != null) {
-            setType(ctx, type);
-            addVariableType(ctx.ID(), type);
-        }
-
+        setType(ctx, type);
+        addVariableType(ctx.ID(), type);
         setEntry(ctx, ctx.expr());
     }
 
     @Override
     public void exitForExisting(GuavaParser.ForExistingContext ctx) {
-        setType(ctx, variableType(ctx.ID()));
+        Type type;
+
+        if (contains(ctx.ID())) {
+            type = variableType(ctx.ID());
+        } else {
+            addError(ctx, "Variable '%s' is not declared", ctx.ID().getText());
+            type = Type.ERROR;
+        }
+
+        setType(ctx, type);
         setEntry(ctx, ctx);
     }
 
     @Override
     public void exitIntType(GuavaParser.IntTypeContext ctx) {
         setType(ctx, Type.INT);
+        setEntry(ctx, ctx);
     }
 
     @Override
     public void exitBoolType(GuavaParser.BoolTypeContext ctx) {
         setType(ctx, Type.BOOL);
+        setEntry(ctx, ctx);
     }
 
     @Override
     public void exitDoubleType(GuavaParser.DoubleTypeContext ctx) {
         setType(ctx, Type.DOUBLE);
+        setEntry(ctx, ctx);
     }
 
     @Override
     public void exitCharType(GuavaParser.CharTypeContext ctx) {
         setType(ctx, Type.CHAR);
+        setEntry(ctx, ctx);
     }
 
     @Override
     public void exitStringType(GuavaParser.StringTypeContext ctx) {
         setType(ctx, Type.STR);
+        setEntry(ctx, ctx);
     }
 
 
@@ -377,15 +397,30 @@ public class GuavaChecker extends GuavaBaseListener {
     }
 
     private boolean contains(ParseTree node) {
-        return this.variableScope.contains(node.getText());
+        return this.variables.contains(node.getText());
     }
 
     private Type variableType(ParseTree node) {
-        return this.variableScope.type(node.getText());
+        Type type;
+        if (!contains(node)) {
+            type = Type.ERROR;
+        } else {
+            type = this.variables.getType(node.getText());
+        }
+
+        return type;
     }
 
     private void addVariableType(ParseTree node, Type type) {
-        this.variableScope.put(node.getText(), type);
+        this.variables.add(node.getText(), type);
+    }
+
+    private void openScope() {
+        this.variables.openScope();
+    }
+
+    private void closeScope() {
+        this.variables.closeScope();
     }
 
     private void checkType(ParserRuleContext node, Type expected) {

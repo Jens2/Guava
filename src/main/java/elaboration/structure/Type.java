@@ -13,6 +13,7 @@ abstract public class Type {
     public static final Type BOOL = new Bool();
     public static final Type CHAR = new Char();
     public static final Type STR = new Str();
+    public static final Type ERROR = new Error();
 
     private final PrimitiveTypes kind;
 
@@ -119,11 +120,18 @@ abstract public class Type {
                 return false;
             }
 
-//            if (this.elements != other.elements) {
-//                return false;
-//            }
-
             return true;
+        }
+    }
+
+    static public class Error extends Type {
+        private Error() {
+            super(PrimitiveTypes.ERROR);
+        }
+
+        @Override
+        public String toString() {
+            return "Error";
         }
     }
 }

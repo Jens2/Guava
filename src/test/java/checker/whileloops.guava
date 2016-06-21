@@ -1,0 +1,11 @@
+epicarp {
+    int i = 0;
+
+    while (i < 10) {
+        pulp j = sweet;
+        i = i + 1;
+    }
+
+    pulp j = sour;
+
+}

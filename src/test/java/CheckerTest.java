@@ -55,13 +55,23 @@ public class CheckerTest {
     }
 
     @Test
+    public void testWhileLoops() throws GuavaException {
+        check(parse("whileloops"));
+    }
+
+    @Test
+    public void testFailWhileLoops() throws GuavaException {
+        checkFail("fail_whileloops");
+    }
+
+    @Test
     public void testForLoops() throws GuavaException {
         check(parse("forloops"));
     }
 
     @Test
     public void testFailForLoops() throws GuavaException {
-
+        checkFail("fail_forloops");
     }
 
     @Test
