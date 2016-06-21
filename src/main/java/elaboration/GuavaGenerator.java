@@ -1,17 +1,18 @@
 package elaboration;
 
 import elaboration.structure.CheckerResult;
+import elaboration.structure.GuavaChecker;
+import elaboration.structure.GuavaException;
 import grammar.GuavaBaseVisitor;
+import grammar.GuavaLexer;
 import grammar.GuavaParser;
 import instructions.MemAddr;
 import instructions.SPRIL;
-import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,6 +37,48 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
     private static final String DIR = "DIR";
     private static final String IND = "IND";
 
+
+    public static void main(String[] args) {
+        File file = new File("output.hs");
+        File input = new File("src//main//java//elaboration//structure//test.guava");
+        CharStream chars = null;
+        try {
+            chars = new ANTLRInputStream(new FileReader(input));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Lexer lexer = new GuavaLexer(chars);
+        TokenStream tokenStream = new CommonTokenStream(lexer);
+        GuavaParser parser = new GuavaParser(tokenStream);
+        PrintWriter writer = null;
+        try {
+            writer = new PrintWriter(file);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        GuavaChecker checker = new GuavaChecker();
+        CheckerResult result = null;
+        try {
+            result = checker.check(parser.program());
+        } catch (GuavaException e) {
+            e.printStackTrace();
+        }
+        GuavaGenerator g = new GuavaGenerator(parser.program(), result);
+
+        List<String> operations = g.getOperations();
+        if (writer != null) {
+            if (operations.size() >= 1) {
+                writer.println("program = [ " + operations.get(0));
+            }
+            for (int i = 1; i < operations.size(); i++) {
+                writer.println(", " + operations.get(i));
+            }
+            writer.println("]");
+            writer.flush();
+            writer.close();
+        }
+    }
 
     public GuavaGenerator(ParseTree tree, CheckerResult result) {
         this.result = result;
@@ -188,6 +231,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
     @Override
     public String visitConstExpr(GuavaParser.ConstExprContext ctx) {
+
         return null;
     }
 
