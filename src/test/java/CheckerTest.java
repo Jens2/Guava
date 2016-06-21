@@ -74,6 +74,16 @@ public class CheckerTest {
     }
 
     @Test
+    public void testFork() throws GuavaException {
+        check(parse("fork"));
+    }
+
+    @Test
+    public void testFailFork() throws GuavaException {
+        checkFail("fail_fork");
+    }
+
+    @Test
     public void testFib() throws GuavaException {
         check(parse("fib"));
     }

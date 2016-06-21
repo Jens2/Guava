@@ -10,10 +10,12 @@ import java.util.Map;
  */
 public class GuavaVariableTable implements SymbolTable {
     private List<Map<String, Type>> table;
+    private List<List<String>> assigned;
     private int deepestScope;
 
     public GuavaVariableTable() {
         this.table = new ArrayList<>();
+        this.assigned = new ArrayList<>();
         openScope();
         this.deepestScope = 0;
     }
@@ -21,6 +23,7 @@ public class GuavaVariableTable implements SymbolTable {
     @Override
     public void openScope() {
         table.add(new HashMap<String, Type>());
+        assigned.add(new ArrayList<String>());
         deepestScope++;
     }
 
@@ -28,6 +31,7 @@ public class GuavaVariableTable implements SymbolTable {
     public void closeScope() {
         if (deepestScope != 0) {
             table.remove(deepestScope);
+            assigned.remove(deepestScope);
             deepestScope--;
         } else {
             throw (new RuntimeException("Only contains outer scope"));
@@ -63,5 +67,21 @@ public class GuavaVariableTable implements SymbolTable {
         }
 
         return null;
+    }
+
+    public void assign(String id) {
+        if (!this.assigned.get(deepestScope).contains(id)) {
+            this.assigned.get(deepestScope).add(id);
+        }
+    }
+
+    public boolean isAssigned(String id) {
+        for (int i = deepestScope; i >= 0; i--) {
+            if (assigned.get(i).contains(id)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

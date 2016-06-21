@@ -20,7 +20,7 @@ epicarp {
 
     result = 0;
 
-    for (int j = 10; j >= 0; j--) {
+    for (int j = 0; j >= 0; j--) {
         result = result + j;
     }
 }

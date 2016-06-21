@@ -14,4 +14,7 @@ epicarp {
 
     int[3] array3;
     array3 = [1, 2, 3];
+
+    int i;
+    int j = 5 + i;
 }

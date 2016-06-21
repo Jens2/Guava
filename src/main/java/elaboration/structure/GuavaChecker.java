@@ -47,6 +47,7 @@ public class GuavaChecker extends GuavaBaseListener {
 
         if (ctx.expr() != null) {
             setEntry(ctx, entry(ctx.expr()));
+            assign(ctx.ID());
         } else {
             setEntry(ctx, entry(ctx.type()));
         }
@@ -74,6 +75,7 @@ public class GuavaChecker extends GuavaBaseListener {
             }
 
             setEntry(ctx, entry(ctx.expr()));
+            assign(ctx.ID());
         } else {
             setEntry(ctx, entry(ctx.type()));
         }
@@ -101,6 +103,7 @@ public class GuavaChecker extends GuavaBaseListener {
         }
 
         setEntry(ctx, entry(ctx.expr()));
+        assign(ctx.ID());
     }
 
     @Override
@@ -162,12 +165,27 @@ public class GuavaChecker extends GuavaBaseListener {
                 addError(ctx, "Expected type 'Integer' but found '%s'", getType(ctx.expr(1)));
             }
         } else {
-            if (variableType(ctx.ID()) != Type.INT && !errorFound) {
-                addError(ctx, "Expected type 'Integer' but found '%s'", getType(ctx.ID()));
+            if (assigned(ctx.ID())) {
+                if (variableType(ctx.ID()) != Type.INT && !errorFound) {
+                    addError(ctx, "Expected type 'Integer' but found '%s'", getType(ctx.ID()));
+                }
+            } else {
+                addError(ctx, "Variable '%s' has no value", ctx.ID());
             }
+
         }
 
         setEntry(ctx, ctx.forAss());
+        closeScope();
+    }
+
+    @Override
+    public void enterForkStat(GuavaParser.ForkStatContext ctx) {
+        openScope();
+    }
+
+    @Override
+    public void exitForkStat(GuavaParser.ForkStatContext ctx) {
         closeScope();
     }
 
@@ -308,7 +326,13 @@ public class GuavaChecker extends GuavaBaseListener {
     @Override
     public void exitIdExpr(GuavaParser.IdExprContext ctx) {
         String id = ctx.ID().getText();
-        Type type = variableType(ctx.ID());
+        Type type;
+
+        if (!assigned(ctx.ID())) {
+            addError(ctx, "Variable '%s' has no value", ctx.ID());
+        }
+
+        type = variableType(ctx.ID());
         if (type == null) {
             addError(ctx, "Variable '%s' is not declared", id);
             type = Type.ERROR;
@@ -331,6 +355,7 @@ public class GuavaChecker extends GuavaBaseListener {
 
         setType(ctx, type);
         addVariableType(ctx.ID(), type);
+        assign(ctx.ID());
         setEntry(ctx, ctx.expr());
     }
 
@@ -338,10 +363,15 @@ public class GuavaChecker extends GuavaBaseListener {
     public void exitForExisting(GuavaParser.ForExistingContext ctx) {
         Type type;
 
-        if (contains(ctx.ID())) {
-            type = variableType(ctx.ID());
+        if (assigned(ctx.ID())) {
+            if (contains(ctx.ID())) {
+                type = variableType(ctx.ID());
+            } else {
+                addError(ctx, "Variable '%s' is not declared", ctx.ID().getText());
+                type = Type.ERROR;
+            }
         } else {
-            addError(ctx, "Variable '%s' is not declared", ctx.ID().getText());
+            addError(ctx, "Variable '%s' has no value", ctx.ID());
             type = Type.ERROR;
         }
 
@@ -413,6 +443,14 @@ public class GuavaChecker extends GuavaBaseListener {
 
     private void addVariableType(ParseTree node, Type type) {
         this.variables.add(node.getText(), type);
+    }
+
+    private boolean assigned(ParseTree node) {
+        return this.variables.isAssigned(node.getText());
+    }
+
+    private void assign(ParseTree node) {
+        this.variables.assign(node.getText());
     }
 
     private void openScope() {

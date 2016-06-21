@@ -1,0 +1,14 @@
+epicarp {
+    int i = 5;
+    int result = 0;
+
+    branch {
+        int i = 0;
+
+        for (i; i < 10; i++) {
+                result = result + i;
+        }
+    }
+
+    drop("Result: ", result);
+}
