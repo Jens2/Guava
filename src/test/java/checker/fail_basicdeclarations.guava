@@ -1,20 +1,26 @@
 epicarp {
+    >> Character cannot be assigned to an int variable
     int integer = 'h';
-    
+
+    >> Using dot notation is mandatory for representing a double
     double decimal = 1;
-    
+
+    >> Integer cannot be assigned to a char variable
     char character = 5;
-    
+
+    >> The declared array size does not match the actual array size
     int[6] array = [1, 2, 3, 4, 5];
-    
+
+    >> char array cannot contain Integers
     char[5] array2 = ['h', 'e', 1, 1, 'o'];
 
-    string s;
-    s = "test";
+    >> array has size 3, so max index is 2
+    int no2 = array[3];
 
-    int[3] array3;
-    array3 = [1, 2, 3];
-
+    >> Variable i has not been assigned a value yet
     int i;
     int j = 5 + i;
+
+    >>
+    int modulo = 5.0 mod 3.0;
 }

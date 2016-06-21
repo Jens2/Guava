@@ -8,11 +8,12 @@ SQUOTE  : '\'' ;
 DQUOTE  : '"'  ;
 
 // Arithmetic operations
-DIV     : '/' ;
-MULT    : '*' ;
-PLUS    : '+' ;
-MINUS   : '-' ;
-POWER   : '^' ;
+DIV     : '/'   ;
+MULT    : '*'   ;
+PLUS    : '+'   ;
+MINUS   : '-'   ;
+POWER   : '^'   ;
+MOD     : 'mod' ;
 
 // Assign operation
 ASSIGN  : '=' ;

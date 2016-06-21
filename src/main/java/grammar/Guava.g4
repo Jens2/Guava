@@ -27,6 +27,7 @@ stat    : type ID (ASSIGN expr)? SEMI                       #varDeclStat
 
 // All possible expressions in the language
 expr    : prfOp expr                        #prfExpr
+        | expr MOD expr                     #modExpr
         | expr multOp expr                  #multExpr
         | expr plusOp expr                  #plusExpr
         | expr boolOp expr                  #boolExpr
@@ -34,6 +35,7 @@ expr    : prfOp expr                        #prfExpr
         | LPAR expr RPAR                    #parExpr
         | LSQBR (expr (COMMA expr)*)? RSQBR #arrayExpr
         | (NUM | BOOL | CHAR | DEC | STR)   #constExpr
+        | ID LSQBR NUM RSQBR                #getArrayExpr
         | ID                                #idExpr
         ;
 

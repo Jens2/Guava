@@ -2,12 +2,14 @@ epicarp {
     int result = 0;
     int j = 0;
 
+    >> Variable j is already declared at line 3
     for (int j = 0; j < 10; j++) {
         result = result + j;
     }
 
     result = 0;
 
+    >> Variable i is not declared yet
     for (i; i < 10; i = i + 1) {
         result = result + i;
     }

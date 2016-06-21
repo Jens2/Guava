@@ -21,11 +21,11 @@ public class GuavaChecker extends GuavaBaseListener {
     private CheckerResult checkerResult;
     private GuavaVariableTable variables;
     private ParseTreeProperty<Integer> arrayLength;
-    private Map<String, Integer> arrayLengthDecl;
+    private Map<String, Integer> arrayLengthVars;
     private List<String> errors;
 
     public CheckerResult check(ParseTree tree) throws GuavaException {
-        this.arrayLengthDecl = new LinkedHashMap<>();
+        this.arrayLengthVars = new LinkedHashMap<>();
         this.arrayLength = new ParseTreeProperty<>();
         this.variables = new GuavaVariableTable();
         this.checkerResult = new CheckerResult();
@@ -59,9 +59,9 @@ public class GuavaChecker extends GuavaBaseListener {
     public void enterArrayDeclStat(GuavaParser.ArrayDeclStatContext ctx) {
         if (ctx.expr() != null) {
             setArrayLength(ctx.expr(), Integer.parseInt(ctx.NUM().getText()));
-        } else {
-            this.arrayLengthDecl.put(ctx.ID().getText(), Integer.parseInt(ctx.NUM().getText()));
         }
+
+        setArrayLengthAsVar(ctx.ID(), Integer.parseInt(ctx.NUM().getText()));
     }
 
     @Override
@@ -92,7 +92,7 @@ public class GuavaChecker extends GuavaBaseListener {
     @Override
     public void enterAssignStat(GuavaParser.AssignStatContext ctx) {
         if (variableType(ctx.ID()).getKind().equals(PrimitiveTypes.ARRAY)) {
-            setArrayLength(ctx.expr(), this.arrayLengthDecl.get(ctx.ID().getText()));
+            setArrayLength(ctx.expr(), getArrayLengthVar(ctx.ID()));
         }
     }
 
@@ -215,6 +215,21 @@ public class GuavaChecker extends GuavaBaseListener {
     }
 
     @Override
+    public void exitModExpr(GuavaParser.ModExprContext ctx) {
+        Type type;
+
+        if (getType(ctx.expr(0)) == Type.INT && getType(ctx.expr(1)) == Type.INT) {
+            type = Type.INT;
+        } else {
+            addError(ctx, "Expected 'Integer' but found '%s' and '%s'", getType(ctx.expr(0)), getType(ctx.expr(1)));
+            type = Type.ERROR;
+        }
+
+        setType(ctx, type);
+        setEntry(ctx, entry(ctx.expr(0)));
+    }
+
+    @Override
     public void exitMultExpr(GuavaParser.MultExprContext ctx) {
         Type type;
 
@@ -320,6 +335,21 @@ public class GuavaChecker extends GuavaBaseListener {
         }
 
         setType(ctx, type);
+        setEntry(ctx, ctx);
+    }
+
+    @Override
+    public void exitGetArrayExpr(GuavaParser.GetArrayExprContext ctx) {
+        int index = Integer.parseInt(ctx.NUM().getText());
+
+        if (!assigned(ctx.ID())) {
+            addError(ctx, "Variable '%s' has no value", ctx.ID());
+        }
+
+        if (index >= getArrayLengthVar(ctx.ID()) || index < 0) {
+            addError(ctx, "Array index out of bounds for array '%s'. Array size is %s, requested index is %s", ctx.ID(), getArrayLengthVar(ctx.ID()), index);
+        }
+
         setEntry(ctx, ctx);
     }
 
@@ -500,6 +530,14 @@ public class GuavaChecker extends GuavaBaseListener {
 
     private int getArrayLength(ParseTree node) throws NullPointerException {
         return this.arrayLength.get(node);
+    }
+
+    private void setArrayLengthAsVar(ParseTree node, int length) {
+        this.arrayLengthVars.put(node.getText(), length);
+    }
+
+    private int getArrayLengthVar(ParseTree node) throws NullPointerException {
+        return this.arrayLengthVars.get(node.getText());
     }
 
     private void setEntry(ParseTree node, ParserRuleContext entry) {

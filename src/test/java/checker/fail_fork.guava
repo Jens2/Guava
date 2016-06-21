@@ -3,10 +3,12 @@ epicarp {
     int result = 0;
 
     branch {
+        >> Variable i is already declared at line 2
         int i = 0;
 
+        >> Variable result is already declared at line 3
         for (i; i < 10; i++) {
-                result = result + i;
+            result = result + i;
         }
     }
 
