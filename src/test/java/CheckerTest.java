@@ -115,7 +115,7 @@ public class CheckerTest {
     }
 
     private CheckerResult check(ParseTree tree) throws GuavaException {
-        CheckerResult checkerResult = null;
+        CheckerResult checkerResult;
         checkerResult = this.checker.check(tree);
         return checkerResult;
     }
