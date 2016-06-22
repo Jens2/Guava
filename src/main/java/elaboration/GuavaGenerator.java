@@ -273,8 +273,8 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
         addOp(mult.toString());
         setCodeLines(ctx, lines + 1);
-        emptyReg(ctx.expr(0));
         emptyReg(ctx.expr(1));
+        emptyReg(ctx.expr(0));
         return DIR;
     }
 
@@ -306,8 +306,8 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
         addOp(plus.toString());
         setCodeLines(ctx, lines + 1);
-        emptyReg(ctx.expr(0));
         emptyReg(ctx.expr(1));
+        emptyReg(ctx.expr(0));
         return DIR;
     }
 
@@ -339,8 +339,8 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
         addOp(bool.toString());
         setCodeLines(ctx, lines + 1);
-        emptyReg(ctx.expr(0));
         emptyReg(ctx.expr(1));
+        emptyReg(ctx.expr(0));
         return DIR;
     }
 
@@ -384,8 +384,8 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
         addOp(comp.toString());
         setCodeLines(ctx, lines + 1);
-        emptyReg(ctx.expr(0));
         emptyReg(ctx.expr(1));
+        emptyReg(ctx.expr(0));
         return DIR;
     }
 
