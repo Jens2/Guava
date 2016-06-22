@@ -138,21 +138,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
     public String visitVarDeclStat(GuavaParser.VarDeclStatContext ctx) {
         String var = ctx.ID().getText();
         if (ctx.expr() != null) {
-            String s = visit(ctx.expr());
-            // Check whether the expression is a constant
-            switch (s) {
-                case CONST:
-                    Type type = result.getType(ctx.expr());
-                    addConstOp(type, ctx, ctx.expr());
-                    break;
-                case DIR:
-                    addOp(new SPRIL.LOAD(MemAddr.DirAddr, reg(ctx.expr()), reg(ctx)).toString());
-                    break;
-                case IND:
-                    addOp(new SPRIL.LOAD(MemAddr.IndAddr, reg(ctx.expr()), reg(ctx)).toString());
-                    break;
-            }
-
+            visit(ctx.expr());
             setRegExplicit(var, reg(ctx.expr()));
         }
         return null;
@@ -169,6 +155,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         switch (type.toString()) {
             case "Integer":
                 addOp(new SPRIL.LOAD(MemAddr.ImmValue, tree.getText(), reg(ctx)).toString());
+                break;
             case "Bool":
                 String s;
                 if (tree.getText().equals(SWEET)) {
@@ -180,11 +167,13 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
                     s = "-1";
                 }
                 addOp(new SPRIL.LOAD(MemAddr.ImmValue, s, reg(ctx)).toString());
+                break;
             case "Char":
                 String ch = tree.getText().replaceAll("\'", "");
                 char c = ch.charAt(0);
                 int i = (int) c;
                 addOp(new SPRIL.LOAD(MemAddr.ImmValue, String.valueOf(i), reg(ctx)).toString());
+                break;
             case "Double":
                 // TODO implement storage of doubles
             case "string":
@@ -196,6 +185,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
     public String visitAssignStat(GuavaParser.AssignStatContext ctx) {
         String var = ctx.ID().getText();
         String s = visit(ctx.expr());
+        int lines =
         switch (s) {
             case CONST:
                 Type type = result.getType(ctx.expr());
@@ -213,7 +203,6 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
     @Override
     public String visitIfStat(GuavaParser.IfStatContext ctx) {
-        setNext(ctx.stat(0), getNext(ctx));
 
         return null;
     }
@@ -521,6 +510,8 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
             return this.registers.get(tree);
         }
     }
+
+    private
 
     private void setNext(ParseTree tree, ParserRuleContext node) {
         this.next.put(tree, node);
