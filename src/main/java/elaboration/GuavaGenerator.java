@@ -185,7 +185,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
     public String visitAssignStat(GuavaParser.AssignStatContext ctx) {
         String var = ctx.ID().getText();
         String s = visit(ctx.expr());
-        int lines =
+        int lines = 0;
         switch (s) {
             case CONST:
                 Type type = result.getType(ctx.expr());
@@ -511,7 +511,13 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         }
     }
 
-    private
+    private int getCodeLines(ParseTree tree) {
+        return this.codeLines.get(tree);
+    }
+
+    private void setCodeLines(ParseTree tree, int i) {
+        this.codeLines.put(tree, i);
+    }
 
     private void setNext(ParseTree tree, ParserRuleContext node) {
         this.next.put(tree, node);
