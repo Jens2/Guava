@@ -1,9 +1,5 @@
 package elaboration;
 
-import elaboration.structure.CheckerResult;
-import elaboration.structure.GuavaChecker;
-import elaboration.structure.GuavaException;
-import elaboration.structure.Type;
 import grammar.GuavaBaseVisitor;
 import grammar.GuavaLexer;
 import grammar.GuavaParser;
@@ -18,8 +14,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static instructions.SPRIL.*;
 
 /**
  * Created by Jens on 14-6-2016.
@@ -127,7 +121,6 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
             // Check whether the expression is a constant
             if (s.equals(CONST)) {
                 Type type = result.getType(ctx.expr());
-
                 // Check the type and set the appropriate instructions
                 if (type.equals(Type.INT)) {
                     int i = Integer.parseInt(ctx.expr().getText());
