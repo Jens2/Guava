@@ -4,6 +4,7 @@ import grammar.GuavaBaseVisitor;
 import grammar.GuavaLexer;
 import grammar.GuavaParser;
 import instructions.MemAddr;
+import instructions.Op;
 import instructions.SPRIL;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -39,6 +40,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
     private static final String DIR = "DIR";
     private static final String IND = "IND";
     private static final String SWEET = "sweet";
+    private static final String MINUS = "minus";
     private static final String SOUR = "sour";
     private static final int TRUE = 1;
     private static final int FALSE = 0;
@@ -108,6 +110,13 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
     @Override
     public String visitProgram(GuavaParser.ProgramContext ctx) {
         END = ctx;
+
+        reg(SWEET);
+        addOp(new SPRIL.LOAD(MemAddr.ImmValue, String.valueOf(TRUE), reg(SWEET)).toString());
+
+        reg(MINUS);
+        addOp(new SPRIL.LOAD(MemAddr.ImmValue, String.valueOf(-1), reg(MINUS)).toString());
+
         visitChildren(ctx);
         addOp(new SPRIL.ENDPROG().toString());
         return null;
@@ -145,7 +154,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
     }
 
     @Override
-    public String  visitArrayDeclStat(GuavaParser.ArrayDeclStatContext ctx) {
+    public String visitArrayDeclStat(GuavaParser.ArrayDeclStatContext ctx) {
         //@TODO implement storage of arrays
         return null;
     }
@@ -205,8 +214,8 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
     @Override
     public String visitBlockStat(GuavaParser.BlockStatContext ctx) {
-        for (int i = 0; i < ctx.stat().size()-1; i++) {
-            if (i == ctx.stat().size() -1) {
+        for (int i = 0; i < ctx.stat().size() - 1; i++) {
+            if (i == ctx.stat().size() - 1) {
                 setNext(ctx.stat(i), getNext(ctx));
             } else {
                 setNext(ctx.stat(i), result.getEntry(ctx.stat(i + 1)));
@@ -250,36 +259,152 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
     /** All expressions. */
     @Override
     public String visitPrfExpr(GuavaParser.PrfExprContext ctx) {
+        setNext(ctx.expr(), getNext(ctx));
+        visit(ctx.expr());
+
+        String reg = reg(ctx.expr());
+
+        SPRIL.COMP neg;
+        if (result.getType(ctx.expr()) == Type.BOOL) {
+            neg = new SPRIL.COMP(Op.Xor, reg, reg(SWEET), reg(ctx));
+        } else {
+            neg = new SPRIL.COMP(Op.Mul, reg, reg(MINUS), reg(ctx));
+        }
+
+        addOp(neg.toString());
         return DIR;
     }
 
     @Override
     public String visitMultExpr(GuavaParser.MultExprContext ctx) {
+        visit(ctx.expr(0));
+        visit(ctx.expr(1));
+
+        String reg1 = reg(ctx.expr(0));
+        String reg2 = reg(ctx.expr(1));
+        SPRIL.COMP mult;
+
+        switch (ctx.multOp().getText()) {
+            case "*":
+                mult = new SPRIL.COMP(Op.Mul, reg1, reg2, reg(ctx));
+                break;
+            case "/":
+                mult = new SPRIL.COMP(Op.Div, reg1, reg2, reg(ctx));
+                break;
+            case "^":
+                // TODO: implement power
+                mult = new SPRIL.COMP(Op.Mul, reg1, reg2, reg(ctx));
+                break;
+            default:
+                // This should never be reached
+                mult = new SPRIL.COMP(Op.Mul, reg1, reg2, reg(ctx));
+                break;
+
+        }
+
+        addOp(mult.toString());
         return DIR;
     }
 
     @Override
     public String visitPlusExpr(GuavaParser.PlusExprContext ctx) {
+        visit(ctx.expr(0));
+        visit(ctx.expr(1));
+
+        String reg1 = reg(ctx.expr(0));
+        String reg2 = reg(ctx.expr(1));
+        SPRIL.COMP plus;
+
+        switch (ctx.plusOp().getText()) {
+            case "+":
+                plus = new SPRIL.COMP(Op.Add, reg1, reg2, reg(ctx));
+                break;
+            case "-":
+                plus = new SPRIL.COMP(Op.Sub, reg1, reg2, reg(ctx));
+                break;
+            default:
+                // This should never be reached
+                plus = new SPRIL.COMP(Op.Add, reg1, reg2, reg(ctx));
+                break;
+        }
+
+        addOp(plus.toString());
         return DIR;
     }
 
     @Override
     public String visitBoolExpr(GuavaParser.BoolExprContext ctx) {
+        visit(ctx.expr(0));
+        visit(ctx.expr(1));
+
+        String reg1 = reg(ctx.expr(0));
+        String reg2 = reg(ctx.expr(1));
+        SPRIL.COMP bool;
+
+        switch (ctx.boolOp().getText()) {
+            case "&":
+                bool = new SPRIL.COMP(Op.And, reg1, reg2, reg(ctx));
+                break;
+            case "|":
+                bool = new SPRIL.COMP(Op.Or, reg1, reg2, reg(ctx));
+                break;
+            default:
+                // This should never be reached
+                bool = new SPRIL.COMP(Op.And, reg1, reg2, reg(ctx));
+                break;
+        }
+
+        addOp(bool.toString());
         return DIR;
     }
 
     @Override
     public String visitCompExpr(GuavaParser.CompExprContext ctx) {
+        visit(ctx.expr(0));
+        visit(ctx.expr(1));
+
+        String reg1 = reg(ctx.expr(0));
+        String reg2 = reg(ctx.expr(1));
+        SPRIL.COMP comp;
+
+        switch (ctx.compOp().getText()) {
+            case ">":
+                comp = new SPRIL.COMP(Op.Gt, reg1, reg2, reg(ctx));
+                break;
+            case ">=":
+                comp = new SPRIL.COMP(Op.GtE, reg1, reg2, reg(ctx));
+                break;
+            case "<":
+                comp = new SPRIL.COMP(Op.Lt, reg1, reg2, reg(ctx));
+                break;
+            case "<=":
+                comp = new SPRIL.COMP(Op.LtE, reg1, reg2, reg(ctx));
+                break;
+            case "~=":
+                comp = new SPRIL.COMP(Op.NEq, reg1, reg2, reg(ctx));
+                break;
+            case "==":
+                comp = new SPRIL.COMP(Op.Equal, reg1, reg2, reg(ctx));
+                break;
+            default:
+                // This should never be reached
+                comp = new SPRIL.COMP(Op.Gt, reg1, reg2, reg(ctx));
+                break;
+        }
+
+        addOp(comp.toString());
         return DIR;
     }
 
     @Override
     public String visitParExpr(GuavaParser.ParExprContext ctx) {
+        visit(ctx.expr());
         return DIR;
     }
 
     @Override
     public String visitArrayExpr(GuavaParser.ArrayExprContext ctx) {
+        // TODO: Implement arrays
         return DIR;
     }
 
@@ -331,33 +456,6 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
     public String visitCompOp(GuavaParser.CompOpContext ctx) {
         return null;
     }
-
-    /** All types. */
-    @Override
-    public String visitIntType(GuavaParser.IntTypeContext ctx) {
-        return null;
-    }
-
-    @Override
-    public String visitBoolType(GuavaParser.BoolTypeContext ctx) {
-        return null;
-    }
-
-    @Override
-    public String visitDoubleType(GuavaParser.DoubleTypeContext ctx) {
-        return null;
-    }
-
-    @Override
-    public String visitCharType(GuavaParser.CharTypeContext ctx) {
-        return null;
-    }
-
-    @Override
-    public String visitStringType(GuavaParser.StringTypeContext ctx) {
-        return null;
-    }
-
 
 
     /** Getters and setters. */
