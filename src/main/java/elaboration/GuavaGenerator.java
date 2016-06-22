@@ -148,11 +148,14 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
     @Override
     public String visitAssignStat(GuavaParser.AssignStatContext ctx) {
+        int lines = 0;
         String var = ctx.ID().getText();
         visit(ctx.expr());
-        int lines = /*getCodeLines(ctx.expr());*/ 0;
-        addOp(new SPRIL.LOAD(MemAddr.DirAddr, reg(ctx.expr()), reg(var)).toString());
-        setCodeLines(ctx, lines+1);
+
+        lines += getCodeLines(ctx.expr());
+
+        setRegExplicit(var, reg(ctx.expr()));
+        setCodeLines(ctx, lines);
         return null;
     }
 
