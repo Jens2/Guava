@@ -126,6 +126,10 @@ decode instr = case instr of
   Nop                         -> nullcode
 
   Debug _                     -> nullcode       -- only for development purposes
+  
+{- Below are custom Sprockell instructions, added by ourselves -}
+  LoadConst val toReg         -> nullcode {ldCode=LdImm, immValue=val, loadReg=toReg}
+  RegCopy fromReg toReg       -> nullcode {ldCode=LdAlu, aluCode=Add, regX=fromReg, regY=0, loadReg=toReg}
 
 
 {- ===============================================================

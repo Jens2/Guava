@@ -7,6 +7,26 @@ package instructions;
 public class SPRIL {
 
     /** This class contains all possible instructions. */
+    /** Copy value from register to another register */
+    static public class REGCOPY {
+        private String operation = "RegCopy ";
+        public REGCOPY(String reg0, String reg1) {
+            operation = operation + reg0 + " " + reg1;
+        }
+        public String toString() {
+            return operation;
+        }
+    }
+    /** Load constant. */
+    static public class CONST {
+        private String operation = "LoadConst ";
+        public CONST(String val, String reg0) {
+            operation = operation + Integer.parseInt(val) + " " + reg0;
+        }
+        public String toString() {
+            return operation;
+        }
+    }
     /** Compute instruction.*/
     static public class COMP {
         private String operation = "Compute ";

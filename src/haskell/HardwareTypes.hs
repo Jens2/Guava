@@ -79,7 +79,7 @@ data Operator    = Add   | Sub | Mul -- | Div | Mod             -- Computational
                  deriving (Eq,Show,Read)
 
 data Instruction = Compute Operator RegAddr RegAddr RegAddr     -- Compute op r0 r1 r2: go to "alu",
-                                                                --      do "op" on regs r0, r1, and put result in reg r2
+                                                                --      do "op" on regs r0, r1, and put result in reg r2                                                                
                  | Jump Target                                  -- Jump t: jump to target t (absolute, relative, indirect)
                  | Branch RegAddr Target                        -- Branch r t: conditional jump, depending on register r
                                                                 --      if r contains 0: don't jump; otherwise: jump
@@ -112,6 +112,11 @@ data Instruction = Compute Operator RegAddr RegAddr RegAddr     -- Compute op r0
                  | Nop                                          -- Operation "do nothing"
 
                  | Debug String                                 -- No real instruction, for debug purposes.
+                    
+                 {- Below are custom Sprockell instructions, added by ourselves -}
+                 | LoadConst Value RegAddr                      -- LoadConst val reg: load value val into register reg
+                 | RegCopy RegAddr RegAddr                      -- RegCopy r0 r1: copy value of r0 to r1
+
                  deriving (Eq,Show,Read)
 
 -- ==========================================================================================================

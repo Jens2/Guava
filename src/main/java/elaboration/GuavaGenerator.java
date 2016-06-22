@@ -116,7 +116,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
         lines += getCodeLines(ctx.expr());
 
-        addOp(new SPRIL.LOAD(MemAddr.DirAddr, reg(ctx.expr()), reg(var)).toString());
+        addOp(new SPRIL.REGCOPY(reg(ctx.expr()), reg(var)).toString());
 
         setCodeLines(ctx, lines + 1);
         emptyReg(ctx.expr());
@@ -407,24 +407,24 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
     @Override
     public String visitConstExpr(GuavaParser.ConstExprContext ctx) {
-        SPRIL.LOAD load = null;
+        SPRIL.CONST load = null;
         int lines = 0;
 
         if (result.getType(ctx) == Type.INT) {
-            load = new SPRIL.LOAD(MemAddr.ImmValue, String.valueOf(ctx.getText()), reg(ctx));
+            load = new SPRIL.CONST(ctx.getText(), reg(ctx));
             lines = 1;
         } else if (result.getType(ctx) == Type.BOOL) {
             if (ctx.getText().equals(SWEET)) {
-                load = new SPRIL.LOAD(MemAddr.ImmValue, TRUE, reg(ctx));
+                load = new SPRIL.CONST(TRUE, reg(ctx));
             } else {
-                load = new SPRIL.LOAD(MemAddr.ImmValue, FALSE, reg(ctx));
+                load = new SPRIL.CONST(FALSE, reg(ctx));
             }
             lines = 1;
         } else if (result.getType(ctx) == Type.CHAR) {
             String ch = ctx.getText().replaceAll("'", "");
             char c = ch.charAt(0);
             int i = (int) c;
-            load = new SPRIL.LOAD(MemAddr.ImmValue, String.valueOf(i), reg(ctx));
+            load = new SPRIL.CONST(String.valueOf(i), reg(ctx));
             lines = 1;
         } else if (result.getType(ctx) == Type.DOUBLE) {
             // TODO: implement doubles
@@ -432,7 +432,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
             // TODO: implement strings
         } else {
             // This should not happen
-            load = new SPRIL.LOAD(MemAddr.ImmValue, String.valueOf(ctx.getText()), reg(ctx));
+            load = new SPRIL.CONST(ctx.getText(), reg(ctx));
             lines = 1;
         }
         addOp(load.toString());
