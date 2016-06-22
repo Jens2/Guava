@@ -1,0 +1,11 @@
+epicarp {
+    if (sweet) {
+        int i = 0;
+    } else {
+        int j = 0;
+    }
+
+    if (sour) {
+        int i = 2 - 5;
+    }
+}
