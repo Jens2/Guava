@@ -154,8 +154,10 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
         lines += getCodeLines(ctx.expr());
 
-        setRegExplicit(var, reg(ctx.expr()));
-        setCodeLines(ctx, lines);
+        addOp(new SPRIL.LOAD(MemAddr.DirAddr, reg(ctx.expr()), reg(var)).toString());
+
+        setCodeLines(ctx, lines + 1);
+        emptyReg(ctx.expr());
         return null;
     }
 
