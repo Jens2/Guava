@@ -96,7 +96,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         registers = new ParseTreeProperty<>();
         varRegisters = new HashMap<>();
         next = new ParseTreeProperty<>();
-        regCount = 1;
+        regCount = 0;
         codeLines = new ParseTreeProperty<>();
         tree.accept(this);
     }
@@ -137,10 +137,13 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
     @Override
     public String visitVarDeclStat(GuavaParser.VarDeclStatContext ctx) {
         String var = ctx.ID().getText();
+        int lines = 0;
         if (ctx.expr() != null) {
             visit(ctx.expr());
+            lines += getCodeLines(ctx.expr());
             setRegExplicit(var, reg(ctx.expr()));
         }
+        setCodeLines(ctx, lines);
         return null;
     }
 
@@ -150,54 +153,13 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         return null;
     }
 
-    private void addConstOp(Type type, ParserRuleContext ctx, ParseTree tree) {
-        // Check the type and set the appropriate instructions
-        switch (type.toString()) {
-            case "Integer":
-                addOp(new SPRIL.LOAD(MemAddr.ImmValue, tree.getText(), reg(ctx)).toString());
-                break;
-            case "Bool":
-                String s;
-                if (tree.getText().equals(SWEET)) {
-                    s = TRUE;
-                } else if (tree.getText().equals(SOUR)){
-                    s = FALSE;
-                } else {
-                    // This should not happen.
-                    s = "-1";
-                }
-                addOp(new SPRIL.LOAD(MemAddr.ImmValue, s, reg(ctx)).toString());
-                break;
-            case "Char":
-                String ch = tree.getText().replaceAll("\'", "");
-                char c = ch.charAt(0);
-                int i = (int) c;
-                addOp(new SPRIL.LOAD(MemAddr.ImmValue, String.valueOf(i), reg(ctx)).toString());
-                break;
-            case "Double":
-                // TODO implement storage of doubles
-            case "string":
-                // TODO implement storage of strings
-        }
-    }
-
     @Override
     public String visitAssignStat(GuavaParser.AssignStatContext ctx) {
         String var = ctx.ID().getText();
-        String s = visit(ctx.expr());
-        int lines = 0;
-        switch (s) {
-            case CONST:
-                Type type = result.getType(ctx.expr());
-                addConstOp(type, ctx, ctx.expr());
-                break;
-            case DIR:
-                addOp(new SPRIL.LOAD(MemAddr.DirAddr, reg(ctx.expr()), reg(var)).toString());
-                break;
-            case IND:
-                addOp(new SPRIL.LOAD(MemAddr.IndAddr, reg(ctx.expr()), reg(var)).toString());
-                break;
-        }
+        visit(ctx.expr());
+        int lines = getCodeLines(ctx.expr());
+        addOp(new SPRIL.LOAD(MemAddr.DirAddr, reg(ctx.expr()), reg(var)).toString());
+        setCodeLines(ctx, lines+1);
         return null;
     }
 
