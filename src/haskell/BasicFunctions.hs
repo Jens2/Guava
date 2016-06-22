@@ -28,7 +28,6 @@ regT          = 21   :: Int
 regU          = 22   :: Int
 regV          = 23   :: Int
 regW          = 24   :: Int
-regX          = 25   :: Int
 
 intBool True  = 1                                               -- Bool-to-Int
 intBool False = 0
