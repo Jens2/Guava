@@ -1,8 +1,5 @@
 package elaboration;
 
-import elaboration.structure.CheckerResult;
-import elaboration.structure.GuavaChecker;
-import elaboration.structure.GuavaException;
 import grammar.GuavaBaseVisitor;
 import grammar.GuavaLexer;
 import grammar.GuavaParser;
@@ -17,8 +14,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static instructions.SPRIL.*;
 
 /**
  * Created by Jens on 14-6-2016.

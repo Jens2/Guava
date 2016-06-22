@@ -1,8 +1,7 @@
-import com.sun.org.apache.xpath.internal.SourceTree;
 import elaboration.GuavaGenerator;
-import elaboration.structure.CheckerResult;
-import elaboration.structure.GuavaChecker;
-import elaboration.structure.GuavaException;
+import elaboration.CheckerResult;
+import elaboration.GuavaChecker;
+import elaboration.GuavaException;
 import grammar.GuavaLexer;
 import grammar.GuavaParser;
 import org.antlr.v4.runtime.*;

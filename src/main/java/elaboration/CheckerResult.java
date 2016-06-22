@@ -1,4 +1,4 @@
-package elaboration.structure;
+package elaboration;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;

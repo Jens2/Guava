@@ -1,4 +1,4 @@
-package elaboration.structure;
+package elaboration;
 
 public interface SymbolTable {
 	public abstract void openScope();

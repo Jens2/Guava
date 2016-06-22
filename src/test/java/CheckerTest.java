@@ -1,7 +1,7 @@
-import elaboration.structure.GuavaChecker;
-import elaboration.structure.GuavaException;
-import elaboration.structure.CheckerResult;
-import elaboration.structure.Type;
+import elaboration.GuavaChecker;
+import elaboration.GuavaException;
+import elaboration.CheckerResult;
+import elaboration.Type;
 import grammar.GuavaLexer;
 import grammar.GuavaParser;
 import org.antlr.v4.runtime.*;
