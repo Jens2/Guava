@@ -1,4 +1,4 @@
-package elaboration.structure;
+package elaboration;
 
 import java.util.ArrayList;
 import java.util.HashMap;

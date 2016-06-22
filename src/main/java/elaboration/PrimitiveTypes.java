@@ -1,4 +1,4 @@
-package elaboration.structure;
+package elaboration;
 
 /**
  * Created by Dion on 15-6-2016.
