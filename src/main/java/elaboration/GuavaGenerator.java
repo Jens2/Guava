@@ -42,8 +42,8 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
     private static final String SWEET = "sweet";
     private static final String MINUS = "minus";
     private static final String SOUR = "sour";
-    private static final int TRUE = 1;
-    private static final int FALSE = 0;
+    private static final String TRUE = "1";
+    private static final String FALSE = "0";
 
 
     public static void main(String[] args) {
@@ -112,7 +112,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         END = ctx;
 
         reg(SWEET);
-        addOp(new SPRIL.LOAD(MemAddr.ImmValue, String.valueOf(TRUE), reg(SWEET)).toString());
+        addOp(new SPRIL.LOAD(MemAddr.ImmValue, TRUE, reg(SWEET)).toString());
 
         reg(MINUS);
         addOp(new SPRIL.LOAD(MemAddr.ImmValue, String.valueOf(-1), reg(MINUS)).toString());
@@ -139,15 +139,20 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         String var = ctx.ID().getText();
         if (ctx.expr() != null) {
             String s = visit(ctx.expr());
-////////////// Check whether the expression is a constant
-            if (s.equals(CONST)) {
-                Type type = result.getType(ctx.expr());
-                addConstOp(type, ctx, ctx.expr());
-            } else if (s.equals(DIR)) {
-                addOp(new SPRIL.LOAD(MemAddr.DirAddr, reg(ctx.expr()), reg(ctx)).toString());
-            } else if (s.equals(IND)) {
-                addOp(new SPRIL.LOAD(MemAddr.IndAddr, reg(ctx.expr()), reg(ctx)).toString());
+            // Check whether the expression is a constant
+            switch (s) {
+                case CONST:
+                    Type type = result.getType(ctx.expr());
+                    addConstOp(type, ctx, ctx.expr());
+                    break;
+                case DIR:
+                    addOp(new SPRIL.LOAD(MemAddr.DirAddr, reg(ctx.expr()), reg(ctx)).toString());
+                    break;
+                case IND:
+                    addOp(new SPRIL.LOAD(MemAddr.IndAddr, reg(ctx.expr()), reg(ctx)).toString());
+                    break;
             }
+
             setRegExplicit(var, reg(ctx.expr()));
         }
         return null;
@@ -160,16 +165,16 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
     }
 
     private void addConstOp(Type type, ParserRuleContext ctx, ParseTree tree) {
-////////////////// Check the type and set the appropriate instructions
+        // Check the type and set the appropriate instructions
         switch (type.toString()) {
             case "Integer":
                 addOp(new SPRIL.LOAD(MemAddr.ImmValue, tree.getText(), reg(ctx)).toString());
             case "Bool":
                 String s;
                 if (tree.getText().equals(SWEET)) {
-                    s = "1";
+                    s = TRUE;
                 } else if (tree.getText().equals(SOUR)){
-                    s = "0";
+                    s = FALSE;
                 } else {
                     // This should not happen.
                     s = "-1";
@@ -179,11 +184,11 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
                 String ch = tree.getText().replaceAll("\'", "");
                 char c = ch.charAt(0);
                 int i = (int) c;
-                addOp(new SPRIL.LOAD(MemAddr.ImmValue, "" + i, reg(ctx)).toString());
+                addOp(new SPRIL.LOAD(MemAddr.ImmValue, String.valueOf(i), reg(ctx)).toString());
             case "Double":
-                //@TODO implement storage of doubles
+                // TODO implement storage of doubles
             case "string":
-                //@TODO implement storage of strings
+                // TODO implement storage of strings
         }
     }
 
@@ -411,6 +416,31 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
     @Override
     public String visitConstExpr(GuavaParser.ConstExprContext ctx) {
+        SPRIL.LOAD load = null;
+
+        if (result.getType(ctx) == Type.INT) {
+            load = new SPRIL.LOAD(MemAddr.ImmValue, String.valueOf(ctx.getText()), reg(ctx));
+        } else if (result.getType(ctx) == Type.BOOL) {
+            if (ctx.getText().equals(SWEET)) {
+                load = new SPRIL.LOAD(MemAddr.ImmValue, TRUE, reg(ctx));
+            } else {
+                load = new SPRIL.LOAD(MemAddr.ImmValue, FALSE, reg(ctx));
+            }
+        } else if (result.getType(ctx) == Type.CHAR) {
+            String ch = ctx.getText().replaceAll("\'", "");
+            char c = ch.charAt(0);
+            int i = (int) c;
+            load = new SPRIL.LOAD(MemAddr.ImmValue, String.valueOf(i), reg(ctx));
+        } else if (result.getType(ctx) == Type.DOUBLE) {
+            // TODO: implement doubles
+        } else if (result.getType(ctx) == Type.STR) {
+            // TODO: implement strings
+        } else {
+            // This should not happen
+            load = new SPRIL.LOAD(MemAddr.ImmValue, String.valueOf(ctx.getText()), reg(ctx));
+        }
+
+        addOp(load.toString());
         return CONST;
     }
 
