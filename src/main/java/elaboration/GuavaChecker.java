@@ -216,6 +216,21 @@ public class GuavaChecker extends GuavaBaseListener {
     }
 
     @Override
+    public void exitModExpr(GuavaParser.ModExprContext ctx) {
+        Type type;
+
+        if (getType(ctx.expr(0)) == Type.INT && getType(ctx.expr(1)) == Type.INT) {
+            type = Type.INT;
+        } else {
+            addError(ctx, "Expected 'Integer' but found '%s' and '%s'", getType(ctx.expr(0)), getType(ctx.expr(1)));
+            type = Type.ERROR;
+        }
+
+        setType(ctx, type);
+        setEntry(ctx, entry(ctx.expr(0)));
+    }
+
+    @Override
     public void exitMultExpr(GuavaParser.MultExprContext ctx) {
         Type type;
 

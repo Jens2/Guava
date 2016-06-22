@@ -9,6 +9,7 @@ public enum Op {
     Sub,
     Mul,
     Div,
+    Pow,
     Mod,
     Equal,
     NEq,

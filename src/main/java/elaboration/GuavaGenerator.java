@@ -264,8 +264,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
                 mult = new SPRIL.COMP(Op.Div, reg1, reg2, reg(ctx));
                 break;
             case "^":
-                // TODO: implement power
-                mult = new SPRIL.COMP(Op.Mul, reg1, reg2, reg(ctx));
+                mult = new SPRIL.COMP(Op.Pow, reg1, reg2, reg(ctx));
                 break;
             default:
                 // This should never be reached

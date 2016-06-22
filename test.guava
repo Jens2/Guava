@@ -1,11 +1,5 @@
 epicarp {
-    int i = 0;
-    pulp q = sweet;
-    pulp z = q | sour;
-    >> test
-    char c = 'b';
-    i = 1;
-    i = 2*3;
-    i = -i;
-    i = -i;
+    int i = 5;
+    int j = i ^ 2;
+    j = j + 1;
 }
