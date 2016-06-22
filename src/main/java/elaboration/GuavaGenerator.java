@@ -133,7 +133,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         int lines = 0;
         if (ctx.expr() != null) {
             visit(ctx.expr());
-            //lines += getCodeLines(ctx.expr());
+            lines += getCodeLines(ctx.expr());
             setRegExplicit(var, reg(ctx.expr()));
         }
         setCodeLines(ctx, lines);
@@ -198,6 +198,12 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
                 setNext(ctx.stat(i), result.getEntry(ctx.stat(i + 1)));
             }
         }
+        int lines = 0;
+        visitChildren(ctx);
+        for (int i = 0; i < ctx.stat().size(); i++) {
+            lines += getCodeLines(ctx.stat(i));
+        }
+        setCodeLines(ctx, lines);
         return null;
     }
 
@@ -210,7 +216,10 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
     @Override
     public String visitPrfExpr(GuavaParser.PrfExprContext ctx) {
         setNext(ctx.expr(), getNext(ctx));
+        int lines = 0;
         visit(ctx.expr());
+
+        lines += getCodeLines(ctx.expr());
 
         String reg = reg(ctx.expr());
 
@@ -226,14 +235,19 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
         addOp(load.toString());
         addOp(neg.toString());
+        setCodeLines(ctx, lines + 1);
         emptyReg(ctx.expr());
         return DIR;
     }
 
     @Override
     public String visitMultExpr(GuavaParser.MultExprContext ctx) {
+        int lines = 0;
         visit(ctx.expr(0));
         visit(ctx.expr(1));
+
+        lines += getCodeLines(ctx.expr(0));
+        lines += getCodeLines(ctx.expr(1));
 
         String reg1 = reg(ctx.expr(0));
         String reg2 = reg(ctx.expr(1));
@@ -258,6 +272,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         }
 
         addOp(mult.toString());
+        setCodeLines(ctx, lines + 1);
         emptyReg(ctx.expr(0));
         emptyReg(ctx.expr(1));
         return DIR;
@@ -265,8 +280,12 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
     @Override
     public String visitPlusExpr(GuavaParser.PlusExprContext ctx) {
+        int lines = 0;
         visit(ctx.expr(0));
         visit(ctx.expr(1));
+
+        lines += getCodeLines(ctx.expr(0));
+        lines += getCodeLines(ctx.expr(1));
 
         String reg1 = reg(ctx.expr(0));
         String reg2 = reg(ctx.expr(1));
@@ -286,6 +305,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         }
 
         addOp(plus.toString());
+        setCodeLines(ctx, lines + 1);
         emptyReg(ctx.expr(0));
         emptyReg(ctx.expr(1));
         return DIR;
@@ -293,8 +313,12 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
     @Override
     public String visitBoolExpr(GuavaParser.BoolExprContext ctx) {
+        int lines = 0;
         visit(ctx.expr(0));
         visit(ctx.expr(1));
+
+        lines += getCodeLines(ctx.expr(0));
+        lines += getCodeLines(ctx.expr(1));
 
         String reg1 = reg(ctx.expr(0));
         String reg2 = reg(ctx.expr(1));
@@ -314,6 +338,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         }
 
         addOp(bool.toString());
+        setCodeLines(ctx, lines + 1);
         emptyReg(ctx.expr(0));
         emptyReg(ctx.expr(1));
         return DIR;
@@ -321,8 +346,12 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
     @Override
     public String visitCompExpr(GuavaParser.CompExprContext ctx) {
+        int lines = 0;
         visit(ctx.expr(0));
         visit(ctx.expr(1));
+
+        lines += getCodeLines(ctx.expr(0));
+        lines += getCodeLines(ctx.expr(1));
 
         String reg1 = reg(ctx.expr(0));
         String reg2 = reg(ctx.expr(1));
@@ -354,6 +383,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         }
 
         addOp(comp.toString());
+        setCodeLines(ctx, lines + 1);
         emptyReg(ctx.expr(0));
         emptyReg(ctx.expr(1));
         return DIR;
@@ -362,6 +392,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
     @Override
     public String visitParExpr(GuavaParser.ParExprContext ctx) {
         visit(ctx.expr());
+        setCodeLines(ctx, getCodeLines(ctx.expr()));
         return DIR;
     }
 
@@ -374,20 +405,24 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
     @Override
     public String visitConstExpr(GuavaParser.ConstExprContext ctx) {
         SPRIL.LOAD load = null;
+        int lines = 0;
 
         if (result.getType(ctx) == Type.INT) {
             load = new SPRIL.LOAD(MemAddr.ImmValue, String.valueOf(ctx.getText()), reg(ctx));
+            lines = 1;
         } else if (result.getType(ctx) == Type.BOOL) {
             if (ctx.getText().equals(SWEET)) {
                 load = new SPRIL.LOAD(MemAddr.ImmValue, TRUE, reg(ctx));
             } else {
                 load = new SPRIL.LOAD(MemAddr.ImmValue, FALSE, reg(ctx));
             }
+            lines = 1;
         } else if (result.getType(ctx) == Type.CHAR) {
             String ch = ctx.getText().replaceAll("\'", "");
             char c = ch.charAt(0);
             int i = (int) c;
             load = new SPRIL.LOAD(MemAddr.ImmValue, String.valueOf(i), reg(ctx));
+            lines = 1;
         } else if (result.getType(ctx) == Type.DOUBLE) {
             // TODO: implement doubles
         } else if (result.getType(ctx) == Type.STR) {
@@ -395,9 +430,10 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         } else {
             // This should not happen
             load = new SPRIL.LOAD(MemAddr.ImmValue, String.valueOf(ctx.getText()), reg(ctx));
+            lines = 1;
         }
-
         addOp(load.toString());
+        setCodeLines(ctx, lines);
         return CONST;
     }
 
@@ -405,6 +441,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
     public String visitIdExpr(GuavaParser.IdExprContext ctx) {
         String var = ctx.ID().getText();
         setRegExplicit(ctx, reg(var));
+        setCodeLines(ctx, 0);
         return DIR;
     }
 
