@@ -23,10 +23,13 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
     private CheckerResult result;
     private List<String> operations;
+    private int regCount;
+
     private ParseTreeProperty<Integer> registers;
     private Map<String, Integer> varRegisters;
     private ParseTreeProperty<ParserRuleContext> next;
-    private int regCount;
+    private ParseTreeProperty<Integer> codeLines;
+
     private static ParserRuleContext END;
     private static final String CONST = "CONST";
     private static final String DIR = "DIR";
@@ -88,6 +91,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         varRegisters = new HashMap<>();
         next = new ParseTreeProperty<>();
         regCount = 1;
+        codeLines = new ParseTreeProperty<>();
         tree.accept(this);
     }
 
@@ -125,39 +129,11 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 ////////////// Check whether the expression is a constant
             if (s.equals(CONST)) {
                 Type type = result.getType(ctx.expr());
-////////////////// Check the type and set the appropriate instructions
-                if (type.equals(Type.INT)) {
-                    int i = Integer.parseInt(ctx.expr().getText());
-                    addOp(new SPRIL.LOAD(MemAddr.ImmValue, i, reg(ctx.expr())).toString());
-
-                } else if (type.equals(Type.BOOL)) {
-                    int i;
-                    if (ctx.expr().getText().equals(SWEET)) {
-                        i = 1;
-                    } else if (ctx.expr().getText().equals(SOUR)){
-                        i = 0;
-                    } else {
-                        // This should not happen.
-                        i = -1;
-                    }
-                    addOp(new SPRIL.LOAD(MemAddr.ImmValue, i, reg(ctx.expr())).toString());
-
-                } else if (type.equals(Type.CHAR)) {
-                    String ch = ctx.expr().getText().replaceAll("\'", "");
-                    char c = ch.charAt(0);
-                    int i = (int) c;
-                    addOp(new SPRIL.LOAD(MemAddr.ImmValue, i, reg(ctx.expr())).toString());
-
-                } else if (type.equals(Type.DOUBLE)) {
-                    //@TODO implement storage of doubles
-                } else if (type.equals(Type.STR)) {
-                    //@TODO implement storage of strings
-                }
-
+                addConstOp(type, ctx, ctx.expr());
             } else if (s.equals(DIR)) {
-                addOp(new SPRIL.LOAD(MemAddr.DirAddr, reg(ctx.expr()), reg(ctx.expr())).toString());
+                addOp(new SPRIL.LOAD(MemAddr.DirAddr, reg(ctx.expr()), reg(ctx)).toString());
             } else if (s.equals(IND)) {
-                addOp(new SPRIL.LOAD(MemAddr.IndAddr, reg(ctx.expr()), reg(ctx.expr())).toString());
+                addOp(new SPRIL.LOAD(MemAddr.IndAddr, reg(ctx.expr()), reg(ctx)).toString());
             }
             setRegExplicit(var, reg(ctx.expr()));
         }
@@ -170,22 +146,57 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         return null;
     }
 
+    private void addConstOp(Type type, ParserRuleContext ctx, ParseTree tree) {
+////////////////// Check the type and set the appropriate instructions
+        if (type.equals(Type.INT)) {
+            int i = Integer.parseInt(tree.getText());
+            addOp(new SPRIL.LOAD(MemAddr.ImmValue, i, reg(ctx)).toString());
+
+        } else if (type.equals(Type.BOOL)) {
+            int i;
+            if (tree.getText().equals(SWEET)) {
+                i = 1;
+            } else if (tree.getText().equals(SOUR)){
+                i = 0;
+            } else {
+                // This should not happen.
+                i = -1;
+            }
+            addOp(new SPRIL.LOAD(MemAddr.ImmValue, i, reg(ctx)).toString());
+
+        } else if (type.equals(Type.CHAR)) {
+            String ch = tree.getText().replaceAll("\'", "");
+            char c = ch.charAt(0);
+            int i = (int) c;
+            addOp(new SPRIL.LOAD(MemAddr.ImmValue, i, reg(ctx)).toString());
+
+        } else if (type.equals(Type.DOUBLE)) {
+            //@TODO implement storage of doubles
+        } else if (type.equals(Type.STR)) {
+            //@TODO implement storage of strings
+        }
+
+    }
+
     @Override
     public String visitAssignStat(GuavaParser.AssignStatContext ctx) {
         String var = ctx.ID().getText();
         String s = visit(ctx.expr());
         if (s.equals(CONST)) {
-
+            Type type = result.getType(ctx.expr());
+            addConstOp(type, ctx, ctx.expr());
         } else if (s.equals(DIR)) {
-            addOp(new SPRIL.LOAD(MemAddr.DirAddr, reg(ctx.expr()), reg(ctx.expr())).toString());
+            addOp(new SPRIL.LOAD(MemAddr.DirAddr, reg(ctx.expr()), reg(var)).toString());
         } else if (s.equals(IND)) {
-
+            addOp(new SPRIL.LOAD(MemAddr.IndAddr, reg(ctx.expr()), reg(var)).toString());
         }
         return null;
     }
 
     @Override
     public String visitIfStat(GuavaParser.IfStatContext ctx) {
+        setNext(ctx.stat(0), getNext(ctx));
+
         return null;
     }
 
@@ -276,7 +287,9 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
     @Override
     public String visitIdExpr(GuavaParser.IdExprContext ctx) {
-        return null;
+        String var = ctx.ID().getText();
+        setRegExplicit(var, reg(ctx));
+        return DIR;
     }
 
     /** Assignments in a for loop.*/
