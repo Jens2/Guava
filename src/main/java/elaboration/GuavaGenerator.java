@@ -23,13 +23,17 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
     private CheckerResult result;
     private List<String> operations;
-    private int regCount;
 
-    private ParseTreeProperty<Integer> registers;
-    private Map<String, Integer> varRegisters;
+    private ParseTreeProperty<String> registers;
+    private Map<String, String> varRegisters;
     private ParseTreeProperty<ParserRuleContext> next;
     private ParseTreeProperty<Integer> codeLines;
+    private int regCount;
 
+    private static final String[] availableRegs = {"RegA", "RegB", "RegC", "RegD", "RegE", "RegF"
+                                                    , "RegG", "RegH", "RegI", "RegJ", "RegK", "RegL"
+                                                    , "RegM", "RegN", "RegO", "RegP", "RegQ", "RegR"
+                                                    , "RegS", "RegT", "RegU", "RegV", "RegW", "RegX"};
     private static ParserRuleContext END;
     private static final String CONST = "CONST";
     private static final String DIR = "DIR";
@@ -149,26 +153,25 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
     private void addConstOp(Type type, ParserRuleContext ctx, ParseTree tree) {
 ////////////////// Check the type and set the appropriate instructions
         if (type.equals(Type.INT)) {
-            int i = Integer.parseInt(tree.getText());
-            addOp(new SPRIL.LOAD(MemAddr.ImmValue, i, reg(ctx)).toString());
+            addOp(new SPRIL.LOAD(MemAddr.ImmValue, tree.getText(), reg(ctx)).toString());
 
         } else if (type.equals(Type.BOOL)) {
-            int i;
+            String s;
             if (tree.getText().equals(SWEET)) {
-                i = 1;
+                s = "1";
             } else if (tree.getText().equals(SOUR)){
-                i = 0;
+                s = "0";
             } else {
                 // This should not happen.
-                i = -1;
+                s = "-1";
             }
-            addOp(new SPRIL.LOAD(MemAddr.ImmValue, i, reg(ctx)).toString());
+            addOp(new SPRIL.LOAD(MemAddr.ImmValue, s, reg(ctx)).toString());
 
         } else if (type.equals(Type.CHAR)) {
             String ch = tree.getText().replaceAll("\'", "");
             char c = ch.charAt(0);
             int i = (int) c;
-            addOp(new SPRIL.LOAD(MemAddr.ImmValue, i, reg(ctx)).toString());
+            addOp(new SPRIL.LOAD(MemAddr.ImmValue, "" + i, reg(ctx)).toString());
 
         } else if (type.equals(Type.DOUBLE)) {
             //@TODO implement storage of doubles
@@ -247,37 +250,37 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
     /** All expressions. */
     @Override
     public String visitPrfExpr(GuavaParser.PrfExprContext ctx) {
-        return null;
+        return DIR;
     }
 
     @Override
     public String visitMultExpr(GuavaParser.MultExprContext ctx) {
-        return null;
+        return DIR;
     }
 
     @Override
     public String visitPlusExpr(GuavaParser.PlusExprContext ctx) {
-        return null;
+        return DIR;
     }
 
     @Override
     public String visitBoolExpr(GuavaParser.BoolExprContext ctx) {
-        return null;
+        return DIR;
     }
 
     @Override
     public String visitCompExpr(GuavaParser.CompExprContext ctx) {
-        return null;
+        return DIR;
     }
 
     @Override
     public String visitParExpr(GuavaParser.ParExprContext ctx) {
-        return null;
+        return DIR;
     }
 
     @Override
     public String visitArrayExpr(GuavaParser.ArrayExprContext ctx) {
-        return null;
+        return DIR;
     }
 
     @Override
@@ -288,7 +291,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
     @Override
     public String visitIdExpr(GuavaParser.IdExprContext ctx) {
         String var = ctx.ID().getText();
-        setRegExplicit(var, reg(ctx));
+        setRegExplicit(ctx, reg(var));
         return DIR;
     }
 
@@ -362,25 +365,29 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         this.operations.add(op);
     }
 
-    private void setRegExplicit(String var, int reg) {
+    private void setRegExplicit(String var, String reg) {
         this.varRegisters.put(var, reg);
     }
 
-    private Integer reg(String var) {
+    private void setRegExplicit(ParseTree tree, String reg) {
+        this.registers.put(tree, reg);
+    }
+
+    private String reg(String var) {
         if (this.varRegisters.containsKey(var)) {
             return this.varRegisters.get(var);
         } else {
-            this.varRegisters.put(var, regCount);
+            this.varRegisters.put(var, availableRegs[regCount]);
             regCount++;
             return this.varRegisters.get(var);
         }
     }
 
-    private Integer reg(ParseTree tree) {
+    private String reg(ParseTree tree) {
         if (this.registers.get(tree) != null) {
             return this.registers.get(tree);
         } else {
-            this.registers.put(tree, regCount);
+            this.registers.put(tree, availableRegs[regCount]);
             regCount++;
             return this.registers.get(tree);
         }

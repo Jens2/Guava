@@ -10,7 +10,7 @@ public class SPRIL {
     /** Compute instruction.*/
     static public class COMP {
         private String operation = "Compute ";
-        public COMP(Op op, int reg0, int reg1, int reg2) {
+        public COMP(Op op, String reg0, String reg1, String reg2) {
             operation = operation + op + " " + reg0 + " " + reg1 + " " + reg2;
         }
         public String toString() {
@@ -21,8 +21,8 @@ public class SPRIL {
     /** Load instruction.*/
     static public class LOAD {
         private String operation = "Load ";
-        public LOAD(MemAddr m, int addr, int reg) {
-            assert addr > -1;
+        public LOAD(MemAddr m, String addr, String reg) {
+            assert !addr.equals("-1");
             operation = operation + "(" + m + " " + addr + ") " + reg;
         }
         public String toString() {
@@ -33,7 +33,7 @@ public class SPRIL {
     /** Store instruction.*/
     static public class STORE {
         private String operation = "Store ";
-        public STORE(int reg, MemAddr m, int addr) {
+        public STORE(String reg, MemAddr m, String addr) {
             operation = operation + reg + " (" + m + " " + addr + ")";
         }
         public String toString() {
@@ -44,7 +44,7 @@ public class SPRIL {
     /** Branch instruction.*/
     static public class BRANCH {
         private String operation = "Branch ";
-        public BRANCH(int reg, Target t, int addr) {
+        public BRANCH(String reg, Target t, String addr) {
             operation = operation + reg + " (" + t + " " + addr + ")";
         }
         public String toString() {
@@ -55,7 +55,7 @@ public class SPRIL {
     /** Jump instruction.*/
     static public class JUMP {
         private String operation = "Jump ";
-        public JUMP(Target t, int addr) {
+        public JUMP(Target t, String addr) {
             operation = operation + "(" + t + " " + addr + ")";
         }
         public String toString() {
@@ -66,7 +66,7 @@ public class SPRIL {
     /** Push instruction.*/
     static public class PUSH {
         private String operation = "Push ";
-        public PUSH(int reg) {
+        public PUSH(String reg) {
             operation = operation + reg;
         }
         public String toString() {
@@ -77,7 +77,7 @@ public class SPRIL {
     /** Pop instruction.*/
     static public class POP {
         private String operation = "Pop ";
-        public POP(int reg) {
+        public POP(String reg) {
             operation = operation + reg;
         }
         public String toString() {
@@ -88,7 +88,7 @@ public class SPRIL {
     /** Read instruction.*/
     static public class READ {
         private String operation = "Read ";
-        public READ(MemAddr m, int addr) {
+        public READ(MemAddr m, String addr) {
             operation = operation + "(" + m + " " + addr + ")";
         }
         public String toString(){
@@ -99,7 +99,7 @@ public class SPRIL {
     /** Receive instruction.*/
     static public class RECEIVE {
         private String operation = "Receive ";
-        public RECEIVE(int reg) {
+        public RECEIVE(String reg) {
             operation = operation + reg;
         }
         public String toString() {
@@ -110,7 +110,7 @@ public class SPRIL {
     /** Write instruction.*/
     static public class WRITE {
         private String operation = "Write ";
-        public WRITE(int reg, MemAddr m, int addr) {
+        public WRITE(String reg, MemAddr m, String addr) {
             operation = operation + reg + " (" + m + " " + addr + ")";
         }
         public String toString() {
@@ -121,7 +121,7 @@ public class SPRIL {
     /** TestAndSet operation.*/
     static public class TAS {
         private String operation = "TestAndSet ";
-        public TAS(MemAddr m, int addr) {
+        public TAS(MemAddr m, String addr) {
             operation = operation + "(" + m + " " + addr + ")";
         }
         public String toString() {
