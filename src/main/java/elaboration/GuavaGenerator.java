@@ -99,6 +99,12 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         emptyRegisters = new ArrayList<>();
         Collections.addAll(emptyRegisters, availableRegs);
         tree.accept(this);
+
+        for (String s : availableRegs) {
+            if (!emptyRegisters.contains(s)) {
+                System.out.println(s);
+            }
+        }
     }
 
     /** Get the list of all operations.*/
@@ -458,32 +464,6 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
     @Override
     public String visitForExisting(GuavaParser.ForExistingContext ctx) {
-        return null;
-    }
-
-    /** All different operations. */
-    @Override
-    public String visitPrfOp(GuavaParser.PrfOpContext ctx) {
-        return null;
-    }
-
-    @Override
-    public String visitMultOp(GuavaParser.MultOpContext ctx) {
-        return null;
-    }
-
-    @Override
-    public String visitPlusOp(GuavaParser.PlusOpContext ctx) {
-        return null;
-    }
-
-    @Override
-    public String visitBoolOp(GuavaParser.BoolOpContext ctx) {
-        return null;
-    }
-
-    @Override
-    public String visitCompOp(GuavaParser.CompOpContext ctx) {
         return null;
     }
 

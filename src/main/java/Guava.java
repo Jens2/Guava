@@ -93,7 +93,7 @@ public class Guava {
                 writer.println("program = [ " + instructions.get(0));
             }
             for (int i = 1; i < instructions.size(); i++) {
-                writer.println(", " + instructions.get(i));
+                writer.println("\t\t\t, " + instructions.get(i));
             }
             writer.println("]");
             writer.flush();

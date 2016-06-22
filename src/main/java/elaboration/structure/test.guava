@@ -1,5 +1,7 @@
 epicarp {
     int i = 0;
+    pulp q = sweet;
+    pulp z = q | sour;
     >> test
     char c = 'b';
     i = 1;
