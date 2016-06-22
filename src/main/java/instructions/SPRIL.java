@@ -22,6 +22,7 @@ public class SPRIL {
     static public class LOAD {
         private String operation = "Load ";
         public LOAD(MemAddr m, int addr, int reg) {
+            assert addr > -1;
             operation = operation + "(" + m + " " + addr + ") " + reg;
         }
         public String toString() {

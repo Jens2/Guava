@@ -1,4 +1,5 @@
 epicarp {
     int i = 0;
     >> test
+    char c = 'b';
 }
