@@ -77,25 +77,39 @@ public class Guava {
         return this.generator.getOperations();
     }
 
+    public String capitalize(String input) {
+        return input.substring(0, 1).toUpperCase() + input.substring(1);
+    }
+
     public void writeToFile(List<String> instructions, String filename) {
         PrintWriter writer = null;
 
         try {
-            writer = new PrintWriter(filename + ".hs");
+            writer = new PrintWriter("src/haskell/" + filename + ".hs");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
 
         if (writer != null) {
-            writer.println("module " + filename + " where\n");
-            writer.println("import HardwareTypes\n");
+            writer.println("module " + capitalize(filename) + " where\n");
+            writer.println("import HardwareTypes");
+            writer.println("import BasicFunctions");
+            writer.println("import Sprockell");
+            writer.println("import System");
+            writer.println("import Simulation\n");
+
             if (instructions.size() >= 1) {
+                writer.println("program :: [Instruction]");
                 writer.println("program = [ " + instructions.get(0));
             }
             for (int i = 1; i < instructions.size(); i++) {
-                writer.println("\t\t\t, " + instructions.get(i));
+                if (i == instructions.size() - 1) {
+                    writer.println("          , " + instructions.get(i) + " ]\n");
+                } else {
+                    writer.println("          , " + instructions.get(i));
+                }
             }
-            writer.println("]");
+            writer.println("testProgram = sysTest [program]");
             writer.flush();
             writer.close();
         }

@@ -28,12 +28,12 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
     private ParseTreeProperty<ParserRuleContext> next;
     private ParseTreeProperty<Integer> codeLines;
 
-    private static final String[] availableRegs = {"RegA", "RegB", "RegC", "RegD", "RegE", "RegF"
-                                                 , "RegG", "RegH", "RegI", "RegJ", "RegK", "RegL"
-                                                 , "RegM", "RegN", "RegO", "RegP", "RegQ", "RegR"
-                                                 , "RegS", "RegT", "RegU", "RegV", "RegW", "RegX"};
-    private static ParserRuleContext END;
+    private static final String[] availableRegs = {"regA", "regB", "regC", "regD", "regE", "regF"
+                                                 , "regG", "regH", "regI", "regJ", "regK", "regL"
+                                                 , "regM", "regN", "regO", "regP", "regQ", "regR"
+                                                 , "regS", "regT", "regU", "regV", "regW", "regX"};
 
+    private static ParserRuleContext END;
 
     private static final String CONST = "CONST";
     private static final String DIR = "DIR";
@@ -43,51 +43,6 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
     private static final String SOUR = "sour";
     private static final String TRUE = "1";
     private static final String FALSE = "0";
-
-
-    public static void main(String[] args) {
-        File file = new File("output.hs");
-        File input = new File("src/main/java/elaboration/structure/test.guava");
-        CharStream chars = null;
-        try {
-            chars = new ANTLRInputStream(new FileReader(input));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        Lexer lexer = new GuavaLexer(chars);
-        TokenStream tokenStream = new CommonTokenStream(lexer);
-        GuavaParser parser = new GuavaParser(tokenStream);
-
-        GuavaChecker checker = new GuavaChecker();
-        CheckerResult result = null;
-        ParseTree tree = parser.program();
-        try {
-            result = checker.check(tree);
-        } catch (GuavaException e) {
-            e.printStackTrace();
-        }
-        GuavaGenerator g = new GuavaGenerator(tree, result);
-
-        PrintWriter writer = null;
-        try {
-            writer = new PrintWriter(file);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        List<String> operations = g.getOperations();
-        if (writer != null) {
-            if (operations.size() >= 1) {
-                writer.println("program = [ " + operations.get(0));
-            }
-            for (int i = 1; i < operations.size(); i++) {
-                writer.println(", " + operations.get(i));
-            }
-            writer.println("]");
-            writer.flush();
-            writer.close();
-        }
-    }
 
     public GuavaGenerator(ParseTree tree, CheckerResult result) {
         this.result = result;
@@ -99,12 +54,6 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         emptyRegisters = new ArrayList<>();
         Collections.addAll(emptyRegisters, availableRegs);
         tree.accept(this);
-
-        for (String s : availableRegs) {
-            if (!emptyRegisters.contains(s)) {
-                System.out.println(s);
-            }
-        }
     }
 
     /** Get the list of all operations.*/
@@ -240,7 +189,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
             load = new SPRIL.LOAD(MemAddr.ImmValue, String.valueOf(1), reg(ctx));
             neg = new SPRIL.COMP(Op.Xor, reg, reg(ctx), reg(ctx));
         } else {
-            load = new SPRIL.LOAD(MemAddr.ImmValue, String.valueOf(-1), reg(ctx));
+            load = new SPRIL.LOAD(MemAddr.ImmValue, "(-1)", reg(ctx));
             neg = new SPRIL.COMP(Op.Mul, reg, reg(ctx), reg(ctx));
         }
 
@@ -429,7 +378,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
             }
             lines = 1;
         } else if (result.getType(ctx) == Type.CHAR) {
-            String ch = ctx.getText().replaceAll("\'", "");
+            String ch = ctx.getText().replaceAll("'", "");
             char c = ch.charAt(0);
             int i = (int) c;
             load = new SPRIL.LOAD(MemAddr.ImmValue, String.valueOf(i), reg(ctx));
