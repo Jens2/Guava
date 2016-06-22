@@ -11,10 +11,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by Jens on 14-6-2016.
@@ -27,15 +24,17 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
     private ParseTreeProperty<String> registers;
     private Map<String, String> varRegisters;
+    private List<String> emptyRegisters;
     private ParseTreeProperty<ParserRuleContext> next;
     private ParseTreeProperty<Integer> codeLines;
-    private int regCount;
 
     private static final String[] availableRegs = {"RegA", "RegB", "RegC", "RegD", "RegE", "RegF"
-                                                    , "RegG", "RegH", "RegI", "RegJ", "RegK", "RegL"
-                                                    , "RegM", "RegN", "RegO", "RegP", "RegQ", "RegR"
-                                                    , "RegS", "RegT", "RegU", "RegV", "RegW", "RegX"};
+                                                 , "RegG", "RegH", "RegI", "RegJ", "RegK", "RegL"
+                                                 , "RegM", "RegN", "RegO", "RegP", "RegQ", "RegR"
+                                                 , "RegS", "RegT", "RegU", "RegV", "RegW", "RegX"};
     private static ParserRuleContext END;
+
+
     private static final String CONST = "CONST";
     private static final String DIR = "DIR";
     private static final String IND = "IND";
@@ -96,8 +95,9 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         registers = new ParseTreeProperty<>();
         varRegisters = new HashMap<>();
         next = new ParseTreeProperty<>();
-        regCount = 0;
         codeLines = new ParseTreeProperty<>();
+        emptyRegisters = new ArrayList<>();
+        Collections.addAll(emptyRegisters, availableRegs);
         tree.accept(this);
     }
 
@@ -140,7 +140,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         int lines = 0;
         if (ctx.expr() != null) {
             visit(ctx.expr());
-            lines += getCodeLines(ctx.expr());
+            //lines += getCodeLines(ctx.expr());
             setRegExplicit(var, reg(ctx.expr()));
         }
         setCodeLines(ctx, lines);
@@ -157,7 +157,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
     public String visitAssignStat(GuavaParser.AssignStatContext ctx) {
         String var = ctx.ID().getText();
         visit(ctx.expr());
-        int lines = getCodeLines(ctx.expr());
+        int lines = /*getCodeLines(ctx.expr());*/ 0;
         addOp(new SPRIL.LOAD(MemAddr.DirAddr, reg(ctx.expr()), reg(var)).toString());
         setCodeLines(ctx, lines+1);
         return null;
@@ -239,6 +239,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
         addOp(neg.toString());
         setCodeLines(ctx, lines + 1);
+        emptyReg(ctx.expr());
         return DIR;
     }
 
@@ -275,6 +276,8 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
         addOp(mult.toString());
         setCodeLines(ctx, lines + 1);
+        emptyReg(ctx.expr(0));
+        emptyReg(ctx.expr(1));
         return DIR;
     }
 
@@ -306,6 +309,8 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
         addOp(plus.toString());
         setCodeLines(ctx, lines + 1);
+        emptyReg(ctx.expr(0));
+        emptyReg(ctx.expr(1));
         return DIR;
     }
 
@@ -337,6 +342,8 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
         addOp(bool.toString());
         setCodeLines(ctx, lines + 1);
+        emptyReg(ctx.expr(0));
+        emptyReg(ctx.expr(1));
         return DIR;
     }
 
@@ -380,6 +387,8 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
         addOp(comp.toString());
         setCodeLines(ctx, lines + 1);
+        emptyReg(ctx.expr(0));
+        emptyReg(ctx.expr(1));
         return DIR;
     }
 
@@ -494,8 +503,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         if (this.varRegisters.containsKey(var)) {
             return this.varRegisters.get(var);
         } else {
-            this.varRegisters.put(var, availableRegs[regCount]);
-            regCount++;
+            this.varRegisters.put(var, emptyRegisters.remove(0));
             return this.varRegisters.get(var);
         }
     }
@@ -504,9 +512,14 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         if (this.registers.get(tree) != null) {
             return this.registers.get(tree);
         } else {
-            this.registers.put(tree, availableRegs[regCount]);
-            regCount++;
+            this.registers.put(tree, emptyRegisters.remove(0));
             return this.registers.get(tree);
+        }
+    }
+
+    private void emptyReg(ParseTree tree) {
+        if (!varRegisters.containsKey(tree.getText())) {
+            this.emptyRegisters.add(0, reg(tree));
         }
     }
 
