@@ -3,6 +3,7 @@ package elaboration;
 import elaboration.structure.CheckerResult;
 import elaboration.structure.GuavaChecker;
 import elaboration.structure.GuavaException;
+import elaboration.structure.Type;
 import grammar.GuavaBaseVisitor;
 import grammar.GuavaLexer;
 import grammar.GuavaParser;
@@ -47,26 +48,20 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println(chars);
 
         Lexer lexer = new GuavaLexer(chars);
         TokenStream tokenStream = new CommonTokenStream(lexer);
-        System.out.println(tokenStream.getText());
         GuavaParser parser = new GuavaParser(tokenStream);
-        System.out.println(parser.program().getText());
 
         GuavaChecker checker = new GuavaChecker();
         CheckerResult result = null;
+        ParseTree tree = parser.program();
         try {
-            System.out.println("************");
-            result = checker.check(parser.program());
-            System.out.println("---------------");
+            result = checker.check(tree);
         } catch (GuavaException e) {
             e.printStackTrace();
         }
-        System.out.println(checker.hasErrors());
-
-        GuavaGenerator g = new GuavaGenerator(parser.program(), result);
+        GuavaGenerator g = new GuavaGenerator(tree, result);
 
         PrintWriter writer = null;
         try {
@@ -129,9 +124,24 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         String var = ctx.ID().getText();
         if (ctx.expr() != null) {
             String s = visit(ctx.expr());
+            // Check whether the expression is a constant
             if (s.equals(CONST)) {
-                int i = Integer.parseInt(ctx.expr().getText());
-                addOp(new SPRIL.LOAD(MemAddr.ImmValue, i, reg(ctx.expr())).toString());
+                Type type = result.getType(ctx.expr());
+
+                // Check the type and set the appropriate instructions
+                if (type.equals(Type.INT)) {
+                    int i = Integer.parseInt(ctx.expr().getText());
+                    addOp(new SPRIL.LOAD(MemAddr.ImmValue, i, reg(ctx.expr())).toString());
+                } else if (type.equals(Type.BOOL)) {
+
+                } else if (type.equals(Type.CHAR)) {
+
+                } else if (type.equals(Type.DOUBLE)) {
+                    //@TODO implement storage of doubles
+                } else if (type.equals(Type.STR)) {
+
+                }
+
             } else if (s.equals(DIR)) {
                 addOp(new SPRIL.LOAD(MemAddr.DirAddr, reg(ctx.expr()), reg(ctx.expr())).toString());
             } else if (s.equals(IND)) {
