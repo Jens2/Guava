@@ -140,7 +140,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         int lines = 0;
         if (ctx.expr() != null) {
             visit(ctx.expr());
-            //lines += getCodeLines(ctx.expr());
+            lines += getCodeLines(ctx.expr());
             setRegExplicit(var, reg(ctx.expr()));
         }
         setCodeLines(ctx, lines);
