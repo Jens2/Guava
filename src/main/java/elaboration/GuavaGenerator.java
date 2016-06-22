@@ -110,13 +110,6 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
     @Override
     public String visitProgram(GuavaParser.ProgramContext ctx) {
         END = ctx;
-
-        reg(SWEET);
-        addOp(new SPRIL.LOAD(MemAddr.ImmValue, TRUE, reg(SWEET)).toString());
-
-        reg(MINUS);
-        addOp(new SPRIL.LOAD(MemAddr.ImmValue, String.valueOf(-1), reg(MINUS)).toString());
-
         visitChildren(ctx);
         addOp(new SPRIL.ENDPROG().toString());
         return null;
@@ -221,13 +214,17 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
         String reg = reg(ctx.expr());
 
+        SPRIL.LOAD load;
         SPRIL.COMP neg;
         if (result.getType(ctx.expr()) == Type.BOOL) {
-            neg = new SPRIL.COMP(Op.Xor, reg, reg(SWEET), reg(ctx));
+            load = new SPRIL.LOAD(MemAddr.ImmValue, String.valueOf(1), reg(ctx));
+            neg = new SPRIL.COMP(Op.Xor, reg, reg(ctx), reg(ctx));
         } else {
-            neg = new SPRIL.COMP(Op.Mul, reg, reg(MINUS), reg(ctx));
+            load = new SPRIL.LOAD(MemAddr.ImmValue, String.valueOf(-1), reg(ctx));
+            neg = new SPRIL.COMP(Op.Mul, reg, reg(ctx), reg(ctx));
         }
 
+        addOp(load.toString());
         addOp(neg.toString());
         emptyReg(ctx.expr());
         return DIR;
