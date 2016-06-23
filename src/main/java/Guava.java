@@ -32,16 +32,18 @@ public class Guava {
 
         System.out.println(">> Typechecking " + args[0]);
         CheckerResult result = guava.check(tree);
-        System.out.println(">> Typechecking of " + args[0] + " is done\n");
+        if (result == null) {
+            System.err.println(">> Typechecking of " + args[0] + " failed.");
+        } else {
+            System.out.println(">> Typechecking of " + args[0] + " is done\n");
 
-        System.out.println(">> Generating Sprockell code for " + args[0]);
-        List<String> instructions = guava.compile(tree, result);
-        System.out.println(">> Generating Sprockell code for " + args[0] + " is done\n");
+            System.out.println(">> Generating Sprockell code for " + args[0]);
+            List<String> instructions = guava.compile(tree, result);
+            System.out.println(">> Generating Sprockell code for " + args[0] + " is done\n");
 
-        guava.writeToFile(instructions, args[0]);
-        System.out.println(">> Output is written to " + args[0] + ".hs");
-
-
+            guava.writeToFile(instructions, args[0]);
+            System.out.println(">> Output is written to " + args[0] + ".hs");
+        }
     }
 
     public ParseTree parse(String filename) {

@@ -5,6 +5,8 @@ package instructions;
  *
  */
 public enum Op {
+    Incr,
+    Decr,
     Add,
     Sub,
     Mul,

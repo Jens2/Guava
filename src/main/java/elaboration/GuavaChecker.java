@@ -124,7 +124,9 @@ public class GuavaChecker extends GuavaBaseListener {
 
     @Override
     public void exitBlockStat(GuavaParser.BlockStatContext ctx) {
-        setEntry(ctx, entry(ctx.stat(0)));
+        if (ctx.stat(0) != null) {
+            setEntry(ctx, entry(ctx.stat(0)));
+        }
     }
 
     @Override

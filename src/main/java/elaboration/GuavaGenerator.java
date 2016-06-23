@@ -10,6 +10,7 @@ import instructions.Target;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
+import org.junit.Assert;
 
 import java.io.*;
 import java.util.*;
@@ -52,6 +53,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
     private static final String FALSE = "0";
 
     public GuavaGenerator(ParseTree tree, CheckerResult result) {
+        Assert.assertTrue(result != null);
         this.result = result;
         operations = new ArrayList<>();
         registers = new ParseTreeProperty<>();
@@ -178,12 +180,66 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
     @Override
     public String visitWhileStat(GuavaParser.WhileStatContext ctx) {
+        int lines = 0;
+        visit(ctx.expr());
+        lines += getCodeLines(ctx.expr());
 
+        addOp(new SPRIL.BRANCH(reg(ctx.expr()), Target.Rel, "2").toString());
+        int index = reserveOp();
+
+        visit(ctx.stat());
+        int jump = getCodeLines(ctx.stat()) + 2;
+        lines += getCodeLines(ctx.stat());
+
+        addOp(new SPRIL.JUMP(Target.Rel, ""+jump).toString(), index);
+        lines += 2;
+        addOp(new SPRIL.JUMP(Target.Rel, "(-"+lines+")").toString());
+        lines++;
+
+        setCodeLines(ctx, lines);
         return null;
     }
 
     @Override
     public String visitForStat(GuavaParser.ForStatContext ctx) {
+        int lines = 0;
+        visit(ctx.forAss());
+        lines += getCodeLines(ctx.forAss());
+
+        visit(ctx.expr(0));
+        lines += getCodeLines(ctx.expr(0));
+
+        addOp(new SPRIL.BRANCH(reg(ctx.expr(0)), Target.Rel, "2").toString());
+        lines++;
+
+        int index = reserveOp();
+        visit(ctx.stat());
+        lines += getCodeLines(ctx.stat());
+
+        int jump = getCodeLines(ctx.stat()) + 3;
+        addOp(new SPRIL.JUMP(Target.Rel, ""+jump).toString(), index);
+        lines++;
+        int add = 0;
+        if (ctx.expr().size() > 1) {
+            visit(ctx.expr(1));
+            lines += getCodeLines(ctx.expr(1));
+            add = getCodeLines(ctx.expr(1));
+        } else if (ctx.PLUS() != null) {
+            addOp(new SPRIL.COMP(Op.Incr, "", reg(ctx.forAss()), reg(ctx.forAss())).toString());
+            lines++;
+            add = 1;
+        } else if (ctx.MINUS() != null) {
+            addOp(new SPRIL.COMP(Op.Decr, "", reg(ctx.forAss()), reg(ctx.forAss())).toString());
+            lines++;
+            add = 1;
+        } else {
+            // This should not happen.
+        }
+
+        jump = getCodeLines(ctx.stat()) + 3 + add;
+        addOp(new SPRIL.JUMP(Target.Rel, "(-"+jump+")").toString());
+
+        setCodeLines(ctx, lines);
         return null;
     }
 
@@ -409,7 +465,6 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
     public String visitConstExpr(GuavaParser.ConstExprContext ctx) {
         SPRIL.CONST load = null;
         int lines = 0;
-
         if (result.getType(ctx) == Type.INT) {
             load = new SPRIL.CONST(ctx.getText(), reg(ctx));
             lines = 1;
@@ -451,11 +506,25 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
     /** Assignments in a for loop.*/
     @Override
     public String visitForDecl(GuavaParser.ForDeclContext ctx) {
+        String var = ctx.ID().getText();
+        int lines = 0;
+        if (ctx.expr() != null) {
+            visit(ctx.expr());
+            lines += getCodeLines(ctx.expr());
+            setRegExplicit(var, reg(ctx.expr()));
+            setRegExplicit(ctx, reg(var));
+        }
+        setCodeLines(ctx, lines);
+
+
         return null;
     }
 
     @Override
     public String visitForExisting(GuavaParser.ForExistingContext ctx) {
+        String var = ctx.ID().getText();
+        setRegExplicit(ctx, reg(var));
+        setCodeLines(ctx, 0);
         return null;
     }
 
