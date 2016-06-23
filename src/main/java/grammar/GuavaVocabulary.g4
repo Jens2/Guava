@@ -57,11 +57,11 @@ FALSE : 'sour'                          ;
 EPIC    : 'epicarp' ; //Main function
 IF      : 'if'      ;
 ELSE    : 'else'    ;
-FOR     : 'for'     ;
+FOR     : 'force'   ;
 WHILE   : 'while'   ;
 FORK    : 'branch'  ;
 JOIN    : 'join'    ;
-OUT     : 'drop'     ;
+OUT     : 'drop'    ;
 
 // Fragments
 fragment LETTER  : [a-zA-Z] ;
