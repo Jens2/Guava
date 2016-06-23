@@ -190,6 +190,9 @@ alu op x y = case op of
         Xor    -> x `xor` y
         -- Div    -> x `div` y                          -- usable in Haskell, but expensive on hardware
         -- Mod    -> x `mod` y                          -- Ibid
+        
+        {- Below are custom Sprockell instructions, added by ourselves -}
+        Pow    -> x ^ y
 
 -- =====================================================================================
 -- agu (Address Generation Unit): calculates the address for local memory

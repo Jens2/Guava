@@ -1,0 +1,4 @@
+epicarp {
+    >> Executing an expression in a variable declaration (before the '=') is not allowed
+    int i + 1 = 2;
+}

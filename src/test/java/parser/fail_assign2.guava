@@ -1,0 +1,4 @@
+epicarp {
+    >> Assigning a type to a variable is not allowed
+    char c = string;
+}

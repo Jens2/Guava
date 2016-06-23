@@ -1,5 +1,6 @@
 epicarp {
     branch {
+        >> Using a type as variable name is not allowed
         char string = 'a';
     }
 }
