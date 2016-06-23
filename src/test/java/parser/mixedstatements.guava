@@ -6,8 +6,10 @@ epicarp {
         i = a - i;
         pulp c = i == a;
     }
+
     for (int k = 5; k < i; k = k + 2) {
         i = a - k;
     }
+
     i = ((5 * 28) ^ a) / 12;
 }

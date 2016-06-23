@@ -1,4 +1,6 @@
 epicarp {
+
+    >> Double while loop is not allowed
     while while () {
         int i = 0;
     }

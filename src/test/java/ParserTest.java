@@ -14,59 +14,46 @@ import static org.junit.Assert.fail;
  */
 public class ParserTest {
 
-    private static final String PATH = "src//test//java//testfiles//";
+    private static final String BASE_DIR = "src/test/java/parser/";
+    private static final String EXTENSION = ".guava";
 
     @Test
     public void test() {
-        fails(PATH +    "fail0.guava");
-        fails(PATH +    "fail1.guava");
-        fails(PATH +    "fail2.guava");
-        fails(PATH +    "fail3.guava");
-        fails(PATH +    "fail4.guava");
-        fails(PATH +    "fail5.guava");
-        fails(PATH +    "fail6.guava");
-        fails(PATH +    "fail7.guava");
-        fails(PATH +    "fail8.guava");
-        fails(PATH +    "fail9.guava");
-        fails(PATH +    "fail10.guava");
-        fails(PATH +    "fail11.guava");
+        fails("fail_main");
+        fails("fail_main2");
+        fails("fail_assign");
+        fails("fail_assign2");
+        fails("fail_assign3");
+        fails("fail_assign4");
+        fails("fail_comments");
+        fails("fail_expression");
+        fails("fail_forloop");
+        fails("fail_forloop2");
+        fails("fail_branch");
+        fails("fail_while");
 
-        succeeds(PATH + "succ0.guava");
-        succeeds(PATH + "succ1.guava");
-        succeeds(PATH + "succ2.guava");
-        succeeds(PATH + "succ3.guava");
-        succeeds(PATH + "succ4.guava");
-        succeeds(PATH + "succ5.guava");
-        succeeds(PATH + "succ6.guava");
-        succeeds(PATH + "succ7.guava");
-        succeeds(PATH + "succ8.guava");
-        succeeds(PATH + "succ9.guava");
-        succeeds(PATH + "succ10.guava");
-        succeeds(PATH + "succ11.guava");
+        succeeds("mixedstatements");
+        succeeds("mixedstatements2");
+        succeeds("forloopincr");
+        succeeds("forloopdecr");
+        succeeds("forloopbranch");
+        succeeds("fib");
+        succeeds("pulpfiction");
+        succeeds("comments");
+        succeeds("print");
+        succeeds("basicdeclarations");
     }
 
     /** This method checks whether the given file fails like it should. */
-    private void fails(String fileName) {
-        StringBuilder sb = new StringBuilder(fileName);
-        for (int i = 0; i < PATH.length(); i++) {
-            sb.setCharAt(i, '*');
-        }
-
-        String result = sb.toString().replaceAll("[*]", "");
-
-        if (!getError(fileName)) {
-            fail("Parsing " + result + " should have failed, but didn't.");
+    private void fails(String filename) {
+        if (!getError(BASE_DIR + filename + EXTENSION)) {
+            fail("Parsing " + filename + " should have failed, but didn't.");
         }
     }
 
-    private void succeeds(String fileName) {
-        StringBuilder sb = new StringBuilder(fileName);
-        for (int i = 0; i < PATH.length(); i++) {
-            sb.setCharAt(i, '*');
-        }
-        String result = sb.toString().replaceAll("[*]", "");
-        if (getError(fileName)) {
-            fail("Parsing " + result + " should have worked, but failed.");
+    private void succeeds(String filename) {
+        if (getError(BASE_DIR + filename + EXTENSION)) {
+            fail("Parsing " + filename + " should have worked, but failed.");
         }
     }
 

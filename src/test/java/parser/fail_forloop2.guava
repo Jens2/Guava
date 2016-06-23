@@ -1,0 +1,8 @@
+epicarp {
+    int i = 02345;
+
+    >> for-statement requires three parts, separated by semicolons
+    for [] {
+        join;
+    }
+}
