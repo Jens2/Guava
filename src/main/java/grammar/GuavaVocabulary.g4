@@ -57,7 +57,7 @@ FALSE : 'sour'                          ;
 EPIC    : 'epicarp' ; //Main function
 IF      : 'if'      ;
 ELSE    : 'else'    ;
-FOR     : 'force'   ;
+FOR     : 'for'   ;
 WHILE   : 'while'   ;
 FORK    : 'branch'  ;
 JOIN    : 'join'    ;

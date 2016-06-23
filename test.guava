@@ -2,5 +2,6 @@ epicarp {
     force (int i = 0; i < 2; i++) {
         >> Nothing
         int k = 0;
+        k = 2;
     }
 }
