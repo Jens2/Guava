@@ -1,7 +1,6 @@
 package elaboration;
 
 import grammar.GuavaBaseVisitor;
-import grammar.GuavaLexer;
 import grammar.GuavaParser;
 import instructions.MemAddr;
 import instructions.Op;
@@ -12,7 +11,6 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.junit.Assert;
 
-import java.io.*;
 import java.util.*;
 
 /**
@@ -49,6 +47,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
     private static final String CONST = "CONST";
     private static final String DIR = "DIR";
 //    private static final String IND = "IND";
+    private static final String REG0 = "reg0";
     private static final String SWEET = "sweet";
     private static final String MINUS = "minus";
     private static final String SOUR = "sour";
@@ -233,11 +232,11 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
             lines += getCodeLines(ctx.expr(1));
             add = getCodeLines(ctx.expr(1));
         } else if (ctx.PLUS() != null) {
-            addOp(new SPRIL.COMP(Op.Incr, "", reg(ctx.forAss()), reg(ctx.forAss())).toString());
+            addOp(new SPRIL.COMP(Op.Incr, reg(ctx.forAss()), REG0, reg(ctx.forAss())).toString());
             lines++;
             add = 1;
         } else if (ctx.MINUS() != null) {
-            addOp(new SPRIL.COMP(Op.Decr, "", reg(ctx.forAss()), reg(ctx.forAss())).toString());
+            addOp(new SPRIL.COMP(Op.Decr, reg(ctx.forAss()), REG0, reg(ctx.forAss())).toString());
             lines++;
             add = 1;
         } else {
