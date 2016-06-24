@@ -1,17 +1,8 @@
 epicarp {
-    int n = 10;
-    int result = 0;
-    if (n <= 1) {
-        result = 1;
-    } else {
-        int curr = 1;
-        int prev = 1;
-        int copy;
-        for (int i = 2; i < n; i++) {
-            copy = curr;
-            curr = curr + prev;
-            prev = copy;
-        }
-        result = curr;
-    }
+    int i = 5;
+    int j = i * i;
+
+    i = 10;
+    j = i * i * i * i * i * i * i;
+    i = i * 2;
 }

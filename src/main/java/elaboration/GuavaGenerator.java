@@ -40,6 +40,9 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
      *  registers, to speed up execution*/
     private Map<String, String> nestedVars;
 
+    private Map<String, String> loadedVariables;
+
+    /** Will be set to true when a for-loop declaration is entered, to ensure some registers do not get emptied*/
     private boolean nested;
 
     private static ParserRuleContext END;
@@ -58,6 +61,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         next = new ParseTreeProperty<>();
         codeLines = new ParseTreeProperty<>();
         nestedVars = new HashMap<>();
+        loadedVariables = new HashMap<>();
         nested = false;
         emptyRegisters = new ArrayList<>();
         Collections.addAll(emptyRegisters, availableRegs);
@@ -153,6 +157,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         setCodeLines(ctx, lines + 1);
 
         emptyReg(ctx.expr());
+        releaseLoadedVariables();
         return null;
     }
 
@@ -548,20 +553,22 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
         if (result.isGlobalVar(ctx.ID())) {
             load = new Instruction.ReadInstr(MemAddr.DirAddr, offset2String(offset(ctx)));
-            receive = new Instruction.Receive(reg(ctx.ID()));
+            receive = new Instruction.Receive(reg(ctx));
         } else {
             if (!isNestedVar(ctx.ID())) {
                 load = new Instruction.Load(MemAddr.DirAddr, offset2String(offset(ctx.ID())), reg(ctx));
             }
         }
 
-        if (load != null) {
+        if (load != null && !isLoadedVariable(ctx.ID())) {
             addOp(load);
+            loadVariable(ctx.ID(), reg(ctx));
             lines += 1;
         }
 
-        if (receive != null) {
+        if (receive != null && !isLoadedVariable(ctx.ID())) {
             addOp(receive);
+            loadVariable(ctx.ID(), reg(ctx));
             lines += 1;
         }
 
@@ -648,11 +655,33 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         String reg;
         if (isNestedVar(node)) {
             reg = getNestedVarReg(node);
+        } else if (isLoadedVariable(node)){
+            reg = getLoadedVariable(node);
         } else {
             reg = reg(node);
         }
 
         return reg;
+    }
+
+    private void loadVariable(ParseTree node, String reg) {
+        if (!this.loadedVariables.containsKey(node.getText())) {
+            this.loadedVariables.put(node.getText(), reg);
+            System.out.println("Loaded " + node.getText());
+        }
+    }
+
+    private boolean isLoadedVariable(ParseTree node) {
+        System.out.println("Is " + node.getText() + " loaded?");
+        return this.loadedVariables.containsKey(node.getText());
+    }
+
+    private String getLoadedVariable(ParseTree node) {
+        return this.loadedVariables.get(node.getText());
+    }
+
+    private void releaseLoadedVariables() {
+        this.loadedVariables = new HashMap<>();
     }
 
     private String offset2String(String offset) {
