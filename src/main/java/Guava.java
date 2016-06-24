@@ -9,6 +9,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.io.*;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Dion on 21-6-2016.
@@ -17,6 +18,10 @@ public class Guava {
 
     private GuavaChecker checker;
     private GuavaGenerator generator;
+    private String[] registers = {"regA", "regB", "regC", "regD", "regE", "regF"
+                                , "regG", "regH", "regI", "regJ", "regK", "regL"
+                                , "regM", "regN", "regO", "regP", "regQ", "regR"
+                                , "regS", "regT", "regU", "regV", "regW"};
 
     public Guava() {
         this.checker = new GuavaChecker();
@@ -41,7 +46,7 @@ public class Guava {
             List<String> instructions = guava.compile(tree, result);
             System.out.println(">> Generating Sprockell code for " + args[0] + " is done\n");
 
-            guava.writeToFile(instructions, args[0]);
+            guava.writeToFile(instructions, args[0], result.getVarMap());
             System.out.println(">> Output is written to " + args[0] + ".hs");
         }
     }
@@ -75,7 +80,7 @@ public class Guava {
     }
 
     public List<String> compile(ParseTree tree, CheckerResult result) {
-        this.generator = new GuavaGenerator(tree, result);
+        this.generator = new GuavaGenerator(tree, result, registers);
         return this.generator.getOperations();
     }
 
@@ -83,7 +88,7 @@ public class Guava {
         return input.substring(0, 1).toUpperCase() + input.substring(1);
     }
 
-    public void writeToFile(List<String> instructions, String filename) {
+    public void writeToFile(List<String> instructions, String filename, Map<Integer, String> varMap) {
         PrintWriter writer = null;
 
         try {
@@ -100,8 +105,12 @@ public class Guava {
             writer.println("import System");
             writer.println("import Simulation\n");
 
+            for (int i : varMap.keySet()) {
+                writer.println(varMap.get(i) + outline(varMap.get(i), varMap) + " = " + i);
+            }
+
             if (instructions.size() >= 1) {
-                writer.println("program :: [Instruction]");
+                writer.println("\nprogram :: [Instruction]");
                 writer.println("program = [ " + instructions.get(0));
             }
             for (int i = 1; i < instructions.size(); i++) {
@@ -115,6 +124,28 @@ public class Guava {
             writer.flush();
             writer.close();
         }
+    }
+
+    public String maxOutline(Map<Integer, String> vars) {
+        String longest = "";
+
+        for (String var : vars.values()) {
+            if (var.length() > longest.length()) {
+                longest = var;
+            }
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < longest.toCharArray().length; i++) {
+            sb.append(" ");
+        }
+
+        return sb.toString();
+    }
+
+    public String outline(String var, Map<Integer, String> varMap) {
+        String maxOutline = maxOutline(varMap);
+        return maxOutline.substring(0, maxOutline.length() - var.length());
     }
 
 }

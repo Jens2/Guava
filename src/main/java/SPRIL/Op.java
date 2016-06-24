@@ -1,4 +1,4 @@
-package instructions;
+package spril;
 
 /**
  * Created by Jens on 21-6-2016.

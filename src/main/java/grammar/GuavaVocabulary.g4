@@ -54,14 +54,15 @@ TRUE  : 'sweet'                         ;
 FALSE : 'sour'                          ;
 
 // Keywords
-EPIC    : 'epicarp' ; //Main function
-IF      : 'if'      ;
-ELSE    : 'else'    ;
-FOR     : 'for'   ;
-WHILE   : 'while'   ;
-FORK    : 'branch'  ;
-JOIN    : 'join'    ;
-OUT     : 'drop'    ;
+EPIC    : 'epicarp'   ; //Main function
+IF      : 'if'        ;
+ELSE    : 'else'      ;
+FOR     : 'for'       ;
+WHILE   : 'while'     ;
+FORK    : 'branch'    ;
+JOIN    : 'join'      ;
+OUT     : 'drop'      ;
+GLOBAL  : 'universal' ;
 
 // Fragments
 fragment LETTER  : [a-zA-Z] ;

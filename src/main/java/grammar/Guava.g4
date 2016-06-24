@@ -6,7 +6,11 @@ import GuavaVocabulary;
 program : EPIC body;
 
 // Body of the program
-body    : LBRACK stat* RBRACK;
+body    : LBRACK global* stat* RBRACK;
+
+// Definition of global variables
+global  : GLOBAL type ID (ASSIGN expr)? SEMI                #globalDecl
+        ;
 
 // All possible statements in the language
 stat    : type ID (ASSIGN expr)? SEMI                       #varDeclStat
@@ -39,7 +43,7 @@ expr    : prfOp expr                        #prfExpr
         | ID                                #idExpr
         ;
 
-forAss  : type ID (ASSIGN expr) #forDecl
+forAss  : type ID ASSIGN expr   #forDecl
         | ID                    #forExisting
         ;
 

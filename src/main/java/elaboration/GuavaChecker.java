@@ -8,10 +8,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by Dion on 15-6-2016.
@@ -39,6 +36,26 @@ public class GuavaChecker extends GuavaBaseListener {
     }
 
     @Override
+    public void exitGlobalDecl(GuavaParser.GlobalDeclContext ctx) {
+        if (contains(ctx.ID())) {
+            addError(ctx, "Variable '%s' is already declared", ctx.ID());
+        } else {
+            addVariableType(ctx.ID(), getType(ctx.type()));
+            setShared(ctx.ID(), true);
+        }
+
+        if (ctx.expr() != null) {
+            setEntry(ctx, entry(ctx.expr()));
+            assign(ctx.ID());
+        } else {
+            setEntry(ctx, entry(ctx.type()));
+        }
+
+        setOffset(ctx.ID(), this.variables.offset(ctx.ID().getText()));
+        setType(ctx.ID(), getType(ctx.type()));
+    }
+
+    @Override
     public void exitVarDeclStat(GuavaParser.VarDeclStatContext ctx) {
         if (contains(ctx.ID())) {
             addError(ctx, "Variable '%s' is already declared", ctx.ID());
@@ -53,6 +70,7 @@ public class GuavaChecker extends GuavaBaseListener {
             setEntry(ctx, entry(ctx.type()));
         }
 
+        setOffset(ctx.ID(), this.variables.offset(ctx.ID().getText()));
         setType(ctx.ID(), getType(ctx.type()));
     }
 
@@ -103,6 +121,7 @@ public class GuavaChecker extends GuavaBaseListener {
             addError(ctx, "Expected type '%s' but found '%s'", variableType(ctx.ID()), getType(ctx.expr()));
         }
 
+        setOffset(ctx.ID(), this.variables.offset(ctx.ID().getText()));
         setEntry(ctx, entry(ctx.expr()));
         assign(ctx.ID());
     }
@@ -371,6 +390,7 @@ public class GuavaChecker extends GuavaBaseListener {
             type = Type.ERROR;
         }
 
+        setOffset(ctx.ID(), this.variables.offset(ctx.ID().getText()));
         setType(ctx, type);
         setEntry(ctx, ctx);
     }
@@ -543,11 +563,21 @@ public class GuavaChecker extends GuavaBaseListener {
         return this.arrayLengthVars.get(node.getText());
     }
 
+    private void setOffset(ParseTree node, Integer offset) {
+        if (offset != null) {
+            this.checkerResult.setOffset(node, offset);
+        }
+    }
+
     private void setEntry(ParseTree node, ParserRuleContext entry) {
         if (entry == null) {
             throw new IllegalArgumentException("Null flow graph entry");
         }
         this.checkerResult.setEntry(node, entry);
+    }
+
+    private void setShared(ParseTree node, boolean shared) {
+        this.checkerResult.setGlobalVar(node, shared);
     }
 
     private ParserRuleContext entry(ParseTree node) {

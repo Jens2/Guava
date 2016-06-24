@@ -1,16 +1,16 @@
-package instructions;
+package spril;
 
 /**
  * Created by Jens on 15-6-2016.
  *
  */
-public class SPRIL {
+public class Instruction {
 
-    /** This class contains all possible instructions. */
+    /** This class contains all possible spril. */
     /** Copy value from register to another register */
-    static public class REGCOPY {
+    static public class RegCopy extends Instruction {
         private String operation = "RegCopy ";
-        public REGCOPY(String reg0, String reg1) {
+        public RegCopy(String reg0, String reg1) {
             operation = operation + reg0 + " " + reg1;
         }
         public String toString() {
@@ -18,9 +18,9 @@ public class SPRIL {
         }
     }
     /** Load constant. */
-    static public class CONST {
+    static public class LoadConst extends Instruction {
         private String operation = "LoadConst ";
-        public CONST(String val, String reg0) {
+        public LoadConst(String val, String reg0) {
             operation = operation + Integer.parseInt(val) + " " + reg0;
         }
         public String toString() {
@@ -28,9 +28,9 @@ public class SPRIL {
         }
     }
     /** Compute instruction.*/
-    static public class COMP {
+    static public class Compute extends Instruction {
         private String operation = "Compute ";
-        public COMP(Op op, String reg0, String reg1, String reg2) {
+        public Compute(Op op, String reg0, String reg1, String reg2) {
             operation = operation + op + " " + reg0 + " " + reg1 + " " + reg2;
         }
         public String toString() {
@@ -39,9 +39,9 @@ public class SPRIL {
     }
 
     /** Load instruction.*/
-    static public class LOAD {
+    static public class Load extends Instruction {
         private String operation = "Load ";
-        public LOAD(MemAddr m, String addr, String reg) {
+        public Load(MemAddr m, String addr, String reg) {
             assert !addr.equals("-1");
             operation = operation + "(" + m + " " + addr + ") " + reg;
         }
@@ -51,9 +51,9 @@ public class SPRIL {
     }
 
     /** Store instruction.*/
-    static public class STORE {
+    static public class Store extends Instruction {
         private String operation = "Store ";
-        public STORE(String reg, MemAddr m, String addr) {
+        public Store(String reg, MemAddr m, String addr) {
             operation = operation + reg + " (" + m + " " + addr + ")";
         }
         public String toString() {
@@ -62,9 +62,9 @@ public class SPRIL {
     }
 
     /** Branch instruction.*/
-    static public class BRANCH {
+    static public class Branch extends Instruction {
         private String operation = "Branch ";
-        public BRANCH(String reg, Target t, String addr) {
+        public Branch(String reg, Target t, String addr) {
             operation = operation + reg + " (" + t + " " + addr + ")";
         }
         public String toString() {
@@ -73,9 +73,9 @@ public class SPRIL {
     }
 
     /** Jump instruction.*/
-    static public class JUMP {
+    static public class Jump extends Instruction {
         private String operation = "Jump ";
-        public JUMP(Target t, String addr) {
+        public Jump(Target t, String addr) {
             operation = operation + "(" + t + " " + addr + ")";
         }
         public String toString() {
@@ -84,9 +84,9 @@ public class SPRIL {
     }
 
     /** Push instruction.*/
-    static public class PUSH {
+    static public class Push extends Instruction {
         private String operation = "Push ";
-        public PUSH(String reg) {
+        public Push(String reg) {
             operation = operation + reg;
         }
         public String toString() {
@@ -95,9 +95,9 @@ public class SPRIL {
     }
 
     /** Pop instruction.*/
-    static public class POP {
+    static public class Pop extends Instruction {
         private String operation = "Pop ";
-        public POP(String reg) {
+        public Pop(String reg) {
             operation = operation + reg;
         }
         public String toString() {
@@ -105,10 +105,10 @@ public class SPRIL {
         }
     }
 
-    /** Read instruction.*/
-    static public class READ {
-        private String operation = "Read ";
-        public READ(MemAddr m, String addr) {
+    /** ReadInstr instruction.*/
+    static public class ReadInstr extends Instruction {
+        private String operation = "ReadInstr ";
+        public ReadInstr(MemAddr m, String addr) {
             operation = operation + "(" + m + " " + addr + ")";
         }
         public String toString(){
@@ -117,9 +117,9 @@ public class SPRIL {
     }
 
     /** Receive instruction.*/
-    static public class RECEIVE {
+    static public class Receive extends Instruction {
         private String operation = "Receive ";
-        public RECEIVE(String reg) {
+        public Receive(String reg) {
             operation = operation + reg;
         }
         public String toString() {
@@ -127,10 +127,10 @@ public class SPRIL {
         }
     }
 
-    /** Write instruction.*/
-    static public class WRITE {
-        private String operation = "Write ";
-        public WRITE(String reg, MemAddr m, String addr) {
+    /** WriteInst instruction.*/
+    static public class WriteInst extends Instruction {
+        private String operation = "WriteInstr ";
+        public WriteInst(String reg, MemAddr m, String addr) {
             operation = operation + reg + " (" + m + " " + addr + ")";
         }
         public String toString() {
@@ -139,9 +139,9 @@ public class SPRIL {
     }
 
     /** TestAndSet operation.*/
-    static public class TAS {
+    static public class TestAndSet extends Instruction {
         private String operation = "TestAndSet ";
-        public TAS(MemAddr m, String addr) {
+        public TestAndSet(MemAddr m, String addr) {
             operation = operation + "(" + m + " " + addr + ")";
         }
         public String toString() {
@@ -150,7 +150,7 @@ public class SPRIL {
     }
 
     /** Nop instruction.*/
-    static public class NOP {
+    static public class Nop extends Instruction {
         private String operation = "Nop";
         public String toString() {
             return operation;
@@ -158,7 +158,7 @@ public class SPRIL {
     }
 
     /** EndProg instruction.*/
-    static public class ENDPROG {
+    static public class EndProg extends Instruction {
         private String operation = "EndProg";
         public String toString() {
             return operation;

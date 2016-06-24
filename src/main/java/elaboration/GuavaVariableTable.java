@@ -11,13 +11,17 @@ import java.util.Map;
 public class GuavaVariableTable implements SymbolTable {
     private List<Map<String, Type>> table;
     private List<List<String>> assigned;
+    private Map<String, Integer> offsets;
     private int deepestScope;
+    private int offset;
 
     public GuavaVariableTable() {
         this.table = new ArrayList<>();
         this.assigned = new ArrayList<>();
+        this.offsets = new HashMap<>();
         openScope();
         this.deepestScope = 0;
+        this.offset = 1;
     }
 
     @Override
@@ -45,6 +49,7 @@ public class GuavaVariableTable implements SymbolTable {
         }
 
         table.get(deepestScope).put(id, type);
+        offsets.put(id, offset++);
         return true;
     }
 
@@ -84,4 +89,9 @@ public class GuavaVariableTable implements SymbolTable {
 
         return false;
     }
+
+    public Integer offset(String id) {
+        return this.offsets.get(id);
+    }
+
 }

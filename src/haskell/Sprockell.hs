@@ -131,7 +131,6 @@ decode instr = case instr of
   LoadConst val toReg         -> nullcode {ldCode=LdImm, immValue=val, loadReg=toReg}
   RegCopy fromReg toReg       -> nullcode {ldCode=LdAlu, aluCode=Add, regX=fromReg, regY=0, loadReg=toReg}
 
-
 {- ===============================================================
 Meaning registers regX and regY (containing x and y, respectively)
 ==================================================================
