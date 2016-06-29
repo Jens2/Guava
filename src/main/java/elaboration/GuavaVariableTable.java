@@ -44,12 +44,21 @@ public class GuavaVariableTable implements SymbolTable {
 
     @Override
     public boolean add(String id, Type type) {
-        if (table.get(deepestScope).containsKey(id)) {
+        if (contains(id)) {
             return false;
         }
 
         table.get(deepestScope).put(id, type);
         offsets.put(id, offset++);
+        return true;
+    }
+
+    public boolean addLocal(String id, Type type) {
+        if (contains(id)) {
+            return false;
+        }
+
+        table.get(deepestScope).put(id, type);
         return true;
     }
 

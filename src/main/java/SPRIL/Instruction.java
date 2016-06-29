@@ -6,7 +6,7 @@ package spril;
  */
 public class Instruction {
 
-    /** This class contains all possible spril. */
+    /** This class contains all possible instructions. */
     /** Copy value from register to another register */
     static public class RegCopy extends Instruction {
         private String operation = "RegCopy ";
@@ -17,6 +17,7 @@ public class Instruction {
             return operation;
         }
     }
+
     /** Load constant. */
     static public class LoadConst extends Instruction {
         private String operation = "LoadConst ";
@@ -27,6 +28,7 @@ public class Instruction {
             return operation;
         }
     }
+
     /** Compute instruction.*/
     static public class Compute extends Instruction {
         private String operation = "Compute ";

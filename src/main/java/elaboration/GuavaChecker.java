@@ -2,6 +2,7 @@ package elaboration;
 
 import grammar.GuavaBaseListener;
 import grammar.GuavaParser;
+import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -40,7 +41,7 @@ public class GuavaChecker extends GuavaBaseListener {
         if (contains(ctx.ID())) {
             addError(ctx, "Variable '%s' is already declared", ctx.ID());
         } else {
-            addVariableType(ctx.ID(), getType(ctx.type()));
+            addVariableType(ctx.ID(), getType(ctx.type()), ctx);
             setShared(ctx.ID(), true);
         }
 
@@ -60,7 +61,7 @@ public class GuavaChecker extends GuavaBaseListener {
         if (contains(ctx.ID())) {
             addError(ctx, "Variable '%s' is already declared", ctx.ID());
         } else {
-            addVariableType(ctx.ID(), getType(ctx.type()));
+            addVariableType(ctx.ID(), getType(ctx.type()), ctx);
         }
 
         if (ctx.expr() != null) {
@@ -104,7 +105,7 @@ public class GuavaChecker extends GuavaBaseListener {
         if (contains(ctx.ID())) {
             addError(ctx, "Variable '%s' is already declared", ctx.ID());
         } else {
-            addVariableType(ctx.ID(), type);
+            addVariableType(ctx.ID(), type, ctx);
         }
     }
 
@@ -407,7 +408,7 @@ public class GuavaChecker extends GuavaBaseListener {
         }
 
         setType(ctx, type);
-        addVariableType(ctx.ID(), type);
+        addNestedVariable(ctx.ID(), type, ctx);
         assign(ctx.ID());
         setEntry(ctx, ctx.expr());
     }
@@ -494,8 +495,16 @@ public class GuavaChecker extends GuavaBaseListener {
         return type;
     }
 
-    private void addVariableType(ParseTree node, Type type) {
-        this.variables.add(node.getText(), type);
+    private void addVariableType(ParseTree node, Type type, ParserRuleContext ctx) {
+        if (!this.variables.add(node.getText(), type)) {
+            addError(ctx, "Variable '%s' is already declared", node.getText());
+        }
+    }
+
+    private void addNestedVariable(ParseTree node, Type type, ParserRuleContext ctx) {
+        if (!this.variables.addLocal(node.getText(), type)) {
+            addError(ctx, "Variable '%s' is already declared", node.getText());
+        }
     }
 
     private boolean assigned(ParseTree node) {
