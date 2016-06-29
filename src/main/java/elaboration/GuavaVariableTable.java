@@ -12,16 +12,20 @@ public class GuavaVariableTable implements SymbolTable {
     private List<Map<String, Type>> table;
     private List<List<String>> assigned;
     private Map<String, Integer> offsets;
+    private Map<String, Integer> globalOffsets;
     private int deepestScope;
     private int offset;
+    private int globalOffset;
 
     public GuavaVariableTable() {
         this.table = new ArrayList<>();
         this.assigned = new ArrayList<>();
         this.offsets = new HashMap<>();
+        this.globalOffsets = new HashMap<>();
         openScope();
         this.deepestScope = 0;
         this.offset = 1;
+        this.globalOffset = 1;
     }
 
     @Override
@@ -43,13 +47,19 @@ public class GuavaVariableTable implements SymbolTable {
     }
 
     @Override
-    public boolean add(String id, Type type) {
+    public boolean add(String id, Type type, boolean global) {
         if (contains(id)) {
             return false;
         }
 
         table.get(deepestScope).put(id, type);
-        offsets.put(id, offset++);
+
+        if (global) {
+            globalOffsets.put(id, globalOffset++);
+        } else {
+            offsets.put(id, offset++);
+        }
+
         return true;
     }
 
@@ -101,6 +111,10 @@ public class GuavaVariableTable implements SymbolTable {
 
     public Integer offset(String id) {
         return this.offsets.get(id);
+    }
+
+    public Integer globalOffset(String id) {
+        return this.globalOffsets.get(id);
     }
 
 }

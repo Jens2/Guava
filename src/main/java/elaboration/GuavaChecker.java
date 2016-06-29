@@ -19,6 +19,7 @@ public class GuavaChecker extends GuavaBaseListener {
 
     private CheckerResult checkerResult;
     private GuavaVariableTable variables;
+    private List<String> sharedVariables;
     private ParseTreeProperty<Integer> arrayLength;
     private Map<String, Integer> arrayLengthVars;
     private List<String> errors;
@@ -27,6 +28,7 @@ public class GuavaChecker extends GuavaBaseListener {
         this.arrayLengthVars = new LinkedHashMap<>();
         this.arrayLength = new ParseTreeProperty<>();
         this.variables = new GuavaVariableTable();
+        this.sharedVariables = new ArrayList<>();
         this.checkerResult = new CheckerResult();
         this.errors = new ArrayList<>();
         new ParseTreeWalker().walk(this, tree);
@@ -41,7 +43,7 @@ public class GuavaChecker extends GuavaBaseListener {
         if (contains(ctx.ID())) {
             addError(ctx, "Variable '%s' is already declared", ctx.ID());
         } else {
-            addVariableType(ctx.ID(), getType(ctx.type()), ctx);
+            addVariableType(ctx.ID(), getType(ctx.type()), ctx, true);
             setShared(ctx.ID(), true);
         }
 
@@ -52,7 +54,7 @@ public class GuavaChecker extends GuavaBaseListener {
             setEntry(ctx, entry(ctx.type()));
         }
 
-        setOffset(ctx.ID(), this.variables.offset(ctx.ID().getText()));
+        setOffset(ctx.ID(), this.variables.globalOffset(ctx.ID().getText()));
         setType(ctx.ID(), getType(ctx.type()));
     }
 
@@ -61,7 +63,7 @@ public class GuavaChecker extends GuavaBaseListener {
         if (contains(ctx.ID())) {
             addError(ctx, "Variable '%s' is already declared", ctx.ID());
         } else {
-            addVariableType(ctx.ID(), getType(ctx.type()), ctx);
+            addVariableType(ctx.ID(), getType(ctx.type()), ctx, false);
         }
 
         if (ctx.expr() != null) {
@@ -105,7 +107,7 @@ public class GuavaChecker extends GuavaBaseListener {
         if (contains(ctx.ID())) {
             addError(ctx, "Variable '%s' is already declared", ctx.ID());
         } else {
-            addVariableType(ctx.ID(), type, ctx);
+            addVariableType(ctx.ID(), type, ctx, false);
         }
     }
 
@@ -122,7 +124,13 @@ public class GuavaChecker extends GuavaBaseListener {
             addError(ctx, "Expected type '%s' but found '%s'", variableType(ctx.ID()), getType(ctx.expr()));
         }
 
-        setOffset(ctx.ID(), this.variables.offset(ctx.ID().getText()));
+        if (isShared(ctx.ID())) {
+            setShared(ctx.ID(), true);
+            setOffset(ctx.ID(), this.variables.globalOffset(ctx.ID().getText()));
+        } else {
+            setOffset(ctx.ID(), this.variables.offset(ctx.ID().getText()));
+        }
+
         setEntry(ctx, entry(ctx.expr()));
         assign(ctx.ID());
     }
@@ -209,6 +217,7 @@ public class GuavaChecker extends GuavaBaseListener {
 
     @Override
     public void exitForkStat(GuavaParser.ForkStatContext ctx) {
+        setEntry(ctx, ctx.stat(0));
         closeScope();
     }
 
@@ -391,7 +400,13 @@ public class GuavaChecker extends GuavaBaseListener {
             type = Type.ERROR;
         }
 
-        setOffset(ctx.ID(), this.variables.offset(ctx.ID().getText()));
+        if (isShared(ctx.ID())) {
+            setOffset(ctx.ID(), this.variables.globalOffset(ctx.ID().getText()));
+        } else {
+            setOffset(ctx.ID(), this.variables.offset(ctx.ID().getText()));
+
+        }
+
         setType(ctx, type);
         setEntry(ctx, ctx);
     }
@@ -495,8 +510,8 @@ public class GuavaChecker extends GuavaBaseListener {
         return type;
     }
 
-    private void addVariableType(ParseTree node, Type type, ParserRuleContext ctx) {
-        if (!this.variables.add(node.getText(), type)) {
+    private void addVariableType(ParseTree node, Type type, ParserRuleContext ctx, boolean global) {
+        if (!this.variables.add(node.getText(), type, global)) {
             addError(ctx, "Variable '%s' is already declared", node.getText());
         }
     }
@@ -587,6 +602,11 @@ public class GuavaChecker extends GuavaBaseListener {
 
     private void setShared(ParseTree node, boolean shared) {
         this.checkerResult.setGlobalVar(node, shared);
+        this.sharedVariables.add(node.getText());
+    }
+
+    private boolean isShared(ParseTree node) {
+        return this.sharedVariables.contains(node.getText());
     }
 
     private ParserRuleContext entry(ParseTree node) {

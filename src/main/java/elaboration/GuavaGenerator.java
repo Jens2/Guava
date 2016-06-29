@@ -357,6 +357,16 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         String reg1 = getReg(ctx.expr(0));
         String reg2 = getReg(ctx.expr(1));
 
+        if (isZero(ctx.expr(0))) {
+            reg1 = REG0;
+            emptyReg(ctx.expr(0));
+        }
+
+        if (isZero(ctx.expr(1))) {
+            reg2 = REG0;
+            emptyReg(ctx.expr(1));
+        }
+
         Instruction mult;
 
         switch (ctx.multOp().getText()) {
@@ -394,6 +404,17 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
         String reg1 = getReg(ctx.expr(0));
         String reg2 = getReg(ctx.expr(1));
+
+        if (isZero(ctx.expr(0))) {
+            reg1 = REG0;
+            emptyReg(ctx.expr(0));
+        }
+
+        if (isZero(ctx.expr(1))) {
+            reg2 = REG0;
+            emptyReg(ctx.expr(1));
+        }
+
         Instruction plus;
 
         switch (ctx.plusOp().getText()) {
@@ -428,6 +449,17 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
         String reg1 = getReg(ctx.expr(0));
         String reg2 = getReg(ctx.expr(1));
+
+        if (isZero(ctx.expr(0))) {
+            reg1 = REG0;
+            emptyReg(ctx.expr(0));
+        }
+
+        if (isZero(ctx.expr(1))) {
+            reg2 = REG0;
+            emptyReg(ctx.expr(1));
+        }
+
         Instruction bool;
 
         switch (ctx.boolOp().getText()) {
@@ -462,6 +494,17 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
         String reg1 = getReg(ctx.expr(0));
         String reg2 = getReg(ctx.expr(1));
+
+        if (isZero(ctx.expr(0))) {
+            reg1 = REG0;
+            emptyReg(ctx.expr(0));
+        }
+
+        if (isZero(ctx.expr(1))) {
+            reg2 = REG0;
+            emptyReg(ctx.expr(1));
+        }
+
         Instruction compute;
 
         switch (ctx.compOp().getText()) {
@@ -540,7 +583,10 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
                 break;
         }
 
-        addOp(load);
+        if (!isZero(ctx)) {
+            addOp(load);
+        }
+
         setCodeLines(ctx, lines);
         return CONST;
     }
@@ -672,7 +718,6 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
     }
 
     private boolean isLoadedVariable(ParseTree node) {
-        System.out.println("Is " + node.getText() + " loaded?");
         return this.loadedVariables.containsKey(node.getText());
     }
 
@@ -702,5 +747,9 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
     private ParserRuleContext getNext(ParseTree node) {
         return this.next.get(node);
+    }
+
+    private boolean isZero(ParseTree node) {
+        return node.getText().equals("0");
     }
 }

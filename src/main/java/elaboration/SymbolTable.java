@@ -5,7 +5,7 @@ public interface SymbolTable {
 
 	public abstract void closeScope();
 
-	public abstract boolean add(String id, Type type);
+	public abstract boolean add(String id, Type type, boolean global);
 
 	public abstract boolean contains(String id);
 }
