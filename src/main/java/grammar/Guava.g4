@@ -16,6 +16,7 @@ global  : GLOBAL type ID (ASSIGN expr)? SEMI                #globalDecl
 stat    : type ID (ASSIGN expr)? SEMI                       #varDeclStat
         | type LSQBR NUM RSQBR ID (ASSIGN expr)? SEMI       #arrayDeclStat
         | ID ASSIGN expr SEMI                               #assignStat
+        | ID LSQBR (NUM | expr) RSQBR ASSIGN expr SEMI      #assignArrayStat
         | IF LPAR expr RPAR stat (ELSE stat)?               #ifStat
         | LBRACK stat* RBRACK                               #blockStat
         | WHILE LPAR expr RPAR stat                         #whileStat
@@ -39,7 +40,7 @@ expr    : prfOp expr                        #prfExpr
         | LPAR expr RPAR                    #parExpr
         | LSQBR (expr (COMMA expr)*)? RSQBR #arrayExpr
         | (NUM | BOOL | CHAR | DEC | STR)   #constExpr
-        | ID LSQBR NUM RSQBR                #getArrayExpr
+        | ID LSQBR (NUM | expr) RSQBR       #getArrayExpr
         | ID                                #idExpr
         ;
 

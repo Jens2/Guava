@@ -63,6 +63,18 @@ public class GuavaVariableTable implements SymbolTable {
         return true;
     }
 
+    public boolean addArray(String id, Type type, int size) {
+        if (contains(id)) {
+            return false;
+        }
+
+        table.get(deepestScope).put(id, type);
+        offsets.put(id, offset);
+        offset = offset + size;
+
+        return true;
+    }
+
     public boolean addLocal(String id, Type type) {
         if (contains(id)) {
             return false;
@@ -115,6 +127,12 @@ public class GuavaVariableTable implements SymbolTable {
 
     public Integer globalOffset(String id) {
         return this.globalOffsets.get(id);
+    }
+
+    public void print() {
+        for (String str : offsets.keySet()) {
+            System.out.println(offsets.get(str));
+        }
     }
 
 }

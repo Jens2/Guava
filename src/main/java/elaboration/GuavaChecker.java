@@ -91,6 +91,12 @@ public class GuavaChecker extends GuavaBaseListener {
         Type.Array type = new Type.Array(getType(ctx.type()));
         Type.Array exprType = (Type.Array) getType(ctx.expr());
 
+        if (contains(ctx.ID())) {
+            addError(ctx, "Variable '%s' is already declared", ctx.ID());
+        } else {
+            addArray(ctx.ID(), type, ctx);
+        }
+
         if (ctx.expr() != null) {
             if (type.getElemType() != exprType.getElemType()) {
                 addError(ctx, "Expected type '%s' but found '%s'", type, getType(ctx.expr()));
@@ -103,12 +109,7 @@ public class GuavaChecker extends GuavaBaseListener {
         }
 
         setType(ctx.ID(), type);
-
-        if (contains(ctx.ID())) {
-            addError(ctx, "Variable '%s' is already declared", ctx.ID());
-        } else {
-            addVariableType(ctx.ID(), type, ctx, false);
-        }
+        setOffset(ctx.ID(), this.variables.offset(ctx.ID().getText()));
     }
 
     @Override
@@ -133,6 +134,41 @@ public class GuavaChecker extends GuavaBaseListener {
 
         setEntry(ctx, entry(ctx.expr()));
         assign(ctx.ID());
+    }
+
+    @Override
+    public void enterAssignArrayStat(GuavaParser.AssignArrayStatContext ctx) {
+        //setArrayLength(ctx.ID(), Integer.parseInt(ctx.NUM().getText()));
+    }
+
+    @Override
+    public void exitAssignArrayStat(GuavaParser.AssignArrayStatContext ctx) {
+        int exprNum;
+        if (ctx.NUM() != null) {
+            exprNum = 0;
+        } else {
+            exprNum = 1;
+        }
+
+        if (!((Type.Array)variableType(ctx.ID())).getElemType().equals(getType(ctx.expr(exprNum)))) {
+            addError(ctx, "Expected type '%s' but found '%s'", ((Type.Array)variableType(ctx.ID())).getElemType(), getType(ctx.expr(exprNum)));
+        }
+
+        int index = 0;
+        if (ctx.NUM() != null) {
+            index = Integer.parseInt(ctx.NUM().getText());
+        } else {
+            if (getType(ctx.expr(0)) != Type.INT) {
+                addError(ctx, "Expected type '%s' but found '%s'", Type.INT, getType(ctx.expr(0)));
+            }
+        }
+
+        if (index >= getArrayLengthVar(ctx.ID()) || index < 0) {
+            addError(ctx, "Array index out of bounds for array '%s'. Array size is %s, requested index is %s", ctx.ID(), getArrayLengthVar(ctx.ID()), index);
+        }
+
+        setOffset(ctx.ID(), this.variables.offset(ctx.ID().getText()));
+        setEntry(ctx, entry(ctx.expr(0)));
     }
 
     @Override
@@ -330,7 +366,7 @@ public class GuavaChecker extends GuavaBaseListener {
     public void exitArrayExpr(GuavaParser.ArrayExprContext ctx) {
         Type type = getType(ctx.expr(0));
 
-        if (ctx.expr().size() != getArrayLength(ctx)) {
+        if (ctx.expr().size() > getArrayLength(ctx)) {
             addError(ctx, "Expected array size '%s' but found '%s'", getArrayLength(ctx), ctx.expr().size());
         }
 
@@ -382,6 +418,7 @@ public class GuavaChecker extends GuavaBaseListener {
             addError(ctx, "Array index out of bounds for array '%s'. Array size is %s, requested index is %s", ctx.ID(), getArrayLengthVar(ctx.ID()), index);
         }
 
+        setOffset(ctx.ID(), this.variables.offset(ctx.ID().getText()));
         setEntry(ctx, ctx);
     }
 
@@ -518,6 +555,12 @@ public class GuavaChecker extends GuavaBaseListener {
 
     private void addNestedVariable(ParseTree node, Type type, ParserRuleContext ctx) {
         if (!this.variables.addLocal(node.getText(), type)) {
+            addError(ctx, "Variable '%s' is already declared", node.getText());
+        }
+    }
+
+    private void addArray(ParseTree node, Type type, ParserRuleContext ctx) {
+        if(!this.variables.addArray(node.getText(), type, getArrayLengthVar(node))) {
             addError(ctx, "Variable '%s' is already declared", node.getText());
         }
     }
