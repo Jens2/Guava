@@ -16,7 +16,6 @@ public class Guava {
 
     private GuavaChecker checker;
     private GuavaGenerator generator;
-    private GuavaConcGenerator concGenerator;
     private String[] registers = {"regA", "regB", "regC", "regD", "regE", "regF"
                                 , "regG", "regH", "regI", "regJ", "regK", "regL"
                                 , "regM", "regN", "regO", "regP", "regQ", "regR"
@@ -42,7 +41,7 @@ public class Guava {
             System.out.println(">> Typechecking of " + args[0] + " is done\n");
 
             System.out.println(">> Generating Sprockell code for " + args[0]);
-            List<String> instructions = guava.compile(tree, result, result.isConc());
+            List<String> instructions = guava.compile(tree, result);
             System.out.println(">> Generating Sprockell code for " + args[0] + " is done\n");
             if (result.isConc()) {
                 guava.writeToFile(instructions, args[0], result.getVarMap(), 3);
@@ -81,14 +80,9 @@ public class Guava {
         return checkerResult;
     }
 
-    public List<String> compile(ParseTree tree, CheckerResult result, boolean concurrent) {
-        if (concurrent) {
-            this.concGenerator = new GuavaConcGenerator(tree, result, registers);
-            return this.concGenerator.getOperations();
-        } else {
-            this.generator = new GuavaGenerator(tree, result, registers);
-            return this.generator.getOperations();
-        }
+    public List<String> compile(ParseTree tree, CheckerResult result) {
+        this.generator = new GuavaGenerator(tree, result, registers);
+        return this.generator.getOperations();
     }
 
     public String capitalize(String input) {

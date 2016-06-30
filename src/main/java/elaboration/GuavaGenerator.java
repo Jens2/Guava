@@ -1,12 +1,12 @@
 package elaboration;
 
+import spril.Instruction;
+import spril.MemAddr;
+import spril.Op;
+import spril.Target;
 import grammar.GuavaBaseVisitor;
 import grammar.GuavaParser;
-import SPRIL.MemAddr;
-import SPRIL.Op;
-import SPRIL.Instruction;
-import SPRIL.Target;
-import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.junit.Assert;
@@ -14,7 +14,7 @@ import org.junit.Assert;
 import java.util.*;
 
 /**
- * Created by Jens on 14-6-2016.
+ * Created by Jens on 30-6-2016.
  *
  */
 public class GuavaGenerator extends GuavaBaseVisitor<String> {
@@ -100,6 +100,22 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
         setNext(ctx.stat(ctx.stat().size() - 1), END);
         visitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public String visitGlobalDecl(GuavaParser.GlobalDeclContext ctx) {
+        int lines = 0;
+
+        if (ctx.expr() != null) {
+            visit(ctx.expr());
+            lines += getCodeLines(ctx.expr());
+            Instruction write = new Instruction.WriteInst(reg(ctx.expr()), MemAddr.DirAddr, offset2String(offset(ctx.ID())));
+            addOp(write);
+            emptyReg(ctx.expr());
+        }
+
+        setCodeLines(ctx, lines + 1);
         return null;
     }
 
