@@ -82,7 +82,7 @@ public class Guava {
 
     public List<String> compile(ParseTree tree, CheckerResult result) {
         this.generator = new GuavaGenerator(tree, result, registers);
-        return this.generator.getOperations();
+        return this.generator.getInstructions();
     }
 
     public String capitalize(String input) {
