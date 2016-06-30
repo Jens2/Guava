@@ -50,7 +50,9 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
      */
     private Map<String, String> loadedVariables;
 
-    /** This is the list with instructions which will be executed concurrently.*/
+    /**
+     * This is the list with instructions which will be executed concurrently.
+     */
     private List<List<String>> concurrentInstructions;
 
     /**
@@ -58,6 +60,9 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
      */
     private ParseTreeProperty<List<String>> arrayValues;
 
+    /**
+     * The thread numbers assigned to the nodes
+     */
     private ParseTreeProperty<Integer> concurrentList;
 
     /**
@@ -65,6 +70,9 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
      */
     private boolean nested;
 
+    /**
+     * Will be set to true when entering a locked statement
+     */
     private boolean locked;
 
     private static final String CONST = "CONST";
@@ -1072,16 +1080,31 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         return this.instructions.size() - 1;
     }
 
-    private void setThreadNo(ParseTree tree, int no) {
-        this.concurrentList.put(tree, no);
+    /**
+     * Sets the thread number of a node
+     * @param node the node of which the thread number will be set
+     * @param no the thread number
+     */
+    private void setThreadNo(ParseTree node, int no) {
+        this.concurrentList.put(node, no);
     }
 
-    private boolean hasThreadNo(ParseTree tree) {
-        return this.concurrentList.get(tree) != null;
+    /**
+     * Checks whether the given node has a thread number assigned to it
+     * @param node the node to check
+     * @return <tt>true</tt> is the node has a thread number assigned to it
+     */
+    private boolean hasThreadNo(ParseTree node) {
+        return this.concurrentList.get(node) != null;
     }
 
-    private int getThreadNo(ParseTree tree) {
-        return this.concurrentList.get(tree);
+    /**
+     * Returns the thread number of a node
+     * @param node the node of which the thread number is requested
+     * @return the thread number of a node
+     */
+    private int getThreadNo(ParseTree node) {
+        return this.concurrentList.get(node);
     }
 
     /**
