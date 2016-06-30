@@ -110,8 +110,8 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         List<String> two = new ArrayList<>();
         List<String> three = new ArrayList<>();
         Instruction read = new Instruction.ReadInstr(MemAddr.DirAddr, "0");
-        Instruction receive = new Instruction.Receive(reg(ctx));
-        Instruction branch = new Instruction.Branch(reg(ctx), Target.Rel, "2");
+        Instruction receive = new Instruction.Receive(getReg(ctx));
+        Instruction branch = new Instruction.Branch(getReg(ctx), Target.Rel, "2");
         Instruction jump = new Instruction.Jump(Target.Rel, "(-3)");
 
         one.add(read.toString());
@@ -180,7 +180,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
             if (isZero(ctx.expr())) {
                 write = new Instruction.WriteInst(REG0, MemAddr.DirAddr, offset2String(offset(ctx.ID(), true), true));
             } else {
-                write = new Instruction.WriteInst(reg(ctx.expr()), MemAddr.DirAddr, offset2String(offset(ctx.ID(), true), true));
+                write = new Instruction.WriteInst(getReg(ctx.expr()), MemAddr.DirAddr, offset2String(offset(ctx.ID(), true), true));
             }
             if (hasThreadNo(ctx)) {
                 addInstr(write, -1, getThreadNo(ctx));
@@ -210,7 +210,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
             if (isZero(ctx.expr())) {
                 store = new Instruction.Store(REG0, MemAddr.DirAddr, offset2String(offset(ctx.ID(), false), false));
             } else {
-                store = new Instruction.Store(reg(ctx.expr()), MemAddr.DirAddr, offset2String(offset(ctx.ID(), false), false));
+                store = new Instruction.Store(getReg(ctx.expr()), MemAddr.DirAddr, offset2String(offset(ctx.ID(), false), false));
             }
             if (hasThreadNo(ctx)) {
                 addInstr(store, -1, getThreadNo(ctx));
@@ -294,7 +294,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
             if (isZero(ctx.expr())) {
                 reg = REG0;
             } else {
-                reg = reg(ctx.expr());
+                reg = getReg(ctx.expr());
             }
 
             if (result.isGlobalVar(ctx.ID())) {
@@ -329,7 +329,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         visit(ctx.expr());
         lines += getCodeLines(ctx.expr());
 
-        Instruction store = new Instruction.Store(reg(ctx.expr()), MemAddr.DirAddr, reg(ctx));
+        Instruction store = new Instruction.Store(getReg(ctx.expr()), MemAddr.DirAddr, getReg(ctx));
         if (hasThreadNo(ctx)) {
             addInstr(store, -1, getThreadNo(ctx));
         } else {
@@ -339,7 +339,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         lines += 1;
 
         setCodeLines(ctx, lines);
-        emptyReg(reg(ctx.expr()));
+        emptyReg(getReg(ctx.expr()));
         return null;
     }
 
@@ -359,9 +359,9 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
         if (ctx.ELSE() == null) {
             if (hasThreadNo(ctx)) {
-                addInstr(new Instruction.Branch(reg(ctx.expr()), Target.Rel, "2"), -1, getThreadNo(ctx));
+                addInstr(new Instruction.Branch(getReg(ctx.expr()), Target.Rel, "2"), -1, getThreadNo(ctx));
             } else {
-                addInstr(new Instruction.Branch(reg(ctx.expr()), Target.Rel, "2"));
+                addInstr(new Instruction.Branch(getReg(ctx.expr()), Target.Rel, "2"));
             }
             int index = reserveInstr();        // We want to insert a relative jump instruction on this index later on.
             visit(ctx.stat(0));
@@ -371,9 +371,9 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
             lines += 2;
         } else {
             if (hasThreadNo(ctx)) {
-                addInstr(new Instruction.Branch(reg(ctx.expr()), Target.Rel, "2"), -1, getThreadNo(ctx));
+                addInstr(new Instruction.Branch(getReg(ctx.expr()), Target.Rel, "2"), -1, getThreadNo(ctx));
             } else {
-                addInstr(new Instruction.Branch(reg(ctx.expr()), Target.Rel, "2"));
+                addInstr(new Instruction.Branch(getReg(ctx.expr()), Target.Rel, "2"));
             }
 
             int ifJump = reserveInstr();       // We want to insert a relative jump instruction on this index later on.
@@ -434,9 +434,9 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         lines += getCodeLines(ctx.expr());
 
         if (hasThreadNo(ctx)) {
-            addInstr(new Instruction.Branch(reg(ctx.expr()), Target.Rel, "2"), -1, getThreadNo(ctx));
+            addInstr(new Instruction.Branch(getReg(ctx.expr()), Target.Rel, "2"), -1, getThreadNo(ctx));
         } else {
-            addInstr(new Instruction.Branch(reg(ctx.expr()), Target.Rel, "2"));
+            addInstr(new Instruction.Branch(getReg(ctx.expr()), Target.Rel, "2"));
         }
         int index = reserveInstr();
 
@@ -482,9 +482,9 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         lines += getCodeLines(ctx.expr(0));
 
         if (hasThreadNo(ctx)) {
-            addInstr(new Instruction.Branch(reg(ctx.expr(0)), Target.Rel, "2"), -1, getThreadNo(ctx));
+            addInstr(new Instruction.Branch(getReg(ctx.expr(0)), Target.Rel, "2"), -1, getThreadNo(ctx));
         } else {
-            addInstr(new Instruction.Branch(reg(ctx.expr(0)), Target.Rel, "2"));
+            addInstr(new Instruction.Branch(getReg(ctx.expr(0)), Target.Rel, "2"));
         }
         lines++;
 
@@ -543,10 +543,10 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         int lines = 4;
         int statSize = ctx.stat().size();
 
-        Instruction load = new Instruction.LoadConst("1", reg(ctx));
-        Instruction wakeUp0 = new Instruction.WriteInst(reg(ctx), MemAddr.DirAddr, "0");
-        Instruction wakeUp1 = new Instruction.WriteInst(reg(ctx), MemAddr.DirAddr, "1");
-        Instruction wakeUp2 = new Instruction.WriteInst(reg(ctx), MemAddr.DirAddr, "2");
+        Instruction load = new Instruction.LoadConst("1", getReg(ctx));
+        Instruction wakeUp0 = new Instruction.WriteInst(getReg(ctx), MemAddr.DirAddr, "0");
+        Instruction wakeUp1 = new Instruction.WriteInst(getReg(ctx), MemAddr.DirAddr, "1");
+        Instruction wakeUp2 = new Instruction.WriteInst(getReg(ctx), MemAddr.DirAddr, "2");
 
         if (hasThreadNo(ctx)) {
             for (int i = 0; i < statSize; i++) {
@@ -594,8 +594,8 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         offset += " + 1)";
 
         Instruction testAndSet = new Instruction.TestAndSet(MemAddr.DirAddr, offset);
-        Instruction receive = new Instruction.Receive(reg(ctx));
-        Instruction branch = new Instruction.Branch(reg(ctx), Target.Rel, "2");
+        Instruction receive = new Instruction.Receive(getReg(ctx));
+        Instruction branch = new Instruction.Branch(getReg(ctx), Target.Rel, "2");
         Instruction jump = new Instruction.Jump(Target.Rel, "(-3)");
 
         if (hasThreadNo(ctx)) {
@@ -644,11 +644,11 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         Instruction load;
         Instruction neg;
         if (result.getType(ctx.expr()) == Type.BOOL) {
-            load = new Instruction.Load(MemAddr.ImmValue, String.valueOf(1), reg(ctx));
-            neg = new Instruction.Compute(Op.Xor, reg, reg(ctx), reg(ctx));
+            load = new Instruction.Load(MemAddr.ImmValue, String.valueOf(1), getReg(ctx));
+            neg = new Instruction.Compute(Op.Xor, reg, getReg(ctx), getReg(ctx));
         } else {
-            load = new Instruction.Load(MemAddr.ImmValue, "(-1)", reg(ctx));
-            neg = new Instruction.Compute(Op.Mul, reg, reg(ctx), reg(ctx));
+            load = new Instruction.Load(MemAddr.ImmValue, "(-1)", getReg(ctx));
+            neg = new Instruction.Compute(Op.Mul, reg, getReg(ctx), getReg(ctx));
         }
 
         if (hasThreadNo(ctx)) {
@@ -695,13 +695,13 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
         switch (ctx.multOp().getText()) {
             case "*":
-                mult = new Instruction.Compute(Op.Mul, reg1, reg2, reg(ctx));
+                mult = new Instruction.Compute(Op.Mul, reg1, reg2, getReg(ctx));
                 break;
             case "/":
-                mult = new Instruction.Compute(Op.Div, reg1, reg2, reg(ctx));
+                mult = new Instruction.Compute(Op.Div, reg1, reg2, getReg(ctx));
                 break;
             case "^":
-                mult = new Instruction.Compute(Op.Pow, reg1, reg2, reg(ctx));
+                mult = new Instruction.Compute(Op.Pow, reg1, reg2, getReg(ctx));
                 break;
         }
 
@@ -748,10 +748,10 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
         switch (ctx.plusOp().getText()) {
             case "+":
-                plus = new Instruction.Compute(Op.Add, reg1, reg2, reg(ctx));
+                plus = new Instruction.Compute(Op.Add, reg1, reg2, getReg(ctx));
                 break;
             case "-":
-                plus = new Instruction.Compute(Op.Sub, reg1, reg2, reg(ctx));
+                plus = new Instruction.Compute(Op.Sub, reg1, reg2, getReg(ctx));
                 break;
         }
 
@@ -798,10 +798,10 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
         switch (ctx.boolOp().getText()) {
             case "&":
-                bool = new Instruction.Compute(Op.And, reg1, reg2, reg(ctx));
+                bool = new Instruction.Compute(Op.And, reg1, reg2, getReg(ctx));
                 break;
             case "|":
-                bool = new Instruction.Compute(Op.Or, reg1, reg2, reg(ctx));
+                bool = new Instruction.Compute(Op.Or, reg1, reg2, getReg(ctx));
                 break;
         }
 
@@ -847,22 +847,22 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
         switch (ctx.compOp().getText()) {
             case ">":
-                compute = new Instruction.Compute(Op.Gt, reg1, reg2, reg(ctx));
+                compute = new Instruction.Compute(Op.Gt, reg1, reg2, getReg(ctx));
                 break;
             case ">=":
-                compute = new Instruction.Compute(Op.GtE, reg1, reg2, reg(ctx));
+                compute = new Instruction.Compute(Op.GtE, reg1, reg2, getReg(ctx));
                 break;
             case "<":
-                compute = new Instruction.Compute(Op.Lt, reg1, reg2, reg(ctx));
+                compute = new Instruction.Compute(Op.Lt, reg1, reg2, getReg(ctx));
                 break;
             case "<=":
-                compute = new Instruction.Compute(Op.LtE, reg1, reg2, reg(ctx));
+                compute = new Instruction.Compute(Op.LtE, reg1, reg2, getReg(ctx));
                 break;
             case "~=":
-                compute = new Instruction.Compute(Op.NEq, reg1, reg2, reg(ctx));
+                compute = new Instruction.Compute(Op.NEq, reg1, reg2, getReg(ctx));
                 break;
             case "==":
-                compute = new Instruction.Compute(Op.Equal, reg1, reg2, reg(ctx));
+                compute = new Instruction.Compute(Op.Equal, reg1, reg2, getReg(ctx));
                 break;
         }
 
@@ -900,7 +900,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         for (int i = 0; i < ctx.expr().size(); i++) {
             visit(ctx.expr(i));
             lines += getCodeLines(ctx.expr(i));
-            regs.add(reg(ctx.expr(i)));
+            regs.add(getReg(ctx.expr(i)));
         }
 
         this.arrayValues.put(ctx, regs);
@@ -915,13 +915,13 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
         switch (result.getType(ctx).getKind()) {
             case INT:
-                load = new Instruction.LoadConst(ctx.getText(), reg(ctx));
+                load = new Instruction.LoadConst(ctx.getText(), getReg(ctx));
                 break;
             case BOOL:
                 if (ctx.getText().equals("sweet")) {
-                    load = new Instruction.LoadConst(TRUE, reg(ctx));
+                    load = new Instruction.LoadConst(TRUE, getReg(ctx));
                 } else {
-                    load = new Instruction.LoadConst(FALSE, reg(ctx));
+                    load = new Instruction.LoadConst(FALSE, getReg(ctx));
                 }
 
                 break;
@@ -930,7 +930,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
                 char c = ch.charAt(0);
                 int i = (int) c;
 
-                load = new Instruction.LoadConst(String.valueOf(i), reg(ctx));
+                load = new Instruction.LoadConst(String.valueOf(i), getReg(ctx));
 
                 break;
         }
@@ -951,7 +951,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
     @Override
     public String visitGetArrayExpr(GuavaParser.GetArrayExprContext ctx) {
         int lines = 0;
-        Instruction load = new Instruction.Load(MemAddr.DirAddr, "(" + offset2String(offset(ctx.ID(), false), false) + " + " + ctx.NUM().getText() + ")", reg(ctx));
+        Instruction load = new Instruction.Load(MemAddr.DirAddr, "(" + offset2String(offset(ctx.ID(), false), false) + " + " + ctx.NUM().getText() + ")", getReg(ctx));
         lines++;
 
         if (hasThreadNo(ctx)) {
@@ -972,11 +972,11 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         if (result.isGlobalVar(ctx.ID())) {
             load = new Instruction.ReadInstr(MemAddr.DirAddr, offset2String(offset(ctx.ID(), true), true));
             if (!locked) {
-                receive = new Instruction.Receive(reg(ctx));
+                receive = new Instruction.Receive(getReg(ctx));
             }
         } else {
             if (!isNestedVar(ctx.ID())) {
-                load = new Instruction.Load(MemAddr.DirAddr, offset2String(offset(ctx.ID(), false), false), reg(ctx));
+                load = new Instruction.Load(MemAddr.DirAddr, offset2String(offset(ctx.ID(), false), false), getReg(ctx));
             }
         }
 
@@ -986,7 +986,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
             } else {
                 addInstr(load);
             }
-            loadVariable(ctx.ID(), reg(ctx));
+            loadVariable(ctx.ID(), getReg(ctx));
             lines += 1;
         }
 
@@ -1011,7 +1011,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
             lines += getCodeLines(ctx.expr());
         }
 
-        addNestedVar(ctx.ID(), reg(ctx.expr()));
+        addNestedVar(ctx.ID(), getReg(ctx.expr()));
         setCodeLines(ctx, lines);
         return null;
     }
