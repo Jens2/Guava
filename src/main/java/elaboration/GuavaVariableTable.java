@@ -26,7 +26,7 @@ public class GuavaVariableTable implements SymbolTable {
         openScope();
         this.deepestScope = 0;
         this.offset = 1;
-        this.globalOffset = 5;
+        this.globalOffset = 3;
     }
 
     @Override

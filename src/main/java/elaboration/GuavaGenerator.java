@@ -366,12 +366,14 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         lines += getCodeLines(ctx.expr());
 
         if (ctx.ELSE() == null) {
+            int index;
             if (hasThreadNo(ctx)) {
+                index = reserveInstr(getThreadNo(ctx));
                 addInstr(new Instruction.Branch(getReg(ctx.expr()), Target.Rel, "2"), -1, getThreadNo(ctx));
             } else {
+                index = reserveInstr();
                 addInstr(new Instruction.Branch(getReg(ctx.expr()), Target.Rel, "2"));
             }
-            int index = reserveInstr();        // We want to insert a relative jump instruction on this index later on.
             visit(ctx.stat(0));
             int jump = getCodeLines(ctx.stat(0)) + 1;
             lines += jump;
@@ -384,9 +386,16 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
                 addInstr(new Instruction.Branch(getReg(ctx.expr()), Target.Rel, "2"));
             }
 
-            int ifJump = reserveInstr();       // We want to insert a relative jump instruction on this index later on.
+            int ifJump;
+            int elseJump;
+            if (hasThreadNo(ctx)) {
+                elseJump = reserveInstr(getThreadNo(ctx));     // We want to insert a relative jump instruction on this index later on.
+                ifJump = reserveInstr(getThreadNo(ctx));
+            } else {
+                elseJump = reserveInstr();
+                ifJump = reserveInstr();
+            }
             visit(ctx.stat(0));
-            int elseJump = reserveInstr();     // We want to insert a relative jump instruction on this index later on.
             visit(ctx.stat(1));
 
             int jump0 = getCodeLines(ctx.stat(0)) + 2;      // We need to jump over all the generated code (hence + 1) and over the extra jump instruction (hence another +1).
@@ -440,13 +449,14 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
         visit(ctx.expr());
         lines += getCodeLines(ctx.expr());
-
+        int index;
         if (hasThreadNo(ctx)) {
             addInstr(new Instruction.Branch(getReg(ctx.expr()), Target.Rel, "2"), -1, getThreadNo(ctx));
+            index = reserveInstr(getThreadNo(ctx));
         } else {
             addInstr(new Instruction.Branch(getReg(ctx.expr()), Target.Rel, "2"));
+            index = reserveInstr();
         }
-        int index = reserveInstr();
 
         visit(ctx.stat());
         int jump = getCodeLines(ctx.stat()) + 2;
@@ -489,14 +499,15 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
         lines += getCodeLines(ctx.expr(0));
 
+        int index;
         if (hasThreadNo(ctx)) {
             addInstr(new Instruction.Branch(getReg(ctx.expr(0)), Target.Rel, "2"), -1, getThreadNo(ctx));
+            index = reserveInstr(getThreadNo(ctx));
         } else {
             addInstr(new Instruction.Branch(getReg(ctx.expr(0)), Target.Rel, "2"));
+            index = reserveInstr();
         }
         lines++;
-
-        int index = reserveInstr();
 
         visit(ctx.stat());
         lines += getCodeLines(ctx.stat());
@@ -1064,6 +1075,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
                 break;
             default:
                 if (index != -1) {
+                    this.concurrentInstructions.get(threadno - 1).remove(index);
                     this.concurrentInstructions.get(threadno - 1).add(index, instr.toString());
                 } else {
                     this.concurrentInstructions.get(threadno - 1).add(instr.toString());
@@ -1078,6 +1090,15 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
     private int reserveInstr() {
         this.instructions.add("RESERVED");
         return this.instructions.size() - 1;
+    }
+
+    private int reserveInstr(int threadNo) {
+        if (threadNo > 0) {
+            this.concurrentInstructions.get(threadNo - 1).add("RESERVED");
+            return this.concurrentInstructions.get(threadNo - 1).size() - 1;
+        } else {
+            return reserveInstr();
+        }
     }
 
     /**
