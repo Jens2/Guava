@@ -1,4 +1,13 @@
 epicarp {
-    int i = 0;
-    char h = 'a';
+    branch;
+    universal int x = 0;
+    universal int k = 4;
+    universal char c = '2';
+    lock(x);
+    x = 2;
+    unlock(x);
+    int z = 15;
+    for (int i = 0; i < 5; i++) {
+        z = 2;
+    }
 }
