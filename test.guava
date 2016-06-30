@@ -1,8 +1,6 @@
 epicarp {
-    branch;
-    int x = 5;
+    int h = 15;
+    h = 15 * 25;
 
-    lock(x);
-    x = 5;
-    unlock(x);
+    int k = h + 6;
 }

@@ -4,9 +4,6 @@ import grammar.GuavaParser;
 
 import java.util.List;
 
-/**
- * Created by Dion on 15-6-2016.
- */
 abstract public class Type {
     public static final Type INT = new Int();
     public static final Type BOOL = new Bool();

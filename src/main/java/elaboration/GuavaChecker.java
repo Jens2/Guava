@@ -13,10 +13,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by Dion on 15-6-2016.
- *
- */
 public class GuavaChecker extends GuavaBaseListener {
 
     private CheckerResult checkerResult;
@@ -443,6 +439,7 @@ public class GuavaChecker extends GuavaBaseListener {
 
         if (isShared(ctx.ID())) {
             setOffset(ctx.ID(), this.variables.globalOffset(ctx.ID().getText()), true);
+            setShared(ctx.ID(), true);
         } else {
             setOffset(ctx.ID(), this.variables.offset(ctx.ID().getText()), false);
 
