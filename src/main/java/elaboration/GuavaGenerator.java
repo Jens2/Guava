@@ -101,7 +101,12 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
             visit(ctx.expr());
             lines += getCodeLines(ctx.expr());
 
-            Instruction write = new Instruction.WriteInst(reg(ctx.expr()), MemAddr.DirAddr, offset2String(offset(ctx.ID())));
+            Instruction write;
+            if (isZero(ctx.expr())) {
+                write = new Instruction.WriteInst(REG0, MemAddr.DirAddr, offset2String(offset(ctx.ID())));
+            } else {
+                write = new Instruction.WriteInst(reg(ctx.expr()), MemAddr.DirAddr, offset2String(offset(ctx.ID())));
+            }
             addInstr(write);
 
             emptyReg(ctx.expr());
@@ -120,7 +125,12 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
             visit(ctx.expr());
             lines += getCodeLines(ctx.expr());
 
-            Instruction store = new Instruction.Store(reg(ctx.expr()), MemAddr.DirAddr, offset2String(offset(ctx.ID())));
+            Instruction store;
+            if (isZero(ctx.expr())) {
+                store = new Instruction.Store(REG0, MemAddr.DirAddr, offset2String(offset(ctx.ID())));
+            } else {
+                store = new Instruction.Store(reg(ctx.expr()), MemAddr.DirAddr, offset2String(offset(ctx.ID())));
+            }
             addInstr(store);
 
             emptyReg(ctx.expr());
@@ -180,10 +190,18 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
             }
 
         } else {
-            if (result.isGlobalVar(ctx.ID())) {
-                store = new Instruction.WriteInst(reg(ctx.expr()), MemAddr.DirAddr, offset2String(offset(ctx.ID())));
+            String reg;
+
+            if (isZero(ctx.expr())) {
+                reg = REG0;
             } else {
-                store = new Instruction.Store(reg(ctx.expr()), MemAddr.DirAddr, offset2String(offset(ctx.ID())));
+                reg = reg(ctx.expr());
+            }
+
+            if (result.isGlobalVar(ctx.ID())) {
+                store = new Instruction.WriteInst(reg, MemAddr.DirAddr, offset2String(offset(ctx.ID())));
+            } else {
+                store = new Instruction.Store(reg, MemAddr.DirAddr, offset2String(offset(ctx.ID())));
             }
 
             lines++;
@@ -203,7 +221,6 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
         visit(ctx.expr());
         lines += getCodeLines(ctx.expr());
-
 
         Instruction store = new Instruction.Store(reg(ctx.expr()), MemAddr.DirAddr, reg(ctx));
         addInstr(store);
@@ -678,23 +695,37 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
     }
 
     /**
-     * Adds new instruction
+     * Adds a new instruction to the program
      * @param instr
      */
     private void addInstr(Instruction instr) {
         this.instructions.add(instr.toString());
     }
 
+    /**
+     * Inserts an instruction into the program at a given index (line)
+     * @param instr
+     * @param index
+     */
     private void addInstr(Instruction instr, int index) {
         this.instructions.remove(index);
         this.instructions.add(index, instr.toString());
     }
 
+    /**
+     * Reserves an instruction slot that will be filled later (e.g. in case of relative jumps)
+     * @return the index of the reserved instruction
+     */
     private int reserveInstr() {
         this.instructions.add("RESERVED");
         return this.instructions.size() - 1;
     }
 
+    /**
+     *
+     * @param node
+     * @param reg
+     */
     private void addNestedVar(ParseTree node, String reg) {
         if (!this.nestedVars.containsKey(node.getText())) {
             this.nestedVars.put(node.getText(), reg);
