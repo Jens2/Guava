@@ -8,17 +8,59 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CheckerResult {
-	private final ParseTreeProperty<ParserRuleContext> entries = new ParseTreeProperty<>();
-	private final ParseTreeProperty<Type> types = new ParseTreeProperty<>();
-	private final ParseTreeProperty<Integer> offsets = new ParseTreeProperty<>();
+
+    /**
+     * Contains the entry points for all nodes
+     */
+    private final ParseTreeProperty<ParserRuleContext> entries = new ParseTreeProperty<>();
+
+    /**
+     * Contains the types for all nodes/variables
+     */
+    private final ParseTreeProperty<Type> types = new ParseTreeProperty<>();
+
+    /**
+     * Contains the offsets for all nodes/variables
+     */
+    private final ParseTreeProperty<Integer> offsets = new ParseTreeProperty<>();
+
+    /**
+     * Contains the offsets for all global nodes/variables
+     */
+    private final ParseTreeProperty<Integer> globalOffsets = new ParseTreeProperty<>();
+
+    /**
+     * Contains whether a node/variable is defined as global or not
+     */
     private final ParseTreeProperty<Boolean> globalVars = new ParseTreeProperty<>();
+
+    /**
+     * Contains all local offsets mapped to a variable name
+     */
     private final Map<Integer, String> varMap = new HashMap<>();
+
+    /**
+     * Contains all global offsets mapped to a variable name
+     */
+    private final Map<Integer, String> globalVarMap = new HashMap<>();
+
+    /**
+     * Indicates whether the Guava program that is being parsed uses any concurrency
+     */
     private boolean isConc = false;
 
+    /**
+     * Sets the concurrency flag for this program
+     * @param conc <tt>true</tt> if the program uses any concurrency
+     */
     public void setConc(boolean conc) {
         isConc = conc;
     }
 
+    /**
+     * Returns the value of the concurrency flag for this program
+     * @return <tt>true</tt> if the program uses any concurrency
+     */
     public boolean isConc() {
         return isConc;
     }
@@ -39,13 +81,22 @@ public class CheckerResult {
 		return this.types.get(node);
 	}
 
-    public void setOffset(ParseTree node, int offset) {
-        this.offsets.put(node, offset);
-        this.varMap.put(offset, node.getText());
+    public void setOffset(ParseTree node, int offset, boolean global) {
+        if (global) {
+            this.globalOffsets.put(node, offset);
+            this.globalVarMap.put(offset, node.getText());
+        } else {
+            this.offsets.put(node, offset);
+            this.varMap.put(offset, node.getText());
+        }
     }
 
-    public String getOffset(ParseTree node) {
-        return String.valueOf(this.offsets.get(node));
+    public String getOffset(ParseTree node, boolean global) {
+        if (global) {
+            return String.valueOf(this.globalOffsets.get(node));
+        } else {
+            return String.valueOf(this.offsets.get(node));
+        }
     }
 
     public void setGlobalVar(ParseTree node, boolean global) {
@@ -58,6 +109,10 @@ public class CheckerResult {
 
     public Map<Integer, String> getVarMap() {
         return varMap;
+    }
+
+    public Map<Integer, String> getGlobalVarMap() {
+        return this.globalVarMap;
     }
 
 }
