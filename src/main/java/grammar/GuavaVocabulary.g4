@@ -44,12 +44,12 @@ BOOLEAN   : 'pulp'    ;
 STRING    : 'string'  ;
 
 // Data values
-NUM   : '0' | DIGIT19 DIGIT09*          ;
-BOOL  : TRUE | FALSE                    ;
-CHAR  : SQUOTE LETTER SQUOTE            ;
-STR   : DQUOTE (~["\\] | '\\'.)* DQUOTE ;
-TRUE  : 'sweet'                         ;
-FALSE : 'sour'                          ;
+NUM   : '0' | DIGIT19 DIGIT09*           ;
+BOOL  : TRUE | FALSE                     ;
+CHAR  : SQUOTE (LETTER | DIGIT09) SQUOTE ;
+STR   : DQUOTE (~["\\] | '\\'.)* DQUOTE  ;
+TRUE  : 'sweet'                          ;
+FALSE : 'sour'                           ;
 
 // Keywords
 EPIC    : 'epicarp'   ; //Main function
