@@ -549,7 +549,7 @@ public class GuavaChecker extends GuavaBaseListener {
     }
 
     private void addNestedVariable(ParseTree node, Type type, ParserRuleContext ctx) {
-        if (!this.variables.addLocal(node.getText(), type)) {
+        if (!this.variables.addNested(node.getText(), type)) {
             addError(ctx, "Variable '%s' is already declared", node.getText());
         }
     }

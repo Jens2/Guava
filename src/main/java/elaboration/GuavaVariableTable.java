@@ -61,6 +61,24 @@ public class GuavaVariableTable implements SymbolTable {
         return true;
     }
 
+    @Override
+    public boolean contains(String id) {
+        for (int i = deepestScope; i >= 0; i--) {
+            if (table.get(i).containsKey(id)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Adds an array to the deepest scope
+     * @param id name of the array
+     * @param type type of the array
+     * @param size size of array (number of elements)
+     * @return <tt>false</tt> if the array is already defined in the table
+     */
     public boolean addArray(String id, Type type, int size) {
         if (contains(id)) {
             return false;
@@ -73,7 +91,13 @@ public class GuavaVariableTable implements SymbolTable {
         return true;
     }
 
-    public boolean addLocal(String id, Type type) {
+    /**
+     * Adds a nested variable to the deepest scope. Nested variables will not be assigned an offset
+     * @param id name of the variable
+     * @param type type of the variable
+     * @return <tt>false</tt> if the variable is already defined in the table
+     */
+    public boolean addNested(String id, Type type) {
         if (contains(id)) {
             return false;
         }
@@ -82,17 +106,11 @@ public class GuavaVariableTable implements SymbolTable {
         return true;
     }
 
-    @Override
-    public boolean contains(String id) {
-        for (int i = deepestScope; i >= 0; i--) {
-            if (table.get(i).containsKey(id)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
+    /**
+     * Returns the type of the given variable
+     * @param id the name of the variable for which the type is requested
+     * @return the type of the given variable
+     */
     public Type getType(String id) {
         for (int i = deepestScope; i >= 0; i--) {
             if (table.get(i).containsKey(id)) {
@@ -103,12 +121,21 @@ public class GuavaVariableTable implements SymbolTable {
         return null;
     }
 
+    /**
+     * Indicate that a variable has been assigned a value
+     * @param id the name of the variable
+     */
     public void assign(String id) {
         if (!this.assigned.get(deepestScope).contains(id)) {
             this.assigned.get(deepestScope).add(id);
         }
     }
 
+    /**
+     * Returns whether a variable is already assigned a value or not
+     * @param id the name of the variable
+     * @return <tt>true</tt> if the variable is already assigned a value in any of the scopes
+     */
     public boolean isAssigned(String id) {
         for (int i = deepestScope; i >= 0; i--) {
             if (assigned.get(i).contains(id)) {
@@ -119,18 +146,22 @@ public class GuavaVariableTable implements SymbolTable {
         return false;
     }
 
+    /**
+     * Returns the offset of the given variable
+     * @param id the name of the variable
+     * @return the offset of the given variable
+     */
     public Integer offset(String id) {
         return this.offsets.get(id);
     }
 
+    /**
+     * Returns the offset of the given global variable
+     * @param id the name of the global variable
+     * @return the offset of the given global variable
+     */
     public Integer globalOffset(String id) {
         return this.globalOffsets.get(id);
-    }
-
-    public void print() {
-        for (String str : offsets.keySet()) {
-            System.out.println(offsets.get(str));
-        }
     }
 
 }
