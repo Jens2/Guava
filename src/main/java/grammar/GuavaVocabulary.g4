@@ -60,9 +60,10 @@ ELSE    : 'else'      ;
 FOR     : 'for'       ;
 WHILE   : 'while'     ;
 FORK    : 'branch'    ;
-JOIN    : 'join'      ;
 OUT     : 'drop'      ;
 GLOBAL  : 'universal' ;
+LOCK    : 'lock'      ;
+UNLOCK  : 'unlock'    ;
 
 // Fragments
 fragment LETTER  : [a-zA-Z] ;

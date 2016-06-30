@@ -13,6 +13,15 @@ public class CheckerResult {
 	private final ParseTreeProperty<Integer> offsets = new ParseTreeProperty<>();
     private final ParseTreeProperty<Boolean> globalVars = new ParseTreeProperty<>();
     private final Map<Integer, String> varMap = new HashMap<>();
+    private boolean isConc = false;
+
+    public void setConc(boolean conc) {
+        isConc = conc;
+    }
+
+    public boolean isConc() {
+        return isConc;
+    }
 
 	public void setEntry(ParseTree node, ParserRuleContext entry) {
 		this.entries.put(node, entry);

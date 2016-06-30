@@ -1,7 +1,4 @@
-import elaboration.GuavaGenerator;
-import elaboration.CheckerResult;
-import elaboration.GuavaChecker;
-import elaboration.GuavaException;
+import elaboration.*;
 import grammar.GuavaLexer;
 import grammar.GuavaParser;
 import org.antlr.v4.runtime.*;
@@ -13,11 +10,13 @@ import java.util.Map;
 
 /**
  * Created by Dion on 21-6-2016.
+ *
  */
 public class Guava {
 
     private GuavaChecker checker;
     private GuavaGenerator generator;
+    private GuavaConcGenerator concGenerator;
     private String[] registers = {"regA", "regB", "regC", "regD", "regE", "regF"
                                 , "regG", "regH", "regI", "regJ", "regK", "regL"
                                 , "regM", "regN", "regO", "regP", "regQ", "regR"
@@ -43,10 +42,13 @@ public class Guava {
             System.out.println(">> Typechecking of " + args[0] + " is done\n");
 
             System.out.println(">> Generating Sprockell code for " + args[0]);
-            List<String> instructions = guava.compile(tree, result);
+            List<String> instructions = guava.compile(tree, result, result.isConc());
             System.out.println(">> Generating Sprockell code for " + args[0] + " is done\n");
-
-            guava.writeToFile(instructions, args[0], result.getVarMap());
+            if (result.isConc()) {
+                guava.writeToFile(instructions, args[0], result.getVarMap(), 3);
+            } else {
+                guava.writeToFile(instructions, args[0], result.getVarMap(), 1);
+            }
             System.out.println(">> Output is written to " + args[0] + ".hs");
         }
     }
@@ -79,16 +81,22 @@ public class Guava {
         return checkerResult;
     }
 
-    public List<String> compile(ParseTree tree, CheckerResult result) {
-        this.generator = new GuavaGenerator(tree, result, registers);
-        return this.generator.getOperations();
+    public List<String> compile(ParseTree tree, CheckerResult result, boolean concurrent) {
+        if (concurrent) {
+            this.concGenerator = new GuavaConcGenerator(tree, result, registers);
+            return this.concGenerator.getOperations();
+        } else {
+            this.generator = new GuavaGenerator(tree, result, registers);
+            return this.generator.getOperations();
+        }
     }
 
     public String capitalize(String input) {
         return input.substring(0, 1).toUpperCase() + input.substring(1);
     }
 
-    public void writeToFile(List<String> instructions, String filename, Map<Integer, String> varMap) {
+
+    public void writeToFile(List<String> instructions, String filename, Map<Integer, String> varMap, int processors) {
         PrintWriter writer = null;
 
         try {
@@ -120,7 +128,12 @@ public class Guava {
                     writer.println("          , " + instructions.get(i));
                 }
             }
-            writer.println("testProgram = sysTest [program]");
+            String programs = "[";
+            for (int i = 0; i < processors-1; i++) {
+                programs += "program,";
+            }
+            programs += "program]";
+            writer.println("testProgram = sysTest " + programs);
             writer.flush();
             writer.close();
         }

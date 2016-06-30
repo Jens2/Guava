@@ -39,6 +39,14 @@ public class GuavaChecker extends GuavaBaseListener {
     }
 
     @Override
+    public void enterBody(GuavaParser.BodyContext ctx) {
+        if (ctx.FORK() != null) {
+            checkerResult.setConc(true);
+        }
+    }
+
+
+    @Override
     public void exitGlobalDecl(GuavaParser.GlobalDeclContext ctx) {
         if (contains(ctx.ID())) {
             addError(ctx, "Variable '%s' is already declared", ctx.ID());
@@ -246,15 +254,16 @@ public class GuavaChecker extends GuavaBaseListener {
         closeScope();
     }
 
-    @Override
-    public void enterForkStat(GuavaParser.ForkStatContext ctx) {
-        openScope();
+    @Override public void enterLockStat(GuavaParser.LockStatContext ctx) {
+        if (!checkerResult.isConc()) {
+            addError(ctx, "Can't use locks in a sequential program.");
+        }
     }
 
-    @Override
-    public void exitForkStat(GuavaParser.ForkStatContext ctx) {
-        setEntry(ctx, ctx.stat(0));
-        closeScope();
+    @Override public void enterUnlockStat(GuavaParser.UnlockStatContext ctx) {
+        if (!checkerResult.isConc()) {
+            addError(ctx, "Can't use locks in a sequential program.");
+        }
     }
 
     @Override
@@ -408,7 +417,16 @@ public class GuavaChecker extends GuavaBaseListener {
 
     @Override
     public void exitGetArrayExpr(GuavaParser.GetArrayExprContext ctx) {
-        int index = Integer.parseInt(ctx.NUM().getText());
+        int index = -1;
+        if (ctx.NUM() != null) {
+            index = Integer.parseInt(ctx.NUM().getText());
+        } else if (ctx.expr() != null) {
+            if (assigned(ctx.ID())) {
+                index = getArrayLength(ctx.ID());
+            }
+        } else {
+            addError(ctx, "No index specified.");
+        }
 
         if (!assigned(ctx.ID())) {
             addError(ctx, "Variable '%s' has no value", ctx.ID());

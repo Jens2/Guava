@@ -2,10 +2,10 @@ package elaboration;
 
 import grammar.GuavaBaseVisitor;
 import grammar.GuavaParser;
-import spril.MemAddr;
-import spril.Op;
-import spril.Instruction;
-import spril.Target;
+import SPRIL.MemAddr;
+import SPRIL.Op;
+import SPRIL.Instruction;
+import SPRIL.Target;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
@@ -100,22 +100,6 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
         setNext(ctx.stat(ctx.stat().size() - 1), END);
         visitChildren(ctx);
-        return null;
-    }
-
-    @Override
-    public String visitGlobalDecl(GuavaParser.GlobalDeclContext ctx) {
-        int lines = 0;
-
-        if (ctx.expr() != null) {
-            visit(ctx.expr());
-            lines += getCodeLines(ctx.expr());
-            Instruction write = new Instruction.WriteInst(reg(ctx.expr()), MemAddr.DirAddr, offset2String(offset(ctx.ID())));
-            addOp(write);
-            emptyReg(ctx.expr());
-        }
-
-        setCodeLines(ctx, lines + 1);
         return null;
     }
 
@@ -368,29 +352,6 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
     @Override
     public String visitPrintStat(GuavaParser.PrintStatContext ctx) {
-        return null;
-    }
-
-    @Override
-    public String visitForkStat(GuavaParser.ForkStatContext ctx) {
-        for (int i = 0; i < ctx.stat().size()-1; i++) {
-            if (i == ctx.stat().size() -1) {
-                setNext(ctx.stat(i), getNext(ctx));
-            } else {
-                setNext(ctx.stat(i), result.getEntry(ctx.stat(i + 1)));
-            }
-        }
-        int lines = 0;
-        visitChildren(ctx);
-        for (int i = 0; i < ctx.stat().size(); i++) {
-            lines += getCodeLines(ctx.stat(i));
-        }
-        setCodeLines(ctx, lines);
-        return null;
-    }
-
-    @Override
-    public String visitJoinStat(GuavaParser.JoinStatContext ctx) {
         return null;
     }
 

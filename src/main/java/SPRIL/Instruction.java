@@ -1,4 +1,4 @@
-package spril;
+package SPRIL;
 
 /**
  * Created by Jens on 15-6-2016.
