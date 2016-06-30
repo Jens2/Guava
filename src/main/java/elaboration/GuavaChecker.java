@@ -13,6 +13,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Created by Dion on 15-6-2016.
+ *
+ */
 public class GuavaChecker extends GuavaBaseListener {
 
     private CheckerResult checkerResult;
@@ -39,14 +43,6 @@ public class GuavaChecker extends GuavaBaseListener {
     }
 
     @Override
-    public void enterBody(GuavaParser.BodyContext ctx) {
-        if (ctx.FORK() != null) {
-            checkerResult.setConc(true);
-        }
-    }
-
-
-    @Override
     public void exitGlobalDecl(GuavaParser.GlobalDeclContext ctx) {
         if (contains(ctx.ID())) {
             addError(ctx, "Variable '%s' is already declared", ctx.ID());
@@ -62,7 +58,7 @@ public class GuavaChecker extends GuavaBaseListener {
             setEntry(ctx, entry(ctx.type()));
         }
 
-        setOffset(ctx.ID(), this.variables.globalOffset(ctx.ID().getText()), true);
+        setOffset(ctx.ID(), this.variables.globalOffset(ctx.ID().getText()));
         setType(ctx.ID(), getType(ctx.type()));
     }
 
@@ -81,7 +77,7 @@ public class GuavaChecker extends GuavaBaseListener {
             setEntry(ctx, entry(ctx.type()));
         }
 
-        setOffset(ctx.ID(), this.variables.offset(ctx.ID().getText()), false);
+        setOffset(ctx.ID(), this.variables.offset(ctx.ID().getText()));
         setType(ctx.ID(), getType(ctx.type()));
     }
 
@@ -117,7 +113,7 @@ public class GuavaChecker extends GuavaBaseListener {
         }
 
         setType(ctx.ID(), type);
-        setOffset(ctx.ID(), this.variables.offset(ctx.ID().getText()), false);
+        setOffset(ctx.ID(), this.variables.offset(ctx.ID().getText()));
     }
 
     @Override
@@ -135,9 +131,9 @@ public class GuavaChecker extends GuavaBaseListener {
 
         if (isShared(ctx.ID())) {
             setShared(ctx.ID(), true);
-            setOffset(ctx.ID(), this.variables.globalOffset(ctx.ID().getText()), true);
+            setOffset(ctx.ID(), this.variables.globalOffset(ctx.ID().getText()));
         } else {
-            setOffset(ctx.ID(), this.variables.offset(ctx.ID().getText()), false);
+            setOffset(ctx.ID(), this.variables.offset(ctx.ID().getText()));
         }
 
         setEntry(ctx, entry(ctx.expr()));
@@ -168,7 +164,7 @@ public class GuavaChecker extends GuavaBaseListener {
             addError(ctx, "Array index out of bounds for array '%s'. Array size is %s, requested index is %s", ctx.ID(), getArrayLengthVar(ctx.ID()), index);
         }
 
-        setOffset(ctx.ID(), this.variables.offset(ctx.ID().getText()), false);
+        setOffset(ctx.ID(), this.variables.offset(ctx.ID().getText()));
         setEntry(ctx, entry(ctx.expr()));
     }
 
@@ -247,20 +243,17 @@ public class GuavaChecker extends GuavaBaseListener {
         closeScope();
     }
 
+    @Override public void enterBranchStat(GuavaParser.BranchStatContext ctx) {
+        checkerResult.setConc(true);
+    }
+
     @Override public void enterLockStat(GuavaParser.LockStatContext ctx) {
         if (!checkerResult.isConc()) {
             addError(ctx, "Can't use locks in a sequential program.");
         } else {
-            setOffset(ctx.ID(), this.variables.globalOffset(ctx.ID().getText()), true);
+            setOffset(ctx.ID(), this.variables.globalOffset(ctx.ID().getText()));
         }
-    }
-
-    @Override public void enterUnlockStat(GuavaParser.UnlockStatContext ctx) {
-        if (!checkerResult.isConc()) {
-            addError(ctx, "Can't use locks in a sequential program.");
-        } else {
-            setOffset(ctx.ID(), this.variables.globalOffset(ctx.ID().getText()), true);
-        }
+        setEntry(ctx, ctx);
     }
 
     @Override
@@ -418,7 +411,7 @@ public class GuavaChecker extends GuavaBaseListener {
             addError(ctx, "Array index out of bounds for array '%s'. Array size is %s, requested index is %s", ctx.ID(), getArrayLengthVar(ctx.ID()), index);
         }
 
-        setOffset(ctx.ID(), this.variables.offset(ctx.ID().getText()), false);
+        setOffset(ctx.ID(), this.variables.offset(ctx.ID().getText()));
         setEntry(ctx, ctx);
     }
 
@@ -438,10 +431,10 @@ public class GuavaChecker extends GuavaBaseListener {
         }
 
         if (isShared(ctx.ID())) {
-            setOffset(ctx.ID(), this.variables.globalOffset(ctx.ID().getText()), true);
+            setOffset(ctx.ID(), this.variables.globalOffset(ctx.ID().getText()));
             setShared(ctx.ID(), true);
         } else {
-            setOffset(ctx.ID(), this.variables.offset(ctx.ID().getText()), false);
+            setOffset(ctx.ID(), this.variables.offset(ctx.ID().getText()));
 
         }
 
@@ -549,7 +542,7 @@ public class GuavaChecker extends GuavaBaseListener {
     }
 
     private void addNestedVariable(ParseTree node, Type type, ParserRuleContext ctx) {
-        if (!this.variables.addNested(node.getText(), type)) {
+        if (!this.variables.addLocal(node.getText(), type)) {
             addError(ctx, "Variable '%s' is already declared", node.getText());
         }
     }
@@ -625,9 +618,9 @@ public class GuavaChecker extends GuavaBaseListener {
         return this.arrayLengthVars.get(node.getText());
     }
 
-    private void setOffset(ParseTree node, Integer offset, boolean global) {
+    private void setOffset(ParseTree node, Integer offset) {
         if (offset != null) {
-            this.checkerResult.setOffset(node, offset, global);
+            this.checkerResult.setOffset(node, offset);
         }
     }
 
