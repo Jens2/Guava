@@ -1,13 +1,10 @@
 package spril;
 
-/**
- * Created by Jens on 15-6-2016.
- *
- */
 public class Instruction {
 
-    /** This class contains all possible instructions. */
-    /** Copy value from register to another register */
+    /**
+     * Copy value from reg1 to reg2
+     */
     static public class RegCopy extends Instruction {
         private String operation = "RegCopy ";
         public RegCopy(String reg0, String reg1) {
@@ -18,7 +15,9 @@ public class Instruction {
         }
     }
 
-    /** Load constant. */
+    /**
+     * Store immediate value in reg1
+     */
     static public class LoadConst extends Instruction {
         private String operation = "LoadConst ";
         public LoadConst(String val, String reg0) {
@@ -29,7 +28,9 @@ public class Instruction {
         }
     }
 
-    /** Compute instruction.*/
+    /**
+     * Perform computation 'op' to reg1 and reg2 and save result in reg3
+     */
     static public class Compute extends Instruction {
         private String operation = "Compute ";
         public Compute(Op op, String reg0, String reg1, String reg2) {
@@ -40,7 +41,9 @@ public class Instruction {
         }
     }
 
-    /** Load instruction.*/
+    /**
+     * Load value from mem1 into reg1
+     */
     static public class Load extends Instruction {
         private String operation = "Load ";
         public Load(MemAddr m, String addr, String reg) {
@@ -52,7 +55,9 @@ public class Instruction {
         }
     }
 
-    /** Store instruction.*/
+    /**
+     * Store value from reg1 in mem1
+     */
     static public class Store extends Instruction {
         private String operation = "Store ";
         public Store(String reg, MemAddr m, String addr) {
@@ -63,7 +68,9 @@ public class Instruction {
         }
     }
 
-    /** Branch instruction.*/
+    /**
+     * Branch if reg1 == True
+     */
     static public class Branch extends Instruction {
         private String operation = "Branch ";
         public Branch(String reg, Target t, String addr) {
@@ -74,7 +81,9 @@ public class Instruction {
         }
     }
 
-    /** Jump instruction.*/
+    /**
+     * Jump
+     */
     static public class Jump extends Instruction {
         private String operation = "Jump ";
         public Jump(Target t, String addr) {
@@ -85,29 +94,9 @@ public class Instruction {
         }
     }
 
-    /** Push instruction.*/
-    static public class Push extends Instruction {
-        private String operation = "Push ";
-        public Push(String reg) {
-            operation = operation + reg;
-        }
-        public String toString() {
-            return operation;
-        }
-    }
-
-    /** Pop instruction.*/
-    static public class Pop extends Instruction {
-        private String operation = "Pop ";
-        public Pop(String reg) {
-            operation = operation + reg;
-        }
-        public String toString() {
-            return operation;
-        }
-    }
-
-    /** ReadInstr instruction.*/
+    /**
+     * Send request to read shared_mem1
+     */
     static public class ReadInstr extends Instruction {
         private String operation = "ReadInstr ";
         public ReadInstr(MemAddr m, String addr) {
@@ -118,7 +107,9 @@ public class Instruction {
         }
     }
 
-    /** Receive instruction.*/
+    /**
+     * Receive value from shared_mem in reg1
+     */
     static public class Receive extends Instruction {
         private String operation = "Receive ";
         public Receive(String reg) {
@@ -129,7 +120,9 @@ public class Instruction {
         }
     }
 
-    /** WriteInst instruction.*/
+    /**
+     * Write to shared_mem1
+     */
     static public class WriteInst extends Instruction {
         private String operation = "WriteInstr ";
         public WriteInst(String reg, MemAddr m, String addr) {
@@ -140,7 +133,9 @@ public class Instruction {
         }
     }
 
-    /** TestAndSet operation.*/
+    /**
+     * TestAndSet
+     */
     static public class TestAndSet extends Instruction {
         private String operation = "TestAndSet ";
         public TestAndSet(MemAddr m, String addr) {
@@ -151,7 +146,9 @@ public class Instruction {
         }
     }
 
-    /** Nop instruction.*/
+    /**
+     * Nop
+     */
     static public class Nop extends Instruction {
         private String operation = "Nop";
         public String toString() {
@@ -159,7 +156,9 @@ public class Instruction {
         }
     }
 
-    /** EndProg instruction.*/
+    /**
+     * EndProg
+     */
     static public class EndProg extends Instruction {
         private String operation = "EndProg";
         public String toString() {

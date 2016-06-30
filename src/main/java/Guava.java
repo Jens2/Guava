@@ -8,10 +8,7 @@ import java.io.*;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by Dion on 21-6-2016.
- *
- */
+
 public class Guava {
 
     private GuavaChecker checker;
@@ -44,9 +41,9 @@ public class Guava {
             List<String> instructions = guava.compile(tree, result);
             System.out.println(">> Generating Sprockell code for " + args[0] + " is done\n");
             if (result.isConc()) {
-                guava.writeToFile(instructions, args[0], result.getVarMap(), 4);
+                guava.writeToFile(instructions, args[0], result.getVarMap(), result.getGlobalVarMap(), 3);
             } else {
-                guava.writeToFile(instructions, args[0], result.getVarMap(), 1);
+                guava.writeToFile(instructions, args[0], result.getVarMap(), result.getGlobalVarMap(), 1);
             }
             System.out.println(">> Output is written to " + args[0] + ".hs");
         }
@@ -90,7 +87,8 @@ public class Guava {
     }
 
 
-    public void writeToFile(List<String> instructions, String filename, Map<Integer, String> varMap, int processors) {
+    public void writeToFile(List<String> instructions, String filename, Map<Integer, String> varMap
+            , Map<Integer, String> globalVarMap, int processors) {
         PrintWriter writer = null;
 
         try {
@@ -107,8 +105,18 @@ public class Guava {
             writer.println("import System");
             writer.println("import Simulation\n");
 
-            for (int i : varMap.keySet()) {
-                writer.println(varMap.get(i) + outline(varMap.get(i), varMap) + " = " + i);
+            if (globalVarMap.size() > 0) {
+                writer.println("-- Global variables");
+                for (int i : globalVarMap.keySet()) {
+                    writer.println(globalVarMap.get(i) + outline(globalVarMap.get(i), globalVarMap) + " = " + i);
+                }
+            }
+
+            if (varMap.size() > 0) {
+                writer.println("\n-- Local variables");
+                for (int i : varMap.keySet()) {
+                    writer.println(varMap.get(i) + outline(varMap.get(i), varMap) + " = " + i);
+                }
             }
 
             if (instructions.size() >= 1) {
@@ -122,28 +130,11 @@ public class Guava {
                     writer.println("          , " + instructions.get(i));
                 }
             }
-
-            List<List<String>> concInstr = this.generator.getConcurrentInstructions();
-
-
-            for (int i = 0; i < processors -1; i++) {
-                List<String> instr = concInstr.get(i);
-                writer.println("\nprogram" + i + " :: [Instruction]");
-                writer.println("program" + i + " = [ " + instr.get(0));
-                for (int j = 1; j < instr.size(); j++) {
-                    if (j == instr.size() - 1) {
-                        writer.println("           , " + instr.get(j) + " ]\n");
-                    } else {
-                        writer.println("           , " + instr.get(j));
-                    }
-                }
+            String programs = "[";
+            for (int i = 0; i < processors-1; i++) {
+                programs += "program,";
             }
-
-            String programs = "[program, ";
-            for (int i = 0; i < processors-2; i++) {
-                programs += "program" + i + ", ";
-            }
-            programs += "program2]";
+            programs += "program]";
             writer.println("testProgram = sysTest " + programs);
             writer.flush();
             writer.close();
