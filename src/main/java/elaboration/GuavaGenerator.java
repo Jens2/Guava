@@ -971,28 +971,28 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
         if (result.isGlobalVar(ctx.ID())) {
             load = new Instruction.ReadInstr(MemAddr.DirAddr, offset2String(offset(ctx.ID(), true), true));
-            if (!locked) {
-                receive = new Instruction.Receive(getReg(ctx));
+            receive = new Instruction.Receive(getReg(ctx));
+            if (hasThreadNo(ctx)) {
+                addInstr(load, -1, getThreadNo(ctx));
+                addInstr(receive, -1, getThreadNo(ctx));
+            } else {
+                addInstr(load);
+                addInstr(receive);
             }
+            loadVariable(ctx.ID(), getReg(ctx));
+            lines += 2;
         } else {
             if (!isNestedVar(ctx.ID())) {
                 load = new Instruction.Load(MemAddr.DirAddr, offset2String(offset(ctx.ID(), false), false), getReg(ctx));
-            }
-        }
+                if (hasThreadNo(ctx)) {
+                    addInstr(load, -1, getThreadNo(ctx));
+                } else {
+                    addInstr(load);
+                }
+                lines++;
+                loadVariable(ctx.ID(), getReg(ctx));
 
-        if (load != null && !isLoadedVariable(ctx.ID())) {
-            if (hasThreadNo(ctx)) {
-                addInstr(load, -1, getThreadNo(ctx));
-            } else {
-                addInstr(load);
             }
-            loadVariable(ctx.ID(), getReg(ctx));
-            lines += 1;
-        }
-
-        if (receive != null) {
-            addInstr(receive);
-            lines += 1;
         }
 
         setCodeLines(ctx, lines);
