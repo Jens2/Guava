@@ -27,16 +27,18 @@ public class GuavaChecker extends GuavaBaseListener {
     private List<String> errors;
 
     public CheckerResult check(ParseTree tree) throws GuavaException {
-        this.arrayLengthVars = new LinkedHashMap<>();
-        this.arrayLength = new ParseTreeProperty<>();
+        this.checkerResult = new CheckerResult();
         this.variables = new GuavaVariableTable();
         this.sharedVariables = new ArrayList<>();
-        this.checkerResult = new CheckerResult();
+        this.arrayLength = new ParseTreeProperty<>();
+        this.arrayLengthVars = new LinkedHashMap<>();
         this.errors = new ArrayList<>();
+
         new ParseTreeWalker().walk(this, tree);
         if (hasErrors()) {
             throw new GuavaException(getErrors());
         }
+
         return this.checkerResult;
     }
 
@@ -252,12 +254,16 @@ public class GuavaChecker extends GuavaBaseListener {
     @Override public void enterLockStat(GuavaParser.LockStatContext ctx) {
         if (!checkerResult.isConc()) {
             addError(ctx, "Can't use locks in a sequential program.");
+        } else {
+            setOffset(ctx.ID(), this.variables.globalOffset(ctx.ID().getText()));
         }
     }
 
     @Override public void enterUnlockStat(GuavaParser.UnlockStatContext ctx) {
         if (!checkerResult.isConc()) {
             addError(ctx, "Can't use locks in a sequential program.");
+        } else {
+            setOffset(ctx.ID(), this.variables.globalOffset(ctx.ID().getText()));
         }
     }
 

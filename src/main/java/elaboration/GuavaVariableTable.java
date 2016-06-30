@@ -55,7 +55,8 @@ public class GuavaVariableTable implements SymbolTable {
         table.get(deepestScope).put(id, type);
 
         if (global) {
-            globalOffsets.put(id, globalOffset++);
+            globalOffsets.put(id, globalOffset);
+            globalOffset += 2;
         } else {
             offsets.put(id, offset++);
         }
