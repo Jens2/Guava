@@ -103,9 +103,9 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
             Instruction write;
             if (isZero(ctx.expr())) {
-                write = new Instruction.WriteInst(REG0, MemAddr.DirAddr, offset2String(offset(ctx.ID())));
+                write = new Instruction.WriteInst(REG0, MemAddr.DirAddr, offset2String(offset(ctx.ID(), true), true));
             } else {
-                write = new Instruction.WriteInst(reg(ctx.expr()), MemAddr.DirAddr, offset2String(offset(ctx.ID())));
+                write = new Instruction.WriteInst(reg(ctx.expr()), MemAddr.DirAddr, offset2String(offset(ctx.ID(), true), true));
             }
             addInstr(write);
 
@@ -127,9 +127,9 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
             Instruction store;
             if (isZero(ctx.expr())) {
-                store = new Instruction.Store(REG0, MemAddr.DirAddr, offset2String(offset(ctx.ID())));
+                store = new Instruction.Store(REG0, MemAddr.DirAddr, offset2String(offset(ctx.ID(), false), false));
             } else {
-                store = new Instruction.Store(reg(ctx.expr()), MemAddr.DirAddr, offset2String(offset(ctx.ID())));
+                store = new Instruction.Store(reg(ctx.expr()), MemAddr.DirAddr, offset2String(offset(ctx.ID(), false), false));
             }
             addInstr(store);
 
@@ -152,7 +152,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
             List<String> regs = this.arrayValues.get(ctx.expr());
 
             for (int i = 0; i < regs.size(); i++) {
-                store = new Instruction.Store(regs.get(i), MemAddr.DirAddr, "(" + offset2String(offset(ctx.ID())) + " + " + i + ")");
+                store = new Instruction.Store(regs.get(i), MemAddr.DirAddr, "(" + offset2String(offset(ctx.ID(), false), false) + " + " + i + ")");
                 addInstr(store);
 
                 lines++;
@@ -179,7 +179,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
             List<String> regs = this.arrayValues.get(ctx.expr());
 
             for (int i = 0; i < regs.size(); i++) {
-                store = new Instruction.Store(regs.get(i), MemAddr.DirAddr, "(" + offset2String(offset(ctx.ID())) + " + " + i + ")");
+                store = new Instruction.Store(regs.get(i), MemAddr.DirAddr, "(" + offset2String(offset(ctx.ID(), false), false) + " + " + i + ")");
                 addInstr(store);
 
                 lines++;
@@ -199,9 +199,9 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
             }
 
             if (result.isGlobalVar(ctx.ID())) {
-                store = new Instruction.WriteInst(reg, MemAddr.DirAddr, offset2String(offset(ctx.ID())));
+                store = new Instruction.WriteInst(reg, MemAddr.DirAddr, offset2String(offset(ctx.ID(), true), true));
             } else {
-                store = new Instruction.Store(reg, MemAddr.DirAddr, offset2String(offset(ctx.ID())));
+                store = new Instruction.Store(reg, MemAddr.DirAddr, offset2String(offset(ctx.ID(), false), false));
             }
 
             lines++;
@@ -635,7 +635,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
     @Override
     public String visitGetArrayExpr(GuavaParser.GetArrayExprContext ctx) {
         int lines = 0;
-        Instruction load = new Instruction.Load(MemAddr.DirAddr, "(" + offset2String(offset(ctx.ID())) + " + " + ctx.NUM().getText() + ")", reg(ctx));
+        Instruction load = new Instruction.Load(MemAddr.DirAddr, "(" + offset2String(offset(ctx.ID(), false), false) + " + " + ctx.NUM().getText() + ")", reg(ctx));
         lines++;
 
         addInstr(load);
@@ -650,11 +650,11 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         int lines = 0;
 
         if (result.isGlobalVar(ctx.ID())) {
-            load = new Instruction.ReadInstr(MemAddr.DirAddr, offset2String(offset(ctx)));
+            load = new Instruction.ReadInstr(MemAddr.DirAddr, offset2String(offset(ctx, true), true));
             receive = new Instruction.Receive(reg(ctx));
         } else {
             if (!isNestedVar(ctx.ID())) {
-                load = new Instruction.Load(MemAddr.DirAddr, offset2String(offset(ctx.ID())), reg(ctx));
+                load = new Instruction.Load(MemAddr.DirAddr, offset2String(offset(ctx.ID(), false), false), reg(ctx));
             }
         }
 
@@ -746,8 +746,8 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         return this.nestedVars.get(node.getText());
     }
 
-    private String offset(ParseTree node) {
-        return this.result.getOffset(node);
+    private String offset(ParseTree node, boolean global) {
+        return this.result.getOffset(node, global);
     }
 
     private String reg(ParseTree node) {
@@ -802,8 +802,12 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         this.loadedVariables = new HashMap<>();
     }
 
-    private String offset2String(String offset) {
-        return this.result.getVarMap().get(Integer.parseInt(offset));
+    private String offset2String(String offset, boolean global) {
+        if (global) {
+            return this.result.getGlobalVarMap().get(Integer.parseInt(offset));
+        } else {
+            return this.result.getVarMap().get(Integer.parseInt(offset));
+        }
     }
 
     private int getCodeLines(ParseTree node) {

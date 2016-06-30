@@ -11,8 +11,10 @@ public class CheckerResult {
 	private final ParseTreeProperty<ParserRuleContext> entries = new ParseTreeProperty<>();
 	private final ParseTreeProperty<Type> types = new ParseTreeProperty<>();
 	private final ParseTreeProperty<Integer> offsets = new ParseTreeProperty<>();
+    private final ParseTreeProperty<Integer> globalOffsets = new ParseTreeProperty<>();
     private final ParseTreeProperty<Boolean> globalVars = new ParseTreeProperty<>();
     private final Map<Integer, String> varMap = new HashMap<>();
+    private final Map<Integer, String> globalVarMap = new HashMap<>();
     private boolean isConc = false;
 
     public void setConc(boolean conc) {
@@ -39,13 +41,22 @@ public class CheckerResult {
 		return this.types.get(node);
 	}
 
-    public void setOffset(ParseTree node, int offset) {
-        this.offsets.put(node, offset);
-        this.varMap.put(offset, node.getText());
+    public void setOffset(ParseTree node, int offset, boolean global) {
+        if (global) {
+            this.globalOffsets.put(node, offset);
+            this.globalVarMap.put(offset, node.getText());
+        } else {
+            this.offsets.put(node, offset);
+            this.varMap.put(offset, node.getText());
+        }
     }
 
-    public String getOffset(ParseTree node) {
-        return String.valueOf(this.offsets.get(node));
+    public String getOffset(ParseTree node, boolean global) {
+        if (global) {
+            return String.valueOf(this.globalOffsets.get(node));
+        } else {
+            return String.valueOf(this.offsets.get(node));
+        }
     }
 
     public void setGlobalVar(ParseTree node, boolean global) {
@@ -58,6 +69,10 @@ public class CheckerResult {
 
     public Map<Integer, String> getVarMap() {
         return varMap;
+    }
+
+    public Map<Integer, String> getGlobalVarMap() {
+        return this.globalVarMap;
     }
 
 }
