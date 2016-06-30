@@ -1,0 +1,14 @@
+epicarp {
+    universal int saldo = 0;
+    branch {
+        for (int i = 0; i < 2; i++) {
+            lock(saldo) {
+                saldo = saldo + 1;
+            }
+        }
+        lock(saldo) {
+            saldo = saldo - 50;
+        }
+        int x = 28;
+    }
+}

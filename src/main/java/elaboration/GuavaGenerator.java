@@ -101,6 +101,10 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         return this.instructions;
     }
 
+    public List<List<String>> getConcurrentInstructions() {
+        return this.concurrentInstructions;
+    }
+
     private void initConcList(ParseTree ctx) {
         List<String> one = new ArrayList<>();
         List<String> two = new ArrayList<>();
@@ -137,13 +141,20 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
     public String visitProgram(GuavaParser.ProgramContext ctx) {
         visitChildren(ctx);
         // A write instruction is finished after 5 iterations, so we want to make sure that a potential final write is finished.
-        for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 4; j++) {
-                addInstr(new Instruction.Nop(), -1, j);
+        if (result.isConc()) {
+            for (int i = 0; i < 5; i++) {
+                for (int j = 0; j < 4; j++) {
+                    addInstr(new Instruction.Nop(), -1, j);
+                }
             }
-        }
-        for (int i = 0; i < 4; i++) {
-            addInstr(new Instruction.EndProg(), -1, i);
+            for (int i = 0; i < 4; i++) {
+                addInstr(new Instruction.EndProg(), -1, i);
+            }
+        } else {
+            for (int i = 0; i < 5; i++) {
+                addInstr(new Instruction.Nop());
+            }
+            addInstr(new Instruction.EndProg());
         }
         return null;
     }
@@ -167,9 +178,9 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
             Instruction write;
             if (isZero(ctx.expr())) {
-                write = new Instruction.WriteInst(REG0, MemAddr.DirAddr, offset2String(offset(ctx.ID(), false), false));
+                write = new Instruction.WriteInst(REG0, MemAddr.DirAddr, offset2String(offset(ctx.ID(), true), true));
             } else {
-                write = new Instruction.WriteInst(reg(ctx.expr()), MemAddr.DirAddr, offset2String(offset(ctx.ID(), false), false));
+                write = new Instruction.WriteInst(reg(ctx.expr()), MemAddr.DirAddr, offset2String(offset(ctx.ID(), true), true));
             }
             if (hasThreadNo(ctx)) {
                 addInstr(write, -1, getThreadNo(ctx));
