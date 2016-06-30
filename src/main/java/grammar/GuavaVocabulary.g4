@@ -39,7 +39,6 @@ RSQBR   : ']';
 
 // Data types
 INT       : 'int'     ;
-DOUBLE    : 'double'  ;
 CHARACTER : 'char'    ;
 BOOLEAN   : 'pulp'    ;
 STRING    : 'string'  ;
@@ -48,7 +47,6 @@ STRING    : 'string'  ;
 NUM   : '0' | DIGIT19 DIGIT09*          ;
 BOOL  : TRUE | FALSE                    ;
 CHAR  : SQUOTE LETTER SQUOTE            ;
-DEC   : DIGIT09* DOT DIGIT09+           ;
 STR   : DQUOTE (~["\\] | '\\'.)* DQUOTE ;
 TRUE  : 'sweet'                         ;
 FALSE : 'sour'                          ;

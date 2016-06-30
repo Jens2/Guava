@@ -5,10 +5,9 @@ package elaboration;
  */
 public enum PrimitiveTypes {
     INT,
-    DOUBLE,
     BOOL,
     CHAR,
     STRING,
     ARRAY,
-    ERROR;
+    ERROR
 }

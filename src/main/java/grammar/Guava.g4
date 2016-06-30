@@ -16,7 +16,7 @@ global  : GLOBAL type ID (ASSIGN expr)? SEMI                #globalDecl
 stat    : type ID (ASSIGN expr)? SEMI                       #varDeclStat
         | type LSQBR NUM RSQBR ID (ASSIGN expr)? SEMI       #arrayDeclStat
         | ID ASSIGN expr SEMI                               #assignStat
-        | ID LSQBR (NUM | expr) RSQBR ASSIGN expr SEMI      #assignArrayStat
+        | ID LSQBR NUM RSQBR ASSIGN expr SEMI               #assignArrayStat
         | IF LPAR expr RPAR stat (ELSE stat)?               #ifStat
         | LBRACK stat* RBRACK                               #blockStat
         | WHILE LPAR expr RPAR stat                         #whileStat
@@ -39,8 +39,8 @@ expr    : prfOp expr                        #prfExpr
         | expr compOp expr                  #compExpr
         | LPAR expr RPAR                    #parExpr
         | LSQBR (expr (COMMA expr)*)? RSQBR #arrayExpr
-        | (NUM | BOOL | CHAR | DEC | STR)   #constExpr
-        | ID LSQBR (NUM | expr) RSQBR       #getArrayExpr
+        | (NUM | BOOL | CHAR | STR)         #constExpr
+        | ID LSQBR NUM RSQBR                #getArrayExpr
         | ID                                #idExpr
         ;
 
@@ -61,7 +61,6 @@ compOp  : LE | LT | GE | GT | EQ | NE ;
 // The basic types
 type    : INT           #intType
         | BOOLEAN       #boolType
-        | DOUBLE        #doubleType
         | CHARACTER     #charType
         | STRING        #stringType
         ;

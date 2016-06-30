@@ -2,9 +2,6 @@ epicarp {
     >> Character cannot be assigned to an int variable
     int integer = 'h';
 
-    >> Using dot notation is mandatory for representing a double
-    double decimal = 1;
-
     >> Integer cannot be assigned to a char variable
     char character = 5;
 
@@ -21,6 +18,4 @@ epicarp {
     int i;
     int j = 5 + i;
 
-    >>
-    int modulo = 5.0 mod 3.0;
 }

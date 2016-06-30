@@ -9,7 +9,6 @@ import java.util.List;
  */
 abstract public class Type {
     public static final Type INT = new Int();
-    public static final Type DOUBLE = new Double();
     public static final Type BOOL = new Bool();
     public static final Type CHAR = new Char();
     public static final Type STR = new Str();
@@ -33,17 +32,6 @@ abstract public class Type {
         @Override
         public String toString() {
             return "Integer";
-        }
-    }
-
-    static private class Double extends Type {
-        private Double() {
-            super(PrimitiveTypes.DOUBLE);
-        }
-
-        @Override
-        public String toString() {
-            return "Double";
         }
     }
 

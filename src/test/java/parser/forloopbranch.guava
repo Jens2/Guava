@@ -4,7 +4,6 @@ epicarp {
             branch {
                 char c = 'a';
                 string s = "string";
-                double d = 1.5;
             }
         }
     }

@@ -1,8 +1,6 @@
 epicarp {
     int integer = 0;
     
-    double decimal = 0.0;
-            
     string str = "testing123";
     
     char character = 'h';

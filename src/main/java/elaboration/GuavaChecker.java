@@ -2,14 +2,16 @@ package elaboration;
 
 import grammar.GuavaBaseListener;
 import grammar.GuavaParser;
-import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Dion on 15-6-2016.
@@ -151,23 +153,16 @@ public class GuavaChecker extends GuavaBaseListener {
 
     @Override
     public void exitAssignArrayStat(GuavaParser.AssignArrayStatContext ctx) {
-        int exprNum;
-        if (ctx.NUM() != null) {
-            exprNum = 0;
-        } else {
-            exprNum = 1;
-        }
-
-        if (!((Type.Array)variableType(ctx.ID())).getElemType().equals(getType(ctx.expr(exprNum)))) {
-            addError(ctx, "Expected type '%s' but found '%s'", ((Type.Array)variableType(ctx.ID())).getElemType(), getType(ctx.expr(exprNum)));
+        if (!((Type.Array)variableType(ctx.ID())).getElemType().equals(getType(ctx.expr()))) {
+            addError(ctx, "Expected type '%s' but found '%s'", ((Type.Array)variableType(ctx.ID())).getElemType(), getType(ctx.expr()));
         }
 
         int index = 0;
         if (ctx.NUM() != null) {
             index = Integer.parseInt(ctx.NUM().getText());
         } else {
-            if (getType(ctx.expr(0)) != Type.INT) {
-                addError(ctx, "Expected type '%s' but found '%s'", Type.INT, getType(ctx.expr(0)));
+            if (getType(ctx.expr()) != Type.INT) {
+                addError(ctx, "Expected type '%s' but found '%s'", Type.INT, getType(ctx.expr()));
             }
         }
 
@@ -176,7 +171,7 @@ public class GuavaChecker extends GuavaBaseListener {
         }
 
         setOffset(ctx.ID(), this.variables.offset(ctx.ID().getText()));
-        setEntry(ctx, entry(ctx.expr(0)));
+        setEntry(ctx, entry(ctx.expr()));
     }
 
     @Override
@@ -310,9 +305,7 @@ public class GuavaChecker extends GuavaBaseListener {
     public void exitMultExpr(GuavaParser.MultExprContext ctx) {
         Type type;
 
-        if (getType(ctx.expr(0)) == Type.DOUBLE || getType(ctx.expr(1)) == Type.DOUBLE) {
-            type = Type.DOUBLE;
-        } else if (getType(ctx.expr(0)) == Type.INT && getType(ctx.expr(1)) == Type.INT) {
+        if (getType(ctx.expr(0)) == Type.INT && getType(ctx.expr(1)) == Type.INT) {
             type = Type.INT;
         } else if (getType(ctx.expr(0)) == Type.STR && getType(ctx.expr(1)) == Type.STR) {
             type = Type.STR;
@@ -329,9 +322,7 @@ public class GuavaChecker extends GuavaBaseListener {
     public void exitPlusExpr(GuavaParser.PlusExprContext ctx) {
         Type type;
 
-        if (getType(ctx.expr(0)) == Type.DOUBLE || getType(ctx.expr(1)) == Type.DOUBLE) {
-            type = Type.DOUBLE;
-        } else if (getType(ctx.expr(0)) == Type.INT && getType(ctx.expr(1)) == Type.INT) {
+        if (getType(ctx.expr(0)) == Type.INT && getType(ctx.expr(1)) == Type.INT) {
             type = Type.INT;
         } else {
             addError(ctx, "'%s' and '%s' have to be numerical", ctx.expr(0).getText(), ctx.expr(1).getText());
@@ -402,8 +393,6 @@ public class GuavaChecker extends GuavaBaseListener {
             type = Type.BOOL;
         } else if (ctx.CHAR() != null) {
             type = Type.CHAR;
-        } else if (ctx.DEC() != null) {
-            type = Type.DOUBLE;
         } else if (ctx.STR() != null) {
             type = Type.STR;
         } else {
@@ -417,16 +406,7 @@ public class GuavaChecker extends GuavaBaseListener {
 
     @Override
     public void exitGetArrayExpr(GuavaParser.GetArrayExprContext ctx) {
-        int index = -1;
-        if (ctx.NUM() != null) {
-            index = Integer.parseInt(ctx.NUM().getText());
-        } else if (ctx.expr() != null) {
-            if (assigned(ctx.ID())) {
-                index = getArrayLength(ctx.ID());
-            }
-        } else {
-            addError(ctx, "No index specified.");
-        }
+        int index = Integer.parseInt(ctx.NUM().getText());
 
         if (!assigned(ctx.ID())) {
             addError(ctx, "Variable '%s' has no value", ctx.ID());
@@ -516,12 +496,6 @@ public class GuavaChecker extends GuavaBaseListener {
     }
 
     @Override
-    public void exitDoubleType(GuavaParser.DoubleTypeContext ctx) {
-        setType(ctx, Type.DOUBLE);
-        setEntry(ctx, ctx);
-    }
-
-    @Override
     public void exitCharType(GuavaParser.CharTypeContext ctx) {
         setType(ctx, Type.CHAR);
         setEntry(ctx, ctx);
@@ -543,7 +517,7 @@ public class GuavaChecker extends GuavaBaseListener {
     }
 
     private boolean isNumerical(ParserRuleContext node) {
-        if (getType(node) == Type.INT || getType(node) == Type.DOUBLE) {
+        if (getType(node) == Type.INT) {
             return true;
         } else {
             return false;
