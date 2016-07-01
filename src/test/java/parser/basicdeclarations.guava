@@ -1,5 +1,5 @@
 epicarp {
     int[6] test = [1,2,3,4,5,6];
-    string[2] strings = ["hello", "world"];
+    pulp[2] strings = [sweet, sour];
     char[5] word = ['h', 'e', 'l', 'l', 'o'];
 }

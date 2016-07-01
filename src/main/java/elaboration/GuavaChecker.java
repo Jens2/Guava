@@ -288,6 +288,7 @@ public class GuavaChecker extends GuavaBaseListener {
         } else {
             setOffset(ctx.ID(), this.variables.globalOffset(ctx.ID().getText()), true);
         }
+        setType(ctx.ID(), variableType(ctx.ID()));
         setEntry(ctx, ctx);
     }
 

@@ -40,7 +40,7 @@ public class ParserTest {
         succeeds("fib");
         succeeds("pulpfiction");
         succeeds("comments");
-        succeeds("print");
+        succeeds("pulps");
         succeeds("basicdeclarations");
     }
 
