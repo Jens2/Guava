@@ -388,8 +388,6 @@ public class GuavaChecker extends GuavaBaseListener {
             type = Type.BOOL;
         } else if (ctx.CHAR() != null) {
             type = Type.CHAR;
-        } else if (ctx.STR() != null) {
-            type = Type.STR;
         } else {
             addError(ctx, "Invalid expression '%s'", ctx.getText());
             type = Type.ERROR;
@@ -496,13 +494,6 @@ public class GuavaChecker extends GuavaBaseListener {
         setType(ctx, Type.CHAR);
         setEntry(ctx, ctx);
     }
-
-    @Override
-    public void exitStringType(GuavaParser.StringTypeContext ctx) {
-        setType(ctx, Type.STR);
-        setEntry(ctx, ctx);
-    }
-
 
     public boolean hasErrors() {
         return !getErrors().isEmpty();

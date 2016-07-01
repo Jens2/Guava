@@ -70,6 +70,11 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
      */
     private boolean nested;
 
+    /**\
+     * Boolean is set to false if the first branch has passed.
+     */
+    private boolean firstBranch;
+
     private static final String CONST = "CONST";
     private static final String DIR = "DIR";
     private static final String REG0 = "reg0";
@@ -90,6 +95,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         this.arrayValues = new ParseTreeProperty<>();
         this.concurrentList = new ParseTreeProperty<>();
         this.nested = false;
+        this.firstBranch = true;
 
         Collections.addAll(emptyRegisters, availableRegs);
         tree.accept(this);
@@ -108,9 +114,18 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
     }
 
     private void initConcList(ParseTree ctx) {
-        List<String> one = new ArrayList<>();
-        List<String> two = new ArrayList<>();
-        List<String> three = new ArrayList<>();
+        List<String> one;
+        List<String> two;
+        List<String> three;
+        if (firstBranch) {
+            one = new ArrayList<>();
+            two = new ArrayList<>();
+            three = new ArrayList<>();
+        } else {
+            one = concurrentInstructions.get(0);
+            two = concurrentInstructions.get(1);
+            three = concurrentInstructions.get(2);
+        }
         Instruction read = new Instruction.ReadInstr(MemAddr.DirAddr, "0");
         Instruction receive = new Instruction.Receive(getReg(ctx));
         Instruction branch = new Instruction.Branch(getReg(ctx), Target.Rel, "2");
@@ -132,10 +147,12 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         three.add(receive.toString());
         three.add(branch.toString());
         three.add(jump.toString());
-
-        this.concurrentInstructions.add(one);
-        this.concurrentInstructions.add(two);
-        this.concurrentInstructions.add(three);
+        if (firstBranch) {
+            this.concurrentInstructions.add(one);
+            this.concurrentInstructions.add(two);
+            this.concurrentInstructions.add(three);
+            firstBranch = false;
+        }
     }
 
     // Statements ------------------------------------------------------------------------------------------------------
@@ -587,7 +604,26 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
             lines += getCodeLines(ctx.stat(i));
         }
 
+        load = new Instruction.LoadConst("0", getReg(ctx));
+        wakeUp0 = new Instruction.WriteInst(getReg(ctx), MemAddr.DirAddr, "0");
+        wakeUp1 = new Instruction.WriteInst(getReg(ctx), MemAddr.DirAddr, "1");
+        wakeUp2 = new Instruction.WriteInst(getReg(ctx), MemAddr.DirAddr, "2");
+        if (hasThreadNo(ctx)) {
+            for (int i = 0; i < statSize; i++) {
+                setThreadNo(ctx.stat(i), getThreadNo(ctx));
+            }
+            addInstr(load, -1, getThreadNo(ctx));
+            addInstr(wakeUp0, -1, getThreadNo(ctx));
+            addInstr(wakeUp1, -1, getThreadNo(ctx));
+            addInstr(wakeUp2, -1, getThreadNo(ctx));
+        } else {
+            addInstr(load);
+            addInstr(wakeUp0);
+            addInstr(wakeUp1);
+            addInstr(wakeUp2);
+        }
 
+        initConcList(ctx);
         setCodeLines(ctx, lines);
         return null;
     }
