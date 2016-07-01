@@ -1,4 +1,4 @@
-// Generated from C:/Users/Jens/IdeaProjects/Guava/src/main/java/grammar\Guava.g4 by ANTLR 4.5.3
+// Generated from C:/Users/Dion/Documents/TI/Module 8/Guava/src/main/java/grammar\Guava.g4 by ANTLR 4.5.3
 package grammar;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
@@ -85,13 +85,6 @@ public interface GuavaVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitForStat(GuavaParser.ForStatContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code printStat}
-	 * labeled alternative in {@link GuavaParser#stat}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitPrintStat(GuavaParser.PrintStatContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code branchStat}
 	 * labeled alternative in {@link GuavaParser#stat}.
@@ -248,11 +241,4 @@ public interface GuavaVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitCharType(GuavaParser.CharTypeContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code stringType}
-	 * labeled alternative in {@link GuavaParser#type}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitStringType(GuavaParser.StringTypeContext ctx);
 }

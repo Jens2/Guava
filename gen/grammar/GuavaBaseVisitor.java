@@ -1,4 +1,4 @@
-// Generated from C:/Users/Jens/IdeaProjects/Guava/src/main/java/grammar\Guava.g4 by ANTLR 4.5.3
+// Generated from C:/Users/Dion/Documents/TI/Module 8/Guava/src/main/java/grammar\Guava.g4 by ANTLR 4.5.3
 package grammar;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
@@ -88,13 +88,6 @@ public class GuavaBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements 
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitForStat(GuavaParser.ForStatContext ctx) { return visitChildren(ctx); }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.</p>
-	 */
-	@Override public T visitPrintStat(GuavaParser.PrintStatContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -256,11 +249,4 @@ public class GuavaBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements 
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitCharType(GuavaParser.CharTypeContext ctx) { return visitChildren(ctx); }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.</p>
-	 */
-	@Override public T visitStringType(GuavaParser.StringTypeContext ctx) { return visitChildren(ctx); }
 }

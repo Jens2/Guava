@@ -1,4 +1,4 @@
-// Generated from C:/Users/Jens/IdeaProjects/Guava/src/main/java/grammar\Guava.g4 by ANTLR 4.5.3
+// Generated from C:/Users/Dion/Documents/TI/Module 8/Guava/src/main/java/grammar\Guava.g4 by ANTLR 4.5.3
 package grammar;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -135,18 +135,6 @@ public interface GuavaListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitForStat(GuavaParser.ForStatContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code printStat}
-	 * labeled alternative in {@link GuavaParser#stat}.
-	 * @param ctx the parse tree
-	 */
-	void enterPrintStat(GuavaParser.PrintStatContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code printStat}
-	 * labeled alternative in {@link GuavaParser#stat}.
-	 * @param ctx the parse tree
-	 */
-	void exitPrintStat(GuavaParser.PrintStatContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code branchStat}
 	 * labeled alternative in {@link GuavaParser#stat}.
@@ -413,16 +401,4 @@ public interface GuavaListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitCharType(GuavaParser.CharTypeContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code stringType}
-	 * labeled alternative in {@link GuavaParser#type}.
-	 * @param ctx the parse tree
-	 */
-	void enterStringType(GuavaParser.StringTypeContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code stringType}
-	 * labeled alternative in {@link GuavaParser#type}.
-	 * @param ctx the parse tree
-	 */
-	void exitStringType(GuavaParser.StringTypeContext ctx);
 }

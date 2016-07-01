@@ -1,4 +1,4 @@
-// Generated from C:/Users/Jens/IdeaProjects/Guava/src/main/java/grammar\Guava.g4 by ANTLR 4.5.3
+// Generated from C:/Users/Dion/Documents/TI/Module 8/Guava/src/main/java/grammar\Guava.g4 by ANTLR 4.5.3
 package grammar;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -143,18 +143,6 @@ public class GuavaBaseListener implements GuavaListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitForStat(GuavaParser.ForStatContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterPrintStat(GuavaParser.PrintStatContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitPrintStat(GuavaParser.PrintStatContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -431,18 +419,6 @@ public class GuavaBaseListener implements GuavaListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitCharType(GuavaParser.CharTypeContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterStringType(GuavaParser.StringTypeContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitStringType(GuavaParser.StringTypeContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

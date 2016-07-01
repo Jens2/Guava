@@ -70,11 +70,6 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
      */
     private boolean nested;
 
-    /**
-     * Will be set to true when entering a locked statement
-     */
-    private boolean locked;
-
     private static final String CONST = "CONST";
     private static final String DIR = "DIR";
     private static final String REG0 = "reg0";
@@ -95,7 +90,6 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         this.arrayValues = new ParseTreeProperty<>();
         this.concurrentList = new ParseTreeProperty<>();
         this.nested = false;
-        this.locked = false;
 
         Collections.addAll(emptyRegisters, availableRegs);
         tree.accept(this);
@@ -628,12 +622,11 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
             addInstr(branch);
             addInstr(jump);
         }
-        locked = true;
+
         for (int i = 0; i < ctx.stat().size(); i++) {
             visit(ctx.stat(i));
             lines += getCodeLines(ctx.stat(i));
         }
-        locked = false;
 
         Instruction write = new Instruction.WriteInst("reg0", MemAddr.DirAddr, offset);
         if (hasThreadNo(ctx)) {

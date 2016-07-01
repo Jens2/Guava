@@ -6,7 +6,7 @@ import GuavaVocabulary;
 program : EPIC body;
 
 // Body of the program
-body    : LBRACK (FORK SEMI global*)? stat* RBRACK;
+body    : LBRACK global* stat* RBRACK;
 
 // Definition of global variables
 global  : GLOBAL type ID (ASSIGN expr)? SEMI                #globalDecl
@@ -25,9 +25,8 @@ stat    : type ID (ASSIGN expr)? SEMI                       #varDeclStat
                    (ID ASSIGN expr |
                     ID PLUS PLUS |
                     ID MINUS MINUS) RPAR stat               #forStat
-        | OUT LPAR STR (COMMA ID)* RPAR SEMI                #printStat
-        | LOCK LPAR ID RPAR SEMI                            #lockStat
-        | UNLOCK LPAR ID RPAR SEMI                          #unlockStat
+        | BRANCH LBRACK stat* RBRACK                        #branchStat
+        | LOCK LPAR ID RPAR LBRACK stat* RBRACK             #lockStat
         ;
 
 // All possible expressions in the language
@@ -39,7 +38,7 @@ expr    : prfOp expr                        #prfExpr
         | expr compOp expr                  #compExpr
         | LPAR expr RPAR                    #parExpr
         | LSQBR (expr (COMMA expr)*)? RSQBR #arrayExpr
-        | (NUM | BOOL | CHAR | STR)         #constExpr
+        | (NUM | BOOL | CHAR)               #constExpr
         | ID LSQBR NUM RSQBR                #getArrayExpr
         | ID                                #idExpr
         ;
@@ -62,5 +61,4 @@ compOp  : LE | LT | GE | GT | EQ | NE ;
 type    : INT           #intType
         | BOOLEAN       #boolType
         | CHARACTER     #charType
-        | STRING        #stringType
         ;
