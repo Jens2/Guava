@@ -148,12 +148,16 @@ public class Guava {
                     }
                 }
             }
-
-            String programs = "[program, ";
-            for (int i = 0; i < processors-2; i++) {
-                programs += "program" + i + ", ";
+            String programs;
+            if (processors > 1) {
+                programs = "[program, ";
+                for (int i = 0; i < processors - 2; i++) {
+                    programs += "program" + i + ", ";
+                }
+                programs += "program2]";
+            } else {
+                programs = "[program]";
             }
-            programs += "program2]";
             writer.println("testProgram = sysTest " + programs);
             writer.flush();
             writer.close();
