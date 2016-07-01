@@ -126,10 +126,10 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
             two = concurrentInstructions.get(1);
             three = concurrentInstructions.get(2);
 
-            Instruction write = new Instruction.WriteInst("reg0", MemAddr.DirAddr, "0");
+            Instruction write = new Instruction.WriteInst(REG0, MemAddr.DirAddr, "0");
             Instruction readW = new Instruction.ReadInstr(MemAddr.DirAddr, "0");
             Instruction rec = new Instruction.Receive(getReg(ctx));
-            Instruction eq = new Instruction.Compute(Op.Equal, "reg0", getReg(ctx), getReg(ctx));
+            Instruction eq = new Instruction.Compute(Op.Equal, REG0, getReg(ctx), getReg(ctx));
             Instruction branch = new Instruction.Branch(getReg(ctx), Target.Rel, "2");
             Instruction jump = new Instruction.Jump(Target.Rel, "(-5)");
             
@@ -141,7 +141,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
             one.add(jump.toString());
 
 
-            write = new Instruction.WriteInst("reg0", MemAddr.DirAddr, "1");
+            write = new Instruction.WriteInst(REG0, MemAddr.DirAddr, "1");
             readW = new Instruction.ReadInstr(MemAddr.DirAddr, "1");
             two.add(write.toString());
             two.add(readW.toString());
@@ -150,7 +150,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
             two.add(branch.toString());
             two.add(jump.toString());
 
-            write = new Instruction.WriteInst("reg0", MemAddr.DirAddr, "2");
+            write = new Instruction.WriteInst(REG0, MemAddr.DirAddr, "2");
             readW = new Instruction.ReadInstr(MemAddr.DirAddr, "2");
             three.add(write.toString());
             three.add(readW.toString());
@@ -397,12 +397,12 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
                 store = new Instruction.Store(reg, MemAddr.DirAddr, offset2String(offset(ctx.ID(), false), false));
             }
 
-            lines++;
             if (hasThreadNo(ctx)) {
                 addInstr(store, -1, getThreadNo(ctx));
             } else {
                 addInstr(store);
             }
+            lines++;
         }
 
         setCodeLines(ctx, lines);
@@ -694,7 +694,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         Instruction check1 = new Instruction.ReadInstr(MemAddr.DirAddr, "1");
         Instruction check2 = new Instruction.ReadInstr(MemAddr.DirAddr, "2");
         Instruction rec0 = new Instruction.Receive(getReg(ctx));
-        Instruction eq = new Instruction.Compute(Op.Equal, "reg0", getReg(ctx), getReg(ctx));
+        Instruction eq = new Instruction.Compute(Op.Equal, REG0, getReg(ctx), getReg(ctx));
         Instruction branch = new Instruction.Branch(getReg(ctx), Target.Rel, "2");
         Instruction jumpBck = new Instruction.Jump(Target.Rel, "(-4)");
 
@@ -786,7 +786,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
             lines += getCodeLines(ctx.stat(i));
         }
 
-        Instruction write = new Instruction.WriteInst("reg0", MemAddr.DirAddr, offset);
+        Instruction write = new Instruction.WriteInst(REG0, MemAddr.DirAddr, offset);
         if (hasThreadNo(ctx)) {
             addInstr(write, -1, getThreadNo(ctx));
         } else {
