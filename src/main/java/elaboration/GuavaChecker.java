@@ -141,7 +141,6 @@ public class GuavaChecker extends GuavaBaseListener {
     @Override
     public void enterAssignStat(GuavaParser.AssignStatContext ctx) {
         if (variableType(ctx.ID()).getKind().equals(PrimitiveTypes.ARRAY)) {
-            System.out.println("Setting length of " + ctx.ID().getText() + " to " + getArrayLengthVar(ctx.ID()));
             setArrayLength(ctx.expr(), getArrayLengthVar(ctx.ID()));
         }
     }
@@ -187,7 +186,16 @@ public class GuavaChecker extends GuavaBaseListener {
             addError(ctx, "Array index out of bounds for array '%s'. Array size is %s, requested index is %s", ctx.ID(), getArrayLengthVar(ctx.ID()), index);
         }
 
-        setOffset(ctx.ID(), this.variables.offset(ctx.ID().getText()), false);
+        if (isShared(ctx.ID())) {
+            setShared(ctx.ID(), true);
+        }
+
+        if (isShared(ctx.ID())) {
+            setOffset(ctx.ID(), this.variables.globalOffset(ctx.ID().getText()), true);
+        } else {
+            setOffset(ctx.ID(), this.variables.offset(ctx.ID().getText()), false);
+        }
+
         setEntry(ctx, entry(ctx.expr()));
     }
 
