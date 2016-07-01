@@ -9,7 +9,7 @@ program : EPIC body;
 body    : LBRACK global* stat* RBRACK;
 
 // Definition of global variables
-global  : GLOBAL type (ID | LSQBR NUM RSQBR ID) (ASSIGN expr)? SEMI   #globalDecl
+global  : GLOBAL type (ID | LSQBR NUM RSQBR ID) (ASSIGN expr)? SEMI #globalDecl
         ;
 
 // All possible statements in the language
