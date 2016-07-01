@@ -54,6 +54,9 @@ public class CheckerResult {
      */
     private boolean isConc = false;
 
+    /**
+     * The last branch statement to be executed by the main program
+     */
     private ParserRuleContext lastBranch;
 
     /**
