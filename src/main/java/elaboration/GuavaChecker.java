@@ -529,6 +529,31 @@ public class GuavaChecker extends GuavaBaseListener {
     }
 
     /**
+     * Adds a new error
+     * @param node node in which the error occurred
+     * @param message error message
+     * @param args arguments
+     */
+    private void addError(ParserRuleContext node, String message,
+                          Object... args) {
+        addError(node.getStart(), message, args);
+    }
+
+    /**
+     * Adds a new error
+     * @param token token in which the error occurred
+     * @param message error message
+     * @param args arguments
+     */
+    private void addError(Token token, String message, Object... args) {
+        int line = token.getLine();
+        int column = token.getCharPositionInLine();
+        message = String.format(message, args);
+        message = String.format("Line %d:%d - %s", line, column, message);
+        this.errors.add(message);
+    }
+
+    /**
      * Checks whether any errors occurred.
      * @return <tt>true</tt> if any errors occurred during the checking phase
      */
@@ -621,22 +646,42 @@ public class GuavaChecker extends GuavaBaseListener {
         }
     }
 
+    /**
+     * Returns whether a variable has been assigned a value
+     * @param node the node containing the variable to check
+     * @return <tt>true</tt> if the variable has been assigned a value
+     */
     private boolean assigned(ParseTree node) {
         return this.variables.isAssigned(node.getText());
     }
 
+    /**
+     * Indicate that a variable has been assigned a value
+     * @param node the node containing the variable to assign a value to
+     */
     private void assign(ParseTree node) {
         this.variables.assign(node.getText());
     }
 
+    /**
+     * Opens a new scope in the variable table
+     */
     private void openScope() {
         this.variables.openScope();
     }
 
+    /**
+     * Closes the deepest scope in the variable table
+     */
     private void closeScope() {
         this.variables.closeScope();
     }
 
+    /**
+     * Checks whether the type of a variable corresponds to an expected type
+     * @param node the node containing the variable to check
+     * @param expected the expected type
+     */
     private void checkType(ParserRuleContext node, Type expected) {
         Type actual = getType(node);
         if (actual == null) {
@@ -649,50 +694,82 @@ public class GuavaChecker extends GuavaBaseListener {
         }
     }
 
-    private void addError(ParserRuleContext node, String message,
-                          Object... args) {
-        addError(node.getStart(), message, args);
-    }
-
-    private void addError(Token token, String message, Object... args) {
-        int line = token.getLine();
-        int column = token.getCharPositionInLine();
-        message = String.format(message, args);
-        message = String.format("Line %d:%d - %s", line, column, message);
-        this.errors.add(message);
-    }
-
+    /**
+     * Sets the type of a variable
+     * @param node the node containing the variable
+     * @param type the type
+     */
     private void setType(ParseTree node, Type type) {
         this.checkerResult.setType(node, type);
     }
 
+    /**
+     * Returns the type of a variable
+     * @param node the node containing the variable of which the type is requested
+     * @return the type of the variable
+     */
     private Type getType(ParseTree node) {
         return this.checkerResult.getType(node);
     }
 
+    /**
+     * Sets the array length that an array expression is supposed to have. This is used in cases where the assignment
+     * of the array happens after thedeclaration of the variable. This is the compilers way of checking whether the
+     * array that will be assigned to the variable has the correct length
+     * @param node the node containing the expression
+     * @param length the length of the array
+     */
     private void setArrayLength(ParseTree node, int length) {
         this.arrayLength.put(node, length);
     }
 
-    private int getArrayLength(ParseTree node) throws NullPointerException {
+    /**
+     * Returns the length of an array. This is used in cases where the assignment of the array happens after the
+     * declaration of the variable. This is the compilers way of checking whether the array that
+     * will be assigned to the variable has the correct length
+     * @param node the node containing the expression for which the length is requested
+     * @return the length of the array that is currently being assigned
+     */
+    private int getArrayLength(ParseTree node) {
         return this.arrayLength.get(node);
     }
 
+    /**
+     * Maps the name of an array variable to its length
+     * @param node the node containing the array variable
+     * @param length the length of the array
+     */
     private void setArrayLengthAsVar(ParseTree node, int length) {
         this.arrayLengthVars.put(node.getText(), length);
         this.checkerResult.setArrayLength(node, length);
     }
 
-    private int getArrayLengthVar(ParseTree node) throws NullPointerException {
+    /**
+     * Returns the length of an array variable
+     * @param node the node containing the array of which the length is requested
+     * @return the length of the array
+     */
+    private int getArrayLengthVar(ParseTree node) {
         return this.arrayLengthVars.get(node.getText());
     }
 
+    /**
+     * Sets the offset of a variable
+     * @param node the node containing the variable
+     * @param offset the offset
+     * @param global <tt>true</tt> if the variable is defined as global
+     */
     private void setOffset(ParseTree node, Integer offset, boolean global) {
         if (offset != null) {
             this.checkerResult.setOffset(node, offset, global);
         }
     }
 
+    /**
+     * Sets the control flow entry for a node
+     * @param node the node to set the entry for
+     * @param entry entry to set
+     */
     private void setEntry(ParseTree node, ParserRuleContext entry) {
         if (entry == null) {
             throw new IllegalArgumentException("Null flow graph entry");
@@ -700,16 +777,32 @@ public class GuavaChecker extends GuavaBaseListener {
         this.checkerResult.setEntry(node, entry);
     }
 
+    /**
+     * Returns the entry of a node
+     * @param node the node for which to return the entry
+     * @return the entry of the given node
+     */
+    private ParserRuleContext entry(ParseTree node) {
+        return this.checkerResult.getEntry(node);
+    }
+
+    /**
+     * Sets whether or not a variable is declared as global
+     * @param node the node containing the global variable
+     * @param shared <tt>true</tt> if the given variable is defined as global
+     */
     private void setShared(ParseTree node, boolean shared) {
         this.checkerResult.setGlobalVar(node, shared);
         this.sharedVariables.add(node.getText());
     }
 
+    /**
+     * Returns whether a variable is defined as global
+     * @param node the node containing variable to check
+     * @return <tt>true</tt> if the given variable is defined as global
+     */
     private boolean isShared(ParseTree node) {
         return this.sharedVariables.contains(node.getText());
     }
 
-    private ParserRuleContext entry(ParseTree node) {
-        return this.checkerResult.getEntry(node);
-    }
 }
