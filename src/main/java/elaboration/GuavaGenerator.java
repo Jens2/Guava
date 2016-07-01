@@ -649,6 +649,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         setCodeLines(ctx, lines);
 
         emptyReg(ctx.expr(0));
+
         delNestedVar(ctx.ID());
         return null;
     }
@@ -731,7 +732,10 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
             addInstr(jumpBck);
         }
         lines += 15;
-        initConcList(ctx);
+        if (!ctx.equals(result.getLastBranch())) {
+            initConcList(ctx);
+        }
+
         emptyReg(ctx);
         setCodeLines(ctx, lines);
         return null;

@@ -2,48 +2,20 @@ epicarp {
     universal int saldo = 0;
     universal int x = 2;
     branch {
-        int i = 0;
-        int j = 2;
-    }
-
-    branch {
-        i = 2;
-        j = 0;
-    }
-    >~ In this block, every statement is executed parallel.
-       Note that there are at most 4 threads available, so the statements are divided over the 4 threads.
-    ~<
-    >~
-        for (int i = 0; i < 2; i++) {
-            lock(saldo) {
-                saldo = saldo + 1;
-            }
-        }
-        lock(saldo) {
-            saldo = saldo - 50;
-        }
-        lock(x) {
-            x = x + 28;
-        }
-        lock(x) {
-            for (int i = 0; i < 2; i++) {
-                x = x + 1;
-            }
-        }
-    }
-
-    saldo = saldo + 10;
-    pulp b = sweet;
-
-    branch {
         lock(saldo) {
             saldo = saldo + 20;
         }
-        for (int i = 0; i < 12; i++) {
-            lock(saldo) {
-                saldo = saldo - 1;
+    }
+    lock(saldo) {
+        saldo = saldo + 10;
+    }
+    branch {
+        int s = 2;
+        lock(saldo) {
+            int k = 69;
+            for (int i = 0; i < 8; i++) {
+                saldo = saldo - 10;
             }
         }
     }
-~<
 }
