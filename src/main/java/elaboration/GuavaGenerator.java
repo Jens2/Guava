@@ -196,15 +196,36 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
             lines += getCodeLines(ctx.expr());
 
             Instruction write;
-            if (isZero(ctx.expr())) {
-                write = new Instruction.WriteInst(REG0, MemAddr.DirAddr, offset2String(offset(ctx.ID(), true), true));
+            if (result.getType(ctx.ID()).getKind() == PrimitiveTypes.ARRAY) {
+                List<String> regs = this.arrayValues.get(ctx.expr());
+
+                for (int i = 0; i < regs.size(); i++) {
+                    write = new Instruction.WriteInst(regs.get(i), MemAddr.DirAddr, "(" + offset2String(offset(ctx.ID(), true), true) + " + " + i + ")");
+
+                    if (hasThreadNo(ctx)) {
+                        addInstr(write, -1, getThreadNo(ctx));
+                    } else {
+                        addInstr(write);
+                    }
+
+                    lines++;
+                }
+
+                for (int i = regs.size() - 1; i >= 0; i--) {
+                    emptyReg(regs.get(i));
+                }
             } else {
-                write = new Instruction.WriteInst(getReg(ctx.expr()), MemAddr.DirAddr, offset2String(offset(ctx.ID(), true), true));
-            }
-            if (hasThreadNo(ctx)) {
-                addInstr(write, -1, getThreadNo(ctx));
-            } else {
-                addInstr(write);
+                if (isZero(ctx.expr())) {
+                    write = new Instruction.WriteInst(REG0, MemAddr.DirAddr, offset2String(offset(ctx.ID(), true), true));
+                } else {
+                    write = new Instruction.WriteInst(getReg(ctx.expr()), MemAddr.DirAddr, offset2String(offset(ctx.ID(), true), true));
+                }
+
+                if (hasThreadNo(ctx)) {
+                    addInstr(write, -1, getThreadNo(ctx));
+                } else {
+                    addInstr(write);
+                }
             }
 
             emptyReg(ctx.expr());
@@ -292,9 +313,20 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         Instruction store;
         if (result.getType(ctx.expr()).getKind() == PrimitiveTypes.ARRAY) {
             List<String> regs = this.arrayValues.get(ctx.expr());
+            boolean global;
+            if (result.isGlobalVar(ctx.ID())) {
+                global = true;
+            } else {
+                global = false;
+            }
 
             for (int i = 0; i < regs.size(); i++) {
-                store = new Instruction.Store(regs.get(i), MemAddr.DirAddr, "(" + offset2String(offset(ctx.ID(), false), false) + " + " + i + ")");
+                if (global) {
+                    store = new Instruction.WriteInst(regs.get(i), MemAddr.DirAddr, "(" + offset2String(offset(ctx.ID(), global), global) + " + " + i + ")");
+                } else {
+                    store = new Instruction.Store(regs.get(i), MemAddr.DirAddr, "(" + offset2String(offset(ctx.ID(), global), global) + " + " + i + ")");
+                }
+
                 if (hasThreadNo(ctx)) {
                     addInstr(store, -1, getThreadNo(ctx));
                 } else {
@@ -529,7 +561,9 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         } else {
             addInstr(new Instruction.Jump(Target.Rel, "" + jump), index);
         }
+
         lines++;
+
         int add = 0;
         if (ctx.expr().size() > 1) {
             visit(ctx.expr(1));

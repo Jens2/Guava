@@ -43,11 +43,21 @@ public class GuavaChecker extends GuavaBaseListener {
     }
 
     @Override
+    public void enterGlobalDecl(GuavaParser.GlobalDeclContext ctx) {
+        if (ctx.NUM() != null) {
+            if (ctx.expr() != null) {
+                setArrayLength(ctx.expr(), Integer.parseInt(ctx.NUM().getText()));
+            }
+
+            setArrayLengthAsVar(ctx.ID(), Integer.parseInt(ctx.NUM().getText()));
+        }
+    }
+
+    @Override
     public void exitGlobalDecl(GuavaParser.GlobalDeclContext ctx) {
         if (contains(ctx.ID())) {
             addError(ctx, "Variable '%s' is already declared", ctx.ID());
         } else {
-            addVariableType(ctx.ID(), getType(ctx.type()), ctx, true);
             setShared(ctx.ID(), true);
         }
 
@@ -58,8 +68,16 @@ public class GuavaChecker extends GuavaBaseListener {
             setEntry(ctx, entry(ctx.type()));
         }
 
+        if (ctx.NUM() != null) {
+            Type type = new Type.Array(getType(ctx.type()));
+            addArray(ctx.ID(), type, ctx, true);
+            setType(ctx.ID(), type);
+        } else {
+            addVariableType(ctx.ID(), getType(ctx.type()), ctx, true);
+            setType(ctx.ID(), getType(ctx.type()));
+        }
+
         setOffset(ctx.ID(), this.variables.globalOffset(ctx.ID().getText()), true);
-        setType(ctx.ID(), getType(ctx.type()));
     }
 
     @Override
@@ -98,7 +116,11 @@ public class GuavaChecker extends GuavaBaseListener {
         if (contains(ctx.ID())) {
             addError(ctx, "Variable '%s' is already declared", ctx.ID());
         } else {
-            addArray(ctx.ID(), type, ctx);
+            if (isShared(ctx.ID())) {
+                addArray(ctx.ID(), type, ctx, true);
+            } else {
+                addArray(ctx.ID(), type, ctx, false);
+            }
         }
 
         if (ctx.expr() != null) {
@@ -119,6 +141,7 @@ public class GuavaChecker extends GuavaBaseListener {
     @Override
     public void enterAssignStat(GuavaParser.AssignStatContext ctx) {
         if (variableType(ctx.ID()).getKind().equals(PrimitiveTypes.ARRAY)) {
+            System.out.println("Setting length of " + ctx.ID().getText() + " to " + getArrayLengthVar(ctx.ID()));
             setArrayLength(ctx.expr(), getArrayLengthVar(ctx.ID()));
         }
     }
@@ -142,7 +165,7 @@ public class GuavaChecker extends GuavaBaseListener {
 
     @Override
     public void enterAssignArrayStat(GuavaParser.AssignArrayStatContext ctx) {
-        //setArrayLength(ctx.ID(), Integer.parseInt(ctx.NUM().getText()));
+        setArrayLength(ctx, Integer.parseInt(ctx.NUM().getText()));
     }
 
     @Override
@@ -302,8 +325,6 @@ public class GuavaChecker extends GuavaBaseListener {
 
         if (getType(ctx.expr(0)) == Type.INT && getType(ctx.expr(1)) == Type.INT) {
             type = Type.INT;
-        } else if (getType(ctx.expr(0)) == Type.STR && getType(ctx.expr(1)) == Type.STR) {
-            type = Type.STR;
         } else {
             addError(ctx, "'%s' and '%s' have to be numerical", ctx.expr(0).getText(), ctx.expr(1).getText());
             type = Type.ERROR;
@@ -538,8 +559,8 @@ public class GuavaChecker extends GuavaBaseListener {
         }
     }
 
-    private void addArray(ParseTree node, Type type, ParserRuleContext ctx) {
-        if(!this.variables.addArray(node.getText(), type, getArrayLengthVar(node))) {
+    private void addArray(ParseTree node, Type type, ParserRuleContext ctx, boolean global) {
+        if(!this.variables.addArray(node.getText(), type, getArrayLengthVar(node), global)) {
             addError(ctx, "Variable '%s' is already declared", node.getText());
         }
     }
