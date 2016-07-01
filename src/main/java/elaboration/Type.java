@@ -8,7 +8,6 @@ abstract public class Type {
     public static final Type INT = new Int();
     public static final Type BOOL = new Bool();
     public static final Type CHAR = new Char();
-    public static final Type STR = new Str();
     public static final Type ERROR = new Error();
 
     private final PrimitiveTypes kind;
@@ -51,17 +50,6 @@ abstract public class Type {
         @Override
         public String toString() {
             return "Char";
-        }
-    }
-
-    static private class Str extends Type {
-        private Str() {
-            super(PrimitiveTypes.STRING);
-        }
-
-        @Override
-        public String toString() {
-            return "string";
         }
     }
 

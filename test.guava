@@ -1,6 +1,6 @@
 epicarp {
-    int h = 15;
-    h = 15 * 25;
+    universal int[5] test;
 
-    int k = h + 6;
+    test = [1,2,3,4,5];
+
 }

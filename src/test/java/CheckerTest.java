@@ -36,14 +36,12 @@ public class CheckerTest {
 
         ParseTree body      = tree.getChild(1);
         ParseTree integer   = body.getChild(1);
-        ParseTree str       = body.getChild(3);
         ParseTree character = body.getChild(4);
         ParseTree array     = body.getChild(5);
         ParseTree arrElem   = body.getChild(6);
         ParseTree modulo    = body.getChild(7);
 
         assertEquals(Type.INT, checkerResult.getType(integer.getChild(1)));
-        assertEquals(Type.STR, checkerResult.getType(str.getChild(1)));
         assertEquals(Type.CHAR, checkerResult.getType(character.getChild(1)));
         assertEquals(new Type.Array(Type.INT), checkerResult.getType(array.getChild(4)));
         assertEquals(Type.INT, checkerResult.getType(arrElem.getChild(1)));
