@@ -1096,14 +1096,12 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
                 break;
         }
 
-        if (!isZero(ctx)) {
-            if (hasThreadNo(ctx)) {
-                addInstr(load, -1, getThreadNo(ctx));
-            } else {
-                addInstr(load);
-            }
-            lines++;
+        if (hasThreadNo(ctx)) {
+            addInstr(load, -1, getThreadNo(ctx));
+        } else {
+            addInstr(load);
         }
+        lines++;
 
         setCodeLines(ctx, lines);
         return CONST;
