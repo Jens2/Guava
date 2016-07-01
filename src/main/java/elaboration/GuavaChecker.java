@@ -8,10 +8,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by Dion on 15-6-2016.
@@ -25,6 +22,7 @@ public class GuavaChecker extends GuavaBaseListener {
     private ParseTreeProperty<Integer> arrayLength;
     private Map<String, Integer> arrayLengthVars;
     private List<String> errors;
+    private Stack<ParserRuleContext> branches;
 
     public CheckerResult check(ParseTree tree) throws GuavaException {
         this.checkerResult = new CheckerResult();
@@ -33,10 +31,15 @@ public class GuavaChecker extends GuavaBaseListener {
         this.arrayLength = new ParseTreeProperty<>();
         this.arrayLengthVars = new LinkedHashMap<>();
         this.errors = new ArrayList<>();
+        this.branches = new Stack<>();
 
         new ParseTreeWalker().walk(this, tree);
         if (hasErrors()) {
             throw new GuavaException(getErrors());
+        }
+
+        if (branches.size() > 0) {
+            this.checkerResult.setLastBranch(this.branches.pop());
         }
 
         return this.checkerResult;
@@ -275,6 +278,7 @@ public class GuavaChecker extends GuavaBaseListener {
     }
 
     @Override public void enterBranchStat(GuavaParser.BranchStatContext ctx) {
+        this.branches.push(ctx);
         checkerResult.setConc(true);
     }
 
@@ -524,14 +528,27 @@ public class GuavaChecker extends GuavaBaseListener {
         setEntry(ctx, ctx);
     }
 
+    /**
+     * Checks whether any errors occurred.
+     * @return <tt>true</tt> if any errors occurred during the checking phase
+     */
     public boolean hasErrors() {
         return !getErrors().isEmpty();
     }
 
+    /**
+     * Returns the list of errors
+     * @return the list of errors
+     */
     public List<String> getErrors() {
         return this.errors;
     }
 
+    /**
+     * Checks whether a node contains a numerical variable
+     * @param node the node containing the variable of which the type will be checked
+     * @return <tt>true</tt> if the variable is of type Integer
+     */
     private boolean isNumerical(ParserRuleContext node) {
         if (getType(node) == Type.INT) {
             return true;
@@ -540,10 +557,20 @@ public class GuavaChecker extends GuavaBaseListener {
         }
     }
 
+    /**
+     * Checks whether a variable is already defined in the scope
+     * @param node the node containing the variable to be checked
+     * @return <tt>true</tt> if the variable is already defined in the scope
+     */
     private boolean contains(ParseTree node) {
         return this.variables.contains(node.getText());
     }
 
+    /**
+     * Returns the type of the given variable
+     * @param node node containing the variable of which the type is requested
+     * @return the type of the variable
+     */
     private Type variableType(ParseTree node) {
         Type type;
         if (!contains(node)) {
@@ -555,18 +582,39 @@ public class GuavaChecker extends GuavaBaseListener {
         return type;
     }
 
+    /**
+     * Adds a new variable to the scope
+     * @param node the node containing the variable that will be added
+     * @param type the type of the variable
+     * @param ctx the context from which the node comes
+     * @param global <tt>true</tt> if the variable is defined as global
+     */
     private void addVariableType(ParseTree node, Type type, ParserRuleContext ctx, boolean global) {
         if (!this.variables.add(node.getText(), type, global)) {
             addError(ctx, "Variable '%s' is already declared", node.getText());
         }
     }
 
+    /**
+     * Adds a new nested variable to the scope. Nested variables will not be appointed an offset, because they are
+     * saved locally in registers.
+     * @param node the node containing the variable that will be added
+     * @param type the type of the variable
+     * @param ctx the context from which the node comes
+     */
     private void addNestedVariable(ParseTree node, Type type, ParserRuleContext ctx) {
-        if (!this.variables.addLocal(node.getText(), type)) {
+        if (!this.variables.addNested(node.getText(), type)) {
             addError(ctx, "Variable '%s' is already declared", node.getText());
         }
     }
 
+    /**
+     * Adds an array to the scope
+     * @param node the node containing the array that will be added
+     * @param type the type of the array
+     * @param ctx the context from which the node comes
+     * @param global <tt>true</tt> if the variable is defined as global
+     */
     private void addArray(ParseTree node, Type type, ParserRuleContext ctx, boolean global) {
         if(!this.variables.addArray(node.getText(), type, getArrayLengthVar(node), global)) {
             addError(ctx, "Variable '%s' is already declared", node.getText());
@@ -632,6 +680,7 @@ public class GuavaChecker extends GuavaBaseListener {
 
     private void setArrayLengthAsVar(ParseTree node, int length) {
         this.arrayLengthVars.put(node.getText(), length);
+        this.checkerResult.setArrayLength(node, length);
     }
 
     private int getArrayLengthVar(ParseTree node) throws NullPointerException {

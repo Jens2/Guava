@@ -45,9 +45,16 @@ public class CheckerResult {
     private final Map<Integer, String> globalVarMap = new HashMap<>();
 
     /**
+     * Contains arrays and their lengths
+     */
+    private final Map<String, Integer> arrayLength = new HashMap<>();
+
+    /**
      * Indicates whether the Guava program that is being parsed uses any concurrency
      */
     private boolean isConc = false;
+
+    private ParserRuleContext lastBranch;
 
     /**
      * Sets the concurrency flag for this program
@@ -115,4 +122,19 @@ public class CheckerResult {
         return this.globalVarMap;
     }
 
+    public void setArrayLength(ParseTree node, int length) {
+        this.arrayLength.put(node.getText(), length);
+    }
+
+    public int getArrayLength(ParseTree node) {
+        return this.arrayLength.get(node.getText());
+    }
+
+    public void setLastBranch(ParserRuleContext ctx) {
+        this.lastBranch = ctx;
+    }
+
+    public ParserRuleContext getLastBranch() {
+        return this.lastBranch;
+    }
 }

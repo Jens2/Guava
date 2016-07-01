@@ -106,7 +106,7 @@ public class GuavaVariableTable implements SymbolTable {
      * @param type the type of variable
      * @return <tt>false</tt> if the variable is already present in the variable table
      */
-    public boolean addLocal(String id, Type type) {
+    public boolean addNested(String id, Type type) {
         if (contains(id)) {
             return false;
         }
