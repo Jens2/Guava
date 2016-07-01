@@ -6,9 +6,9 @@ epicarp {
     pulp e = 8 == 8;
 
     if (a & b & c & d & e) {
-        drop("All sweet!");
+        >> Success
     } else {
-        drop("Some sour, unfortunately!");
+        >> Fail
     }
     
 }

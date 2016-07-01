@@ -749,11 +749,20 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
             }
         }
 
+        String offset;
+
         int lines = 5;
-        String offset = "(";
-        offset += offset2String(result.getOffset(ctx.ID(), true), true);
-        // The lock is always stored on the offset + 1
-        offset += " + 1)";
+        if (result.getType(ctx.ID()).getKind() == PrimitiveTypes.ARRAY) {
+            offset = "(";
+            offset += offset2String(result.getOffset(ctx.ID(), true), true);
+            int plus = result.getArrayLength(ctx.ID()) + 1;
+            offset += " + " + plus + ")";
+        } else {
+            offset = "(";
+            offset += offset2String(result.getOffset(ctx.ID(), true), true);
+            // The lock is always stored on the offset + 1
+            offset += " + 1)";
+        }
 
         Instruction testAndSet = new Instruction.TestAndSet(MemAddr.DirAddr, offset);
         Instruction receive = new Instruction.Receive(getReg(ctx));

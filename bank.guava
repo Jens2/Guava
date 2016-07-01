@@ -6,9 +6,7 @@ epicarp {
             saldo = saldo + 20;
         }
     }
-    lock(saldo) {
-        saldo = saldo + 10;
-    }
+    saldo = saldo + 10;
     branch {
         int s = 2;
         lock(saldo) {

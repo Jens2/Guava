@@ -3,7 +3,8 @@ epicarp {
         while (~sour) {
             branch {
                 char c = 'a';
-                string s = "string";
+                lock(c) {
+                }
             }
         }
     }
