@@ -349,7 +349,6 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         if (hasThreadNo(ctx)) {
             setThreadNo(ctx.expr(), getThreadNo(ctx));
         }
-
         visit(ctx.expr());
         lines += getCodeLines(ctx.expr());
 
@@ -481,15 +480,18 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
             }
 
             int ifJump;
-            int elseJump;
             if (hasThreadNo(ctx)) {
-                elseJump = reserveInstr(getThreadNo(ctx));     // We want to insert a relative jump instruction on this index later on.
                 ifJump = reserveInstr(getThreadNo(ctx));
             } else {
-                elseJump = reserveInstr();
                 ifJump = reserveInstr();
             }
             visit(ctx.stat(0));
+            int elseJump;
+            if (hasThreadNo(ctx)) {
+                elseJump = reserveInstr(getThreadNo(ctx));     // We want to insert a relative jump instruction on this index later on.
+            } else {
+                elseJump = reserveInstr();
+            }
             visit(ctx.stat(1));
 
             int jump0 = getCodeLines(ctx.stat(0)) + 2;      // We need to jump over all the generated code (hence + 1) and over the extra jump instruction (hence another +1).
@@ -894,6 +896,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
             setThreadNo(ctx.expr(0), getThreadNo(ctx));
             setThreadNo(ctx.expr(1), getThreadNo(ctx));
         }
+
         visit(ctx.expr(0));
         visit(ctx.expr(1));
 
@@ -995,7 +998,6 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         }
         visit(ctx.expr(0));
         visit(ctx.expr(1));
-
         String reg1 = getReg(ctx.expr(0));
         String reg2 = getReg(ctx.expr(1));
 
@@ -1139,7 +1141,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
         if (result.isGlobalVar(ctx.ID())) {
             load = new Instruction.ReadInstr(MemAddr.DirAddr, offset2String(offset(ctx.ID(), true), true));
-            receive = new Instruction.Receive(getReg(ctx));
+            receive = new Instruction.Receive(reg(ctx));
             if (hasThreadNo(ctx)) {
                 addInstr(load, -1, getThreadNo(ctx));
                 addInstr(receive, -1, getThreadNo(ctx));
@@ -1151,7 +1153,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
             lines += 2;
         } else {
             if (!isNestedVar(ctx.ID())) {
-                load = new Instruction.Load(MemAddr.DirAddr, offset2String(offset(ctx.ID(), false), false), getReg(ctx));
+                load = new Instruction.Load(MemAddr.DirAddr, offset2String(offset(ctx.ID(), false), false), reg(ctx));
                 if (hasThreadNo(ctx)) {
                     addInstr(load, -1, getThreadNo(ctx));
                 } else {
