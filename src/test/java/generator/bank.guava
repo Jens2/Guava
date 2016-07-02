@@ -1,0 +1,31 @@
+epicarp {
+    universal int saldo = 0;
+    universal int x = 2;
+    branch {
+>>    Saldo should become -50 at the end of this program.
+        lock(saldo) {
+            saldo = saldo + 20;
+        }
+        lock(saldo) {
+            for (int i = 0; i < 23; i++) {
+                saldo = saldo + 2;
+            }
+        }
+        for (int i = 0; i < 23; i++) {
+            lock(saldo) {
+                saldo = saldo - 2;
+            }
+        }
+    }
+>>    We don't need a lock here, since this is sequential.
+    saldo = saldo + 10;
+    branch {
+        int s = 2;
+        lock(saldo) {
+            int k = 69;
+            for (int i = 0; i < 8; i++) {
+                saldo = saldo - 10;
+            }
+        }
+    }
+}

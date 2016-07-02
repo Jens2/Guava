@@ -1,0 +1,22 @@
+epicarp {
+    universal int turn;
+    universal pulp[2] flag = [sour, sour];
+    universal int crit = 50;
+    branch {
+    >> The outcome of these two critical sections should always be 50.
+        {
+        flag[0] = sweet;
+        turn = 1;
+        while (flag[1] & (turn == 1)) {}
+        crit = crit + 50;
+        flag[0] = sour;
+        }
+        {
+        flag[1] = sweet;
+        turn = 0;
+        while (flag[0] & (turn == 0)) {}
+        crit = crit - 50;
+        flag[1] = sour;
+        }
+    }
+}

@@ -61,7 +61,6 @@ public class GuavaVariableTable implements SymbolTable {
         } else {
             offsets.put(id, offset++);
         }
-
         return true;
     }
 

@@ -29,6 +29,8 @@ public class GenerateTest {
         test("bank");
         refresh();
         test("fib28");
+        refresh();
+        test("Peterson");
     }
 
     private void test(String filename) {

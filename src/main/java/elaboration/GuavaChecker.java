@@ -79,7 +79,6 @@ public class GuavaChecker extends GuavaBaseListener {
             addVariableType(ctx.ID(), getType(ctx.type()), ctx, true);
             setType(ctx.ID(), getType(ctx.type()));
         }
-
         setOffset(ctx.ID(), this.variables.globalOffset(ctx.ID().getText()), true);
     }
 
@@ -107,7 +106,6 @@ public class GuavaChecker extends GuavaBaseListener {
         if (ctx.expr() != null) {
             setArrayLength(ctx.expr(), Integer.parseInt(ctx.NUM().getText()));
         }
-
         setArrayLengthAsVar(ctx.ID(), Integer.parseInt(ctx.NUM().getText()));
     }
 
@@ -442,8 +440,13 @@ public class GuavaChecker extends GuavaBaseListener {
         if (index >= getArrayLengthVar(ctx.ID()) || index < 0) {
             addError(ctx, "Array index out of bounds for array '%s'. Array size is %s, requested index is %s", ctx.ID(), getArrayLengthVar(ctx.ID()), index);
         }
-
-        setOffset(ctx.ID(), this.variables.offset(ctx.ID().getText()), false);
+        Type.Array type = (Type.Array) variableType(ctx.ID());
+        if (!isShared(ctx.ID())) {
+            setOffset(ctx.ID(), this.variables.offset(ctx.ID().getText()), false);
+        } else {
+            setOffset(ctx.ID(), this.variables.globalOffset(ctx.ID().getText()), true);
+        }
+        setType(ctx, type.getElemType());
         setEntry(ctx, ctx);
     }
 

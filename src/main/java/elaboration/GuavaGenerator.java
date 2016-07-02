@@ -1132,8 +1132,14 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
     @Override
     public String visitGetArrayExpr(GuavaParser.GetArrayExprContext ctx) {
         int lines = 0;
-        Instruction load = new Instruction.Load(MemAddr.DirAddr, "(" + offset2String(offset(ctx.ID(), false),
-                false) + " + " + ctx.NUM().getText() + ")", getReg(ctx));
+        Instruction load;
+        if (result.isGlobalVar(ctx.ID())) {
+            load = new Instruction.Load(MemAddr.DirAddr, "(" + offset2String(offset(ctx.ID(), false),
+                    false) + " + " + ctx.NUM().getText() + ")", getReg(ctx));
+        } else {
+            load = new Instruction.Load(MemAddr.DirAddr, "(" + offset2String(offset(ctx.ID(), true),
+                    true) + " + " + ctx.NUM().getText() + ")", getReg(ctx));
+        }
         lines++;
 
         if (hasThreadNo(ctx)) {
