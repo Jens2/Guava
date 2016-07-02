@@ -257,11 +257,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
                     emptyReg(regs.get(i));
                 }
             } else {
-                if (isZero(ctx.expr())) {
-                    write = new Instruction.WriteInst(REG0, MemAddr.DirAddr, offset2String(offset(ctx.ID(), true), true));
-                } else {
-                    write = new Instruction.WriteInst(getReg(ctx.expr()), MemAddr.DirAddr, offset2String(offset(ctx.ID(), true), true));
-                }
+                write = new Instruction.WriteInst(getReg(ctx.expr()), MemAddr.DirAddr, offset2String(offset(ctx.ID(), true), true));
 
                 if (hasThreadNo(ctx)) {
                     addInstr(write, -1, getThreadNo(ctx));
@@ -289,11 +285,8 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
             lines += getCodeLines(ctx.expr());
 
             Instruction store;
-            if (isZero(ctx.expr())) {
-                store = new Instruction.Store(REG0, MemAddr.DirAddr, offset2String(offset(ctx.ID(), false), false));
-            } else {
-                store = new Instruction.Store(getReg(ctx.expr()), MemAddr.DirAddr, offset2String(offset(ctx.ID(), false), false));
-            }
+            store = new Instruction.Store(getReg(ctx.expr()), MemAddr.DirAddr, offset2String(offset(ctx.ID(), false), false));
+
             if (hasThreadNo(ctx)) {
                 addInstr(store, -1, getThreadNo(ctx));
             } else {
@@ -384,11 +377,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         } else {
             String reg;
 
-            if (isZero(ctx.expr())) {
-                reg = REG0;
-            } else {
-                reg = getReg(ctx.expr());
-            }
+            reg = getReg(ctx.expr());
 
             if (result.isGlobalVar(ctx.ID())) {
                 store = new Instruction.WriteInst(reg, MemAddr.DirAddr, offset2String(offset(ctx.ID(), true), true));
@@ -426,9 +415,11 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         boolean global = result.isGlobalVar(ctx.ID());
 
         if (global) {
-            store = new Instruction.WriteInst(getReg(ctx.expr()), MemAddr.DirAddr, "(" + offset2String(offset(ctx.ID(), true), true) + " + " + ctx.NUM().getText() + ")");
+            store = new Instruction.WriteInst(getReg(ctx.expr()), MemAddr.DirAddr, "(" + offset2String(offset(ctx.ID(),
+                    true), true) + " + " + ctx.NUM().getText() + ")");
         } else {
-            store = new Instruction.Store(getReg(ctx.expr()), MemAddr.DirAddr, "(" + offset2String(offset(ctx.ID(), false), false) + " + " + ctx.NUM().getText() + ")");
+            store = new Instruction.Store(getReg(ctx.expr()), MemAddr.DirAddr, "(" + offset2String(offset(ctx.ID(),
+                    false), false) + " + " + ctx.NUM().getText() + ")");
         }
 
         if (hasThreadNo(ctx)) {
@@ -1121,7 +1112,8 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
     @Override
     public String visitGetArrayExpr(GuavaParser.GetArrayExprContext ctx) {
         int lines = 0;
-        Instruction load = new Instruction.Load(MemAddr.DirAddr, "(" + offset2String(offset(ctx.ID(), false), false) + " + " + ctx.NUM().getText() + ")", getReg(ctx));
+        Instruction load = new Instruction.Load(MemAddr.DirAddr, "(" + offset2String(offset(ctx.ID(), false),
+                false) + " + " + ctx.NUM().getText() + ")", getReg(ctx));
         lines++;
 
         if (hasThreadNo(ctx)) {
