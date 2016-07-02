@@ -1,9 +1,11 @@
 epicarp {
-    universal int[5] test2 = [1,2,3];
-    universal char[3] test1 = ['a', 'b'];
-
-    test2[3] = 4;
-    test2[4] = 5;
-
-    test1[2] = 'c';
+    universal int i = 0;
+    branch {
+        lock (i) {
+            i = i + 2;
+        }
+        lock (i) {
+            i = i + 5;
+        }
+    }
 }

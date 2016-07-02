@@ -1,19 +1,33 @@
 epicarp {
     universal int saldo = 0;
     universal int x = 2;
+    universal char[4] name = ['b', 'a', 'n', 'k'];
     branch {
         lock(saldo) {
-            saldo = saldo + 20;
+            if (saldo ~= (-1)) {
+                saldo = saldo + 20;
+            }
+        }
+        for (int i = 5; i >= 0; i--) {
+            lock(saldo) {
+                saldo = saldo + i;
+            }
         }
     }
+>> No lock needed, because this is sequential
     saldo = saldo + 10;
+
     branch {
-        int s = 2;
+        lock(x) {
+            x = x + 58;
+        }
         lock(saldo) {
-            int k = 69;
             for (int i = 0; i < 8; i++) {
                 saldo = saldo - 10;
             }
+        }
+        lock(x) {
+            x = x + 40;
         }
     }
 }

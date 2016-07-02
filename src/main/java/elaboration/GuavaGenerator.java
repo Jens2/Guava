@@ -4,6 +4,7 @@ import grammar.GuavaBaseVisitor;
 import grammar.GuavaParser;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
+import org.antlr.v4.runtime.tree.TerminalNode;
 import org.junit.Assert;
 import spril.Instruction;
 import spril.MemAddr;
@@ -71,6 +72,11 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
     private boolean nested;
 
     /**
+     * A list of registers that should be free after leaving a for-loop.
+     */
+    private List<String> forRegisters;
+
+    /**
      * Boolean is set to false if the first branch has passed.
      */
     private boolean firstBranch;
@@ -92,6 +98,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         this.nestedVars = new HashMap<>();
         this.loadedVariables = new HashMap<>();
         this.concurrentInstructions = new ArrayList<>();
+        this.forRegisters = new ArrayList<>();
         this.arrayValues = new ParseTreeProperty<>();
         this.concurrentList = new ParseTreeProperty<>();
         this.nested = false;
@@ -113,11 +120,11 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         return this.concurrentInstructions;
     }
 
-    private void initConcList(ParseTree ctx) {
+    private void initConcList(ParseTree ctx, boolean lastBranch) {
         List<String> one;
         List<String> two;
         List<String> three;
-        if (firstBranch) {
+        if (firstBranch && !lastBranch) {
             one = new ArrayList<>();
             two = new ArrayList<>();
             three = new ArrayList<>();
@@ -132,7 +139,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
             Instruction eq = new Instruction.Compute(Op.Equal, REG0, getReg(ctx), getReg(ctx));
             Instruction branch = new Instruction.Branch(getReg(ctx), Target.Rel, "2");
             Instruction jump = new Instruction.Jump(Target.Rel, "(-5)");
-            
+
             one.add(write.toString());
             one.add(readW.toString());
             one.add(rec.toString());
@@ -159,32 +166,34 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
             three.add(branch.toString());
             three.add(jump.toString());
         }
-        Instruction read = new Instruction.ReadInstr(MemAddr.DirAddr, "0");
-        Instruction receive = new Instruction.Receive(getReg(ctx));
-        Instruction branch = new Instruction.Branch(getReg(ctx), Target.Rel, "2");
-        Instruction jump = new Instruction.Jump(Target.Rel, "(-3)");
+        if (!lastBranch) {
+            Instruction read = new Instruction.ReadInstr(MemAddr.DirAddr, "0");
+            Instruction receive = new Instruction.Receive(getReg(ctx));
+            Instruction branch = new Instruction.Branch(getReg(ctx), Target.Rel, "2");
+            Instruction jump = new Instruction.Jump(Target.Rel, "(-3)");
 
-        one.add(read.toString());
-        one.add(receive.toString());
-        one.add(branch.toString());
-        one.add(jump.toString());
+            one.add(read.toString());
+            one.add(receive.toString());
+            one.add(branch.toString());
+            one.add(jump.toString());
 
-        read = new Instruction.ReadInstr(MemAddr.DirAddr, "1");
-        two.add(read.toString());
-        two.add(receive.toString());
-        two.add(branch.toString());
-        two.add(jump.toString());
+            read = new Instruction.ReadInstr(MemAddr.DirAddr, "1");
+            two.add(read.toString());
+            two.add(receive.toString());
+            two.add(branch.toString());
+            two.add(jump.toString());
 
-        read = new Instruction.ReadInstr(MemAddr.DirAddr, "2");
-        three.add(read.toString());
-        three.add(receive.toString());
-        three.add(branch.toString());
-        three.add(jump.toString());
-        if (firstBranch) {
-            this.concurrentInstructions.add(one);
-            this.concurrentInstructions.add(two);
-            this.concurrentInstructions.add(three);
-            firstBranch = false;
+            read = new Instruction.ReadInstr(MemAddr.DirAddr, "2");
+            three.add(read.toString());
+            three.add(receive.toString());
+            three.add(branch.toString());
+            three.add(jump.toString());
+            if (firstBranch) {
+                this.concurrentInstructions.add(one);
+                this.concurrentInstructions.add(two);
+                this.concurrentInstructions.add(three);
+                firstBranch = false;
+            }
         }
     }
 
@@ -194,22 +203,27 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         visitChildren(ctx);
         // A write instruction is finished after 5 iterations, so we want to make sure that a potential final write is finished.
         if (result.isConc()) {
-            addInstr(new Instruction.TestAndSet(MemAddr.DirAddr, "0"));
+            addInstr(new Instruction.ReadInstr(MemAddr.DirAddr, "0"));
             addInstr(new Instruction.Receive(reg(ctx)));
+            addInstr(new Instruction.Compute(Op.Equal, REG0, reg(ctx), reg(ctx)));
             addInstr(new Instruction.Branch(reg(ctx), Target.Rel, "2"));
             addInstr(new Instruction.Jump(Target.Rel, "(-3)"));
 
-            addInstr(new Instruction.TestAndSet(MemAddr.DirAddr, "1"));
+            addInstr(new Instruction.ReadInstr(MemAddr.DirAddr, "1"));
             addInstr(new Instruction.Receive(reg(ctx)));
+            addInstr(new Instruction.Compute(Op.Equal, REG0, reg(ctx), reg(ctx)));
             addInstr(new Instruction.Branch(reg(ctx), Target.Rel, "2"));
             addInstr(new Instruction.Jump(Target.Rel, "(-3)"));
 
-            addInstr(new Instruction.TestAndSet(MemAddr.DirAddr, "2"));
+            addInstr(new Instruction.ReadInstr(MemAddr.DirAddr, "2"));
             addInstr(new Instruction.Receive(reg(ctx)));
+            addInstr(new Instruction.Compute(Op.Equal, REG0, reg(ctx), reg(ctx)));
             addInstr(new Instruction.Branch(reg(ctx), Target.Rel, "2"));
             addInstr(new Instruction.Jump(Target.Rel, "(-3)"));
 
             for (int i = 0; i < 4; i++) {
+                addInstr(new Instruction.ReadInstr(MemAddr.DirAddr, "0"), -1, i);
+                addInstr(new Instruction.Receive(reg(ctx)), -1, i);
                 addInstr(new Instruction.EndProg(), -1, i);
             }
         } else {
@@ -452,11 +466,11 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         if (ctx.ELSE() == null) {
             int index;
             if (hasThreadNo(ctx)) {
-                index = reserveInstr(getThreadNo(ctx));
                 addInstr(new Instruction.Branch(getReg(ctx.expr()), Target.Rel, "2"), -1, getThreadNo(ctx));
+                index = reserveInstr(getThreadNo(ctx));
             } else {
-                index = reserveInstr();
                 addInstr(new Instruction.Branch(getReg(ctx.expr()), Target.Rel, "2"));
+                index = reserveInstr();
             }
             visit(ctx.stat(0));
             int jump = getCodeLines(ctx.stat(0)) + 1;
@@ -613,7 +627,8 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
             visit(ctx.expr(1));
             lines += getCodeLines(ctx.expr(1));
             add = getCodeLines(ctx.expr(1));
-        } else if (ctx.PLUS() != null) {
+        } else if (isIncr(ctx.PLUS(), ctx.RPAR(), ctx)) {
+
             if (hasThreadNo(ctx)) {
                 addInstr(new Instruction.Compute(Op.Incr, getNestedVarReg(ctx.ID()), REG0, getNestedVarReg(ctx.ID())), -1, getThreadNo(ctx));
             } else {
@@ -621,7 +636,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
             }
             lines++;
             add = 1;
-        } else if (ctx.MINUS() != null) {
+        } else {
             if (hasThreadNo(ctx)) {
                 addInstr(new Instruction.Compute(Op.Decr, getNestedVarReg(ctx.ID()), REG0, getNestedVarReg(ctx.ID())), -1, getThreadNo(ctx));
             } else {
@@ -640,9 +655,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         lines++;
 
         setCodeLines(ctx, lines);
-
         emptyReg(ctx.expr(0));
-
         delNestedVar(ctx.ID());
         return null;
     }
@@ -672,7 +685,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
             addInstr(wakeUp2);
         }
 
-        initConcList(ctx);
+        initConcList(ctx, false);
 
         for (int i = 0; i < statSize; i++) {
             setThreadNo(ctx.stat(i), (i%4));
@@ -726,7 +739,9 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         }
         lines += 15;
         if (!ctx.equals(result.getLastBranch())) {
-            initConcList(ctx);
+            initConcList(ctx, false);
+        } else {
+            initConcList(ctx, true);
         }
 
         emptyReg(ctx);
@@ -807,16 +822,16 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         Instruction load;
         Instruction neg;
         if (result.getType(ctx.expr()) == Type.BOOL) {
-            load = new Instruction.Load(MemAddr.ImmValue, String.valueOf(1), getReg(ctx));
-            neg = new Instruction.Compute(Op.Xor, reg, getReg(ctx), getReg(ctx));
+            load = new Instruction.Load(MemAddr.ImmValue, String.valueOf(1), reg(ctx));
+            neg = new Instruction.Compute(Op.Xor, reg, reg(ctx), reg(ctx));
         } else {
-            load = new Instruction.Load(MemAddr.ImmValue, "(-1)", getReg(ctx));
-            neg = new Instruction.Compute(Op.Mul, reg, getReg(ctx), getReg(ctx));
+            load = new Instruction.Load(MemAddr.ImmValue, "(-1)", reg(ctx));
+            neg = new Instruction.Compute(Op.Mul, reg, reg(ctx), reg(ctx));
         }
 
         if (hasThreadNo(ctx)) {
             addInstr(load, -1, getThreadNo(ctx));
-            addInstr(load, -1, getThreadNo(ctx));
+            addInstr(neg, -1, getThreadNo(ctx));
         } else {
             addInstr(load);
             addInstr(neg);
@@ -1046,6 +1061,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
             setThreadNo(ctx.expr(), getThreadNo(ctx));
         }
         visit(ctx.expr());
+        setReg(ctx, getReg(ctx.expr()));
         setCodeLines(ctx, getCodeLines(ctx.expr()));
         return DIR;
     }
@@ -1337,6 +1353,12 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
     private void emptyReg(String reg) {
         if (!nested) {
             this.emptyRegisters.add(0, reg);
+            for (String r : forRegisters) {
+                this.emptyRegisters.add(0, r);
+            }
+            this.forRegisters = new ArrayList<>();
+        } else {
+            this.forRegisters.add(reg);
         }
     }
 
@@ -1358,6 +1380,10 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         }
 
         return reg;
+    }
+
+    private void setReg(ParseTree node, String reg) {
+        this.registers.put(node, reg);
     }
 
     /**
@@ -1436,6 +1462,33 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
      */
     private boolean isZero(ParseTree node) {
         return node.getText().equals("0");
+    }
+
+    private boolean isIncr(List<TerminalNode> list, ParseTree rpar, ParseTree node) {
+        if (list.size() < 2) {
+            return false;
+        } else {
+            int two = 0;
+            int lastI = -2;
+            boolean checkForRpar = false;
+            for (int i = 0; i < node.getChildCount(); i++) {
+                if (checkForRpar) {
+                    if (node.getChild(i).equals(rpar)) {
+                        return true;
+                    }
+                }
+                if (two == 2) {
+                    break;
+                }
+                if (node.getChild(i).equals(list.get(two))) {
+                    if (lastI + 1 == i) {
+                        checkForRpar = true;
+                    }
+                    two++;
+                }
+            }
+            return false;
+        }
     }
 
     /**
