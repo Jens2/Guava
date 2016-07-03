@@ -12,5 +12,4 @@ epicarp {
         }
     }
 
-    drop("Result: ", result);
 }

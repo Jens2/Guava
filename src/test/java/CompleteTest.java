@@ -8,6 +8,7 @@ public class CompleteTest {
     private LexerTest lt = new LexerTest();
     private CheckerTest ct = new CheckerTest();
     private ParserTest pt = new ParserTest();
+    private GenerateTest gt = new GenerateTest();
 
 
     @Test
@@ -15,5 +16,6 @@ public class CompleteTest {
         lt.test();
         ct.test();
         pt.test();
+        gt.test();
     }
 }

@@ -34,7 +34,7 @@ public class LexerTest {
         result = new int[] {30,46,32,41,28,36,39,38,37,29,40,32};
         test("pulp pulpp sour branch int epicarp for else if char while sweet", 12, result);
         result = new int[] {5,13,16,43,44,46};
-        test("\"~ == universal lock ulock", 6, result);
+        test("\"~ == universal >~ comments ~< lock ulock", 6, result);
     }
 
     private void test(String text, int noOfTokens, int[] result) {

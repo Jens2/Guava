@@ -50,6 +50,12 @@ public class CheckerTest {
     }
 
     @Test
+    public void testArrays() throws GuavaException {
+        checkFail("fail_arraylength");
+        checkFail("fail_arraytype");
+    }
+
+    @Test
     public void testBasicDeclarations() throws GuavaException {
         ParseTree tree = parse("basicdeclarations");
         CheckerResult checkerResult = check(tree);
@@ -141,6 +147,11 @@ public class CheckerTest {
             check(parse(filename));
             fail(filename + " shouldn't check but did");
         } catch (GuavaException e) {
+            for (String s : e.getMessages()) {
+                System.out.println(s);
+            }
+            System.out.println("**********************");
+            System.out.println("Correctly thrown errors");
             // Expected exception was thrown
         }
 

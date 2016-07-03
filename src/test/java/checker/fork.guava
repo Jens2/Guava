@@ -8,5 +8,4 @@ epicarp {
         }
     }
 
-    drop("Result: ", result);
 }

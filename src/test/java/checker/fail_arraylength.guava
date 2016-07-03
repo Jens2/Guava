@@ -1,0 +1,4 @@
+epicarp {
+    >> Length is only 4
+    universal int[4] array = [1,2,3,4,5];
+}
