@@ -1,0 +1,8 @@
+epicarp {
+>> Wrong typing
+    char[2] cs = [1,2];
+
+    if (cs[0]) {
+        >> No boolean
+    }
+}
