@@ -19,21 +19,21 @@ public class LexerTest {
     /** Test the parsing phase of the compiler. */
     @Test
     public void test() {
-        int[] result = {39,31,28,29,32};
+        int[] result = {38,30,27,28,31};
         test("for 5 int char sweet", 5, result);
         // Whitespaces should be skipped
-        result = new int[] {1,2,3,6,7,8,9,10,12,13};
+        result = new int[] {1,2,3,6,7,8,9,10,11,12};
         test(".,;/*+-^=~            \n\n", 10, result);
         // Comments should not produce any tokens
         result = new int[] {};
         test(">> blablablabla\n >~hoihoihoi\n\n\n\n\n~<", 0, result);
         // Testing multiple characters
-        result = new int[] {27,25,26,24,23,18,19,20,21,22,14,16,17,15};
+        result = new int[] {26,24,25,23,22,17,18,19,20,21,13,15,16,14};
         test("])[   (} <=> >=~={ |==<&", 14, result);
         // Testing multiple keywords, note that without whitespaces, they will all be seen as variables
-        result = new int[] {30,46,32,41,28,36,39,38,37,29,40,32};
+        result = new int[] {29,43,31,40,27,35,38,37,36,28,39,31};
         test("pulp pulpp sour branch int epicarp for else if char while sweet", 12, result);
-        result = new int[] {5,13,16,43,44,46};
+        result = new int[] {5,12,15,41,42,43};
         test("\"~ == universal >~ comments ~< lock ulock", 6, result);
     }
 

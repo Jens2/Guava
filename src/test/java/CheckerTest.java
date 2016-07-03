@@ -65,13 +65,11 @@ public class CheckerTest {
         ParseTree character = body.getChild(2);
         ParseTree array     = body.getChild(3);
         ParseTree arrElem   = body.getChild(4);
-        ParseTree modulo    = body.getChild(5);
 
         assertEquals(Type.INT, checkerResult.getType(integer.getChild(1)));
         assertEquals(Type.CHAR, checkerResult.getType(character.getChild(1)));
         assertEquals(new Type.Array(Type.INT), checkerResult.getType(array.getChild(4)));
         assertEquals(Type.INT, checkerResult.getType(arrElem.getChild(1)));
-        assertEquals(Type.INT, checkerResult.getType(modulo.getChild(1)));
     }
 
     @Test

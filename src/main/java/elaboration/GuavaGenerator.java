@@ -100,10 +100,6 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
         Collections.addAll(emptyRegisters, availableRegs);
         tree.accept(this);
-
-        for (String reg : emptyRegisters) {
-            System.out.println(reg);
-        }
     }
 
     /**
@@ -386,9 +382,11 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
             for (int i = 0; i < regs.size(); i++) {
                 if (global) {
-                    store = new Instruction.WriteInst(regs.get(i), MemAddr.DirAddr, "(" + offset2String(offset(ctx.ID(), true), true) + " + " + i + ")");
+                    store = new Instruction.WriteInst(regs.get(i), MemAddr.DirAddr,
+                            "(" + offset2String(offset(ctx.ID(), true), true) + " + " + i + ")");
                 } else {
-                    store = new Instruction.Store(regs.get(i), MemAddr.DirAddr, "(" + offset2String(offset(ctx.ID(), false), false) + " + " + i + ")");
+                    store = new Instruction.Store(regs.get(i), MemAddr.DirAddr,
+                            "(" + offset2String(offset(ctx.ID(), false), false) + " + " + i + ")");
                 }
 
                 if (hasThreadNo(ctx)) {
@@ -636,36 +634,41 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         visit(ctx.stat());
         lines += getCodeLines(ctx.stat());
 
-        int jump = getCodeLines(ctx.stat()) + 3;
+        lines++;
+
+        int jump;
+        int add;
+        if (ctx.expr().size() > 1) {
+            String reg = getReg(ctx.ID());
+            setReg(ctx.expr(1), reg);
+            visit(ctx.expr(1));
+            lines += getCodeLines(ctx.expr(1));
+            add = getCodeLines(ctx.expr(1));
+            jump = getCodeLines(ctx.stat()) + 2 + getCodeLines(ctx.expr(1));
+        } else if (isIncr(ctx.PLUS(), ctx.RPAR(), ctx)) {
+            if (hasThreadNo(ctx)) {
+                addInstr(new Instruction.Compute(Op.Incr, getReg(ctx.ID()), REG0, getReg(ctx.ID())), -1, getThreadNo(ctx));
+            } else {
+                addInstr(new Instruction.Compute(Op.Incr, getReg(ctx.ID()), REG0, getReg(ctx.ID())));
+            }
+            lines++;
+            add = 1;
+            jump = getCodeLines(ctx.stat()) + 3;
+        } else {
+            if (hasThreadNo(ctx)) {
+                addInstr(new Instruction.Compute(Op.Decr, getReg(ctx.ID()), REG0, getReg(ctx.ID())), -1, getThreadNo(ctx));
+            } else {
+                addInstr(new Instruction.Compute(Op.Decr, getReg(ctx.ID()), REG0, getReg(ctx.ID())));
+            }
+            lines++;
+            add = 1;
+            jump = getCodeLines(ctx.stat()) + 3;
+        }
+
         if (hasThreadNo(ctx)) {
             addInstr(new Instruction.Jump(Target.Rel, "" + jump), index, getThreadNo(ctx));
         } else {
             addInstr(new Instruction.Jump(Target.Rel, "" + jump), index);
-        }
-
-        lines++;
-
-        int add;
-        if (ctx.expr().size() > 1) {
-            visit(ctx.expr(1));
-            lines += getCodeLines(ctx.expr(1));
-            add = getCodeLines(ctx.expr(1));
-        } else if (isIncr(ctx.PLUS(), ctx.RPAR(), ctx)) {
-            if (hasThreadNo(ctx)) {
-                addInstr(new Instruction.Compute(Op.Incr, getNestedVarReg(ctx.ID()), REG0, getNestedVarReg(ctx.ID())), -1, getThreadNo(ctx));
-            } else {
-                addInstr(new Instruction.Compute(Op.Incr, getNestedVarReg(ctx.ID()), REG0, getNestedVarReg(ctx.ID())));
-            }
-            lines++;
-            add = 1;
-        } else {
-            if (hasThreadNo(ctx)) {
-                addInstr(new Instruction.Compute(Op.Decr, getNestedVarReg(ctx.ID()), REG0, getNestedVarReg(ctx.ID())), -1, getThreadNo(ctx));
-            } else {
-                addInstr(new Instruction.Compute(Op.Decr, getNestedVarReg(ctx.ID()), REG0, getNestedVarReg(ctx.ID())));
-            }
-            lines++;
-            add = 1;
         }
 
         jump = getCodeLines(ctx.stat()) + 3 + add;
@@ -882,16 +885,18 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         if (isZero(ctx.expr(0))) {
             reg1 = REG0;
             emptyReg(ctx.expr(0));
-        } else {
-            lines += getCodeLines(ctx.expr(0));
         }
+
+        lines += getCodeLines(ctx.expr(0));
+
 
         if (isZero(ctx.expr(1))) {
             reg2 = REG0;
             emptyReg(ctx.expr(1));
-        } else {
-            lines += getCodeLines(ctx.expr(1));
         }
+
+        lines += getCodeLines(ctx.expr(1));
+
 
         Instruction mult = null;
 
@@ -936,16 +941,17 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         if (isZero(ctx.expr(0))) {
             reg1 = REG0;
             emptyReg(ctx.expr(0));
-        } else {
-            lines += getCodeLines(ctx.expr(0));
         }
+
+        lines += getCodeLines(ctx.expr(0));
+
 
         if (isZero(ctx.expr(1))) {
             reg2 = REG0;
             emptyReg(ctx.expr(1));
-        } else {
-            lines += getCodeLines(ctx.expr(1));
         }
+
+        lines += getCodeLines(ctx.expr(1));
 
         Instruction plus = null;
 
@@ -986,16 +992,17 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         if (isZero(ctx.expr(0))) {
             reg1 = REG0;
             emptyReg(ctx.expr(0));
-        } else {
-            lines += getCodeLines(ctx.expr(0));
         }
+
+        lines += getCodeLines(ctx.expr(0));
+
 
         if (isZero(ctx.expr(1))) {
             reg2 = REG0;
             emptyReg(ctx.expr(1));
-        } else {
-            lines += getCodeLines(ctx.expr(1));
         }
+
+        lines += getCodeLines(ctx.expr(1));
 
         Instruction bool = null;
 
@@ -1034,16 +1041,17 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         if (isZero(ctx.expr(0))) {
             reg1 = REG0;
             emptyReg(ctx.expr(0));
-        } else {
-            lines += getCodeLines(ctx.expr(0));
         }
+
+        lines += getCodeLines(ctx.expr(0));
+
 
         if (isZero(ctx.expr(1))) {
             reg2 = REG0;
             emptyReg(ctx.expr(1));
-        } else {
-            lines += getCodeLines(ctx.expr(1));
         }
+
+        lines += getCodeLines(ctx.expr(1));
 
         Instruction compute = null;
 
@@ -1226,6 +1234,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
     @Override
     public String visitForExisting(GuavaParser.ForExistingContext ctx) {
+        addNestedVar(ctx.ID(), getReg(ctx.ID()));
         setCodeLines(ctx, 0);
         return null;
     }

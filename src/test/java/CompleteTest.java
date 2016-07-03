@@ -10,6 +10,11 @@ public class CompleteTest {
     private ParserTest pt = new ParserTest();
     private GenerateTest gt = new GenerateTest();
 
+    public static void main(String[] args) {
+        CompleteTest test = new CompleteTest();
+        test.test();
+    }
+
 
     @Test
     public void test() {

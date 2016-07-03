@@ -29,6 +29,10 @@ public class Guava {
         Guava guava = new Guava();
         ParseTree tree = guava.parse(args[0]);
 
+        if (tree == null) {
+            return;
+        }
+
         System.out.println(">> Typechecking " + args[0]);
         CheckerResult result = guava.check(tree);
         if (result == null) {
@@ -44,18 +48,19 @@ public class Guava {
             } else {
                 guava.writeToFile(instructions, args[0], result.getVarMap(), result.getGlobalVarMap(), 1);
             }
-            System.out.println(">> Output is written to " + args[0] + ".hs");
+            System.out.println(">> Output is written to haskell/" + args[0] + ".hs");
         }
     }
 
     public ParseTree parse(String filename) {
         File file = new File(filename + ".guava");
-        CharStream chars = null;
+        CharStream chars;
 
         try {
             chars = new ANTLRInputStream(new FileReader(file));
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("File " + filename + ".guava could not be found");
+            return null;
         }
 
         Lexer lexer = new GuavaLexer(chars);
@@ -90,7 +95,7 @@ public class Guava {
         PrintWriter writer = null;
 
         try {
-            writer = new PrintWriter("src//" + filename + ".hs");
+            writer = new PrintWriter("haskell/" + filename + ".hs");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
