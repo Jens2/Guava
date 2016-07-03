@@ -38,18 +38,18 @@ program = [ LoadConst 28 regA
           , Jump (Rel 11)
           , Load (DirAddr curr) regE
           , Store regE (DirAddr copy)
-          , Load (DirAddr curr) regF
-          , Load (DirAddr prev) regG
-          , Compute Add regF regG regH
-          , Store regH (DirAddr curr)
-          , Load (DirAddr copy) regI
-          , Store regI (DirAddr prev)
+          , Load (DirAddr curr) regE
+          , Load (DirAddr prev) regF
+          , Compute Add regE regF regG
+          , Store regG (DirAddr curr)
+          , Load (DirAddr copy) regG
+          , Store regG (DirAddr prev)
           , Compute Incr regA reg0 regA
           , Jump (Rel (-12))
-          , Load (DirAddr curr) regI
-          , Store regI (DirAddr result)
+          , Load (DirAddr curr) regD
+          , Store regD (DirAddr result)
           , ReadInstr (DirAddr 0)
-          , Receive regI
+          , Receive regD
           , EndProg ]
 
 testProgram = sysTest [program]
