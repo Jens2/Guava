@@ -608,7 +608,6 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
         nested = true;
         visit(ctx.expr(0));
-        nested = false;
 
         lines += getCodeLines(ctx.expr(0));
 
@@ -666,6 +665,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         lines++;
 
         setCodeLines(ctx, lines);
+        nested = false;
         emptyReg(ctx.expr(0));
         delNestedVar(ctx.ID());
         return null;
