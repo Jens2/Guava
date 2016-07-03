@@ -13,7 +13,6 @@ MULT    : '*'   ;
 PLUS    : '+'   ;
 MINUS   : '-'   ;
 POWER   : '^'   ;
-MOD     : 'mod' ;
 
 // Assign operation
 ASSIGN  : '=' ;
