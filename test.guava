@@ -1,11 +1,4 @@
 epicarp {
-    universal int i = 0;
-    branch {
-        lock (i) {
-            i = i + 2;
-        }
-        lock (i) {
-            i = i + 5;
-        }
-    }
+    char a = 'a';
+    pulp b = a > 'b';
 }

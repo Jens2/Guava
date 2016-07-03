@@ -372,8 +372,9 @@ public class GuavaChecker extends GuavaBaseListener {
     public void exitCompExpr(GuavaParser.CompExprContext ctx) {
         Type type;
 
-        if (!(isNumerical(ctx.expr(0)) && isNumerical(ctx.expr(1)))) {
-            addError(ctx, "'%s' and '%s' have to be numerical", ctx.expr(0).getText(), ctx.expr(1).getText());
+        if (!(isNumerical(ctx.expr(0)) && isNumerical(ctx.expr(1)))
+                && !(getType(ctx.expr(0)) == Type.CHAR && getType(ctx.expr(1)) == Type.CHAR)) {
+            addError(ctx, "'%s' and '%s' have to be numerical or characters", ctx.expr(0).getText(), ctx.expr(1).getText());
             type = Type.ERROR;
         } else {
             type = Type.BOOL;
