@@ -5,10 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by Dion on 21-6-2016.
- *
- */
 public class GuavaVariableTable implements SymbolTable {
     private List<Map<String, Type>> table;
     private List<List<String>> assigned;

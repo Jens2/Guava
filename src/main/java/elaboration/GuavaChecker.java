@@ -10,10 +10,6 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 import java.util.*;
 
-/**
- * Created by Dion on 15-6-2016.
- *
- */
 public class GuavaChecker extends GuavaBaseListener {
 
     private CheckerResult checkerResult;

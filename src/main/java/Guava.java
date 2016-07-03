@@ -8,10 +8,6 @@ import java.io.*;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by Dion on 21-6-2016.
- *
- */
 public class Guava {
 
     private GuavaChecker checker;
@@ -94,7 +90,7 @@ public class Guava {
         PrintWriter writer = null;
 
         try {
-            writer = new PrintWriter("src/haskell/" + filename + ".hs");
+            writer = new PrintWriter("src//" + filename + ".hs");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }

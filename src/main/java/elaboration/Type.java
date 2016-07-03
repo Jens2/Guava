@@ -54,22 +54,14 @@ abstract public class Type {
     }
 
     static public class Array extends Type {
-        private final List<GuavaParser.ExprContext> elements;
         private final Type elemType;
-
-        public Array(Type elemType, List<GuavaParser.ExprContext> elements) {
-            super(PrimitiveTypes.ARRAY);
-            this.elements = elements;
-            this.elemType = elemType;
-        }
 
         public Array(Type elemType) {
             super(PrimitiveTypes.ARRAY);
             this.elemType = elemType;
-            this.elements = null;
         }
 
-        public Type getElemType() {
+        Type getElemType() {
             return this.elemType;
         }
 
