@@ -2,10 +2,24 @@ epicarp {
     universal int saldo = 0;
     universal int x = 2;
     universal char[4] name = ['b', 'a', 'n', 'k'];
+    universal int turn;
+    universal pulp[2] flag = [sour, sour];
     branch {
+        {flag[0] = sweet;
+        turn = 1;
+        while (flag[1] & (turn == 1)) {}
+        saldo = saldo + 13;
+        flag[0] = sour;}
+        {flag[1] = sweet;
+        turn = 0;
+        while (flag[0] & (turn == 0)) {}
+        saldo = saldo + 17;
+        flag[1] = sour;}
         lock(saldo) {
             if (saldo ~= (-1)) {
-                saldo = saldo + 20;
+                int k = 20;
+                k = k * 3;
+                saldo = saldo + k - 40;
             }
         }
         for (int i = 5; i >= 0; i--) {
@@ -16,7 +30,6 @@ epicarp {
     }
 >> No lock needed, because this is sequential
     saldo = saldo + 10;
-
     branch {
         lock(x) {
             x = x + 58;
@@ -29,5 +42,17 @@ epicarp {
         lock(x) {
             x = x + 40;
         }
+        lock(name) {
+            name[0] = 'A';
+            name[1] = 'A';
+            name[2] = 'A';
+            name[3] = 'A';
+
+        }
     }
+>~
+    The value of saldo should be -5
+    The value of x should be 100
+    The value of name should be 4 times 65
+~<
 }

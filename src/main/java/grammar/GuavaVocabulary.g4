@@ -56,10 +56,8 @@ ELSE    : 'else'      ;
 FOR     : 'for'       ;
 WHILE   : 'while'     ;
 BRANCH  : 'branch'    ;
-OUT     : 'drop'      ;
 GLOBAL  : 'universal' ;
 LOCK    : 'lock'      ;
-UNLOCK  : 'unlock'    ;
 
 // Fragments
 fragment LETTER  : [a-zA-Z] ;

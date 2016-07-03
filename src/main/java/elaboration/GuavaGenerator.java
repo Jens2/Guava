@@ -480,7 +480,11 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
             visit(ctx.stat(0));
             int jump = getCodeLines(ctx.stat(0)) + 1;
             lines += jump;
-            addInstr(new Instruction.Jump(Target.Rel, "" + jump), index);
+            if (hasThreadNo(ctx)) {
+                addInstr(new Instruction.Jump(Target.Rel, "" + jump), index, getThreadNo(ctx));
+            } else {
+                addInstr(new Instruction.Jump(Target.Rel, "" + jump), index);
+            }
             lines += 2;
         } else {
             if (hasThreadNo(ctx)) {
