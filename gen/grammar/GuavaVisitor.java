@@ -121,13 +121,6 @@ public interface GuavaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitArrayExpr(GuavaParser.ArrayExprContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code modExpr}
-	 * labeled alternative in {@link GuavaParser#expr}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitModExpr(GuavaParser.ModExprContext ctx);
-	/**
 	 * Visit a parse tree produced by the {@code compExpr}
 	 * labeled alternative in {@link GuavaParser#expr}.
 	 * @param ctx the parse tree

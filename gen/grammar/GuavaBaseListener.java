@@ -208,18 +208,6 @@ public class GuavaBaseListener implements GuavaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterModExpr(GuavaParser.ModExprContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitModExpr(GuavaParser.ModExprContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterCompExpr(GuavaParser.CompExprContext ctx) { }
 	/**
 	 * {@inheritDoc}

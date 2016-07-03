@@ -196,18 +196,6 @@ public interface GuavaListener extends ParseTreeListener {
 	 */
 	void exitArrayExpr(GuavaParser.ArrayExprContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code modExpr}
-	 * labeled alternative in {@link GuavaParser#expr}.
-	 * @param ctx the parse tree
-	 */
-	void enterModExpr(GuavaParser.ModExprContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code modExpr}
-	 * labeled alternative in {@link GuavaParser#expr}.
-	 * @param ctx the parse tree
-	 */
-	void exitModExpr(GuavaParser.ModExprContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code compExpr}
 	 * labeled alternative in {@link GuavaParser#expr}.
 	 * @param ctx the parse tree
