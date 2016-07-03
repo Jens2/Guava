@@ -40,7 +40,7 @@ sprockell instrs sprState reply = (sprState', request)
 
         address      = agu aguCode (addrImm,x,sp)
 
-        loadValue    = load ldCode (immValue, aluOutput, localMem!address, pc, reply)
+        loadValue    = load ldCode (immValue, aluOutput, localMem!address, pc, reply, x)
         regbank'     = regbank <~! (loadReg, loadValue)
 
         localMem'    = store localMem stCode (address,y)
@@ -129,7 +129,7 @@ decode instr = case instr of
   
 {- Below are custom Sprockell instructions, added by ourselves -}
   LoadConst val toReg         -> nullcode {ldCode=LdImm, immValue=val, loadReg=toReg}
-  RegCopy fromReg toReg       -> nullcode {ldCode=LdAlu, aluCode=Add, regX=fromReg, regY=0, loadReg=toReg}
+  RegCopy fromReg toReg       -> nullcode {ldCode=LdReg, regX=fromReg, loadReg=toReg}
 
 {- ===============================================================
 Meaning registers regX and regY (containing x and y, respectively)
@@ -206,12 +206,13 @@ agu aguCode (addrImm,x,sp) = case aguCode of
 -- =====================================================================================
 -- load: calculates the value that has to be put in a register
 -- =====================================================================================
-load :: LdCode -> (Value, Value, Value, Value, Reply) -> Value
-load ldCode (immval,aluOutput,memval,pc,reply) = case (ldCode, reply) of
+load :: LdCode -> (Value, Value, Value, Value, Reply, Value) -> Value
+load ldCode (immval,aluOutput,memval,pc,reply,regval) = case (ldCode, reply) of
         (LdImm, Nothing) -> immval
         (LdAlu, Nothing) -> aluOutput
         (LdMem, Nothing) -> memval
         (LdPC , Nothing) -> pc
+        (LdReg, Nothing) -> regval
 
         (LdInp, Just rx) -> rx
         (LdInp, Nothing) -> 0
