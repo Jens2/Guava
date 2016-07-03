@@ -289,6 +289,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         }
 
         setCodeLines(ctx, lines + 1);
+        releaseLoadedVariables();
         return null;
     }
 
@@ -316,6 +317,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         }
 
         setCodeLines(ctx, lines + 1);
+        releaseLoadedVariables();
         return null;
     }
 
@@ -351,6 +353,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
         }
 
         setCodeLines(ctx, lines);
+        releaseLoadedVariables();
         return null;
     }
 
@@ -631,7 +634,7 @@ public class GuavaGenerator extends GuavaBaseVisitor<String> {
 
         lines++;
 
-        int add = 0;
+        int add;
         if (ctx.expr().size() > 1) {
             visit(ctx.expr(1));
             lines += getCodeLines(ctx.expr(1));

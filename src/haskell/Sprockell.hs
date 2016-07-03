@@ -191,7 +191,8 @@ alu op x y = case op of
         -- Mod    -> x `mod` y                          -- Ibid
         
         {- Below are custom Sprockell instructions, added by ourselves -}
-        Pow    -> x ^ y
+        Pow    -> x ^ y                                 -- Raises x to the power y
+        Div    -> x `quot` y                            -- Integer division
 
 -- =====================================================================================
 -- agu (Address Generation Unit): calculates the address for local memory
